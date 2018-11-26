@@ -1,6 +1,6 @@
 import util from '@/util'
 import { createSchema, createState } from '@/schema'
-import { getInterpolatedState } from '@/transition'
+import { interpolateBetweenFrames, getTimeFraction, getInterpolatedState } from '@/transition'
 import { timeParser } from '@/parsers/time'
 import { transitionParser } from '@/parsers/transition'
 const DEFAULT_FRAME_META = { time: 0 }
@@ -13,7 +13,8 @@ const META_PARSERS = {
 const DEFAULT_OPTIONS = {
   playbackRate: 1
   , defaultTransitionDuration: 1000
-  , meddleTimeout: 500
+  , meddleTimeout: 2000
+  , meddleDuration: 500
 }
 
 // sorted add by time index
@@ -51,6 +52,7 @@ export default class {
 
     this._schema = createSchema( schema )
     this._state = {}
+    this._meddle = { state: {} }
 
     this._defaultFrame = {
       state: createState( this._schema )
@@ -109,8 +111,25 @@ export default class {
     return this
   }
 
-  meddle( meddleTimeout ){
-    // toggle user meddling
+  // toggle user meddling
+  meddle( meddleState, { duration, timeout, force } = {} ){
+    duration = duration || this.options.meddleDuration
+    timeout = timeout || this.options.meddleTimeout
+
+    this._meddle.state = { ...this._meddle.state, ...meddleState }
+    this._meddle.active = true
+    this._meddle.isFinite = true
+    this._meddle.endState = null
+    this._meddle.duration = duration
+
+    if ( force === true ){
+      // perpetual
+      this._meddle.isFinite = false
+    } else if ( force === false ){
+      this._meddle.time = util.now() + duration
+    } else {
+      this._meddle.time = util.now() + duration + timeout
+    }
   }
 
   getFrame( id ){
@@ -134,8 +153,31 @@ export default class {
 
     let bounds = this.getBoundingFrames()
 
-    this._state = getInterpolatedState( this._schema, bounds.prev, bounds.next, this.time )
+    let state = interpolateBetweenFrames( this._schema, bounds.prev, bounds.next, this.time )
 
+    // check meddling
+    if ( this._meddle.active ){
+      if ( this._meddle.time !== undefined && this.time > this._meddle.time ){
+        // meddling is over
+        this._meddle = { state: {} }
+      }
+
+      if ( this._meddle.isFinite && this.time > (this._meddle.time - this._meddle.duration) ){
+
+        if ( !this._meddle.endState ){
+          this._meddle.endState = interpolateBetweenFrames( this._schema, bounds.prev, bounds.next, this._meddle.time )
+        }
+
+        let timeFraction = getTimeFraction( this._meddle.time, this._meddle.duration, this.time )
+        let meddleTransitionState = getInterpolatedState( this._schema, this._meddle.state, this._meddle.endState, timeFraction )
+        Object.assign( state, meddleTransitionState )
+      } else {
+        Object.assign( state, this._meddle.state )
+      }
+    }
+
+    // set state
+    this._state = state
     return this
   }
 

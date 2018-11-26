@@ -27,7 +27,6 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
   }
 }
 
-
 // clamp
 util.clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)

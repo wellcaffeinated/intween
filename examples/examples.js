@@ -19,7 +19,7 @@ function demo1(){
   }, {
     id: 'spin'
     , time: '8s'
-    // , duration: 6000
+    , duration: 6000
   })
 
   frames.add({
@@ -27,7 +27,7 @@ function demo1(){
   }, {
     id: 'up'
     , time: '10s'
-    , duration: 1000
+    , duration: '2s'
   })
 
   // user interaction
@@ -42,9 +42,10 @@ function demo1(){
       offsetY = state.y
     })
     .on('pan', function(e) {
-      var state = frames.state
+      var state = {}
       state.x = offsetX + e.deltaX
       state.y = offsetY + e.deltaY
+      frames.meddle( state )
     })
 
   function anim( time ){

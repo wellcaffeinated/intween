@@ -962,7 +962,8 @@ var META_PARSERS = {
 var DEFAULT_OPTIONS = {
   playbackRate: 1,
   defaultTransitionDuration: 1000,
-  meddleTimeout: 500 // sorted add by time index
+  meddleTimeout: 2000,
+  meddleDuration: 500 // sorted add by time index
 
 };
 
@@ -1007,6 +1008,9 @@ function () {
     this.frames = [];
     this._schema = (0, _schema.createSchema)(schema);
     this._state = {};
+    this._meddle = {
+      state: {}
+    };
     this._defaultFrame = {
       state: (0, _schema.createState)(this._schema),
       meta: parseMeta({})
@@ -1064,10 +1068,34 @@ function () {
 
       addByTime(this.frames, frame);
       return this;
-    }
+    } // toggle user meddling
+
   }, {
     key: "meddle",
-    value: function meddle(meddleTimeout) {// toggle user meddling
+    value: function meddle(meddleState) {
+      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          duration = _ref.duration,
+          timeout = _ref.timeout,
+          force = _ref.force;
+
+      duration = duration || this.options.meddleDuration;
+      timeout = timeout || this.options.meddleTimeout;
+      this._meddle.state = { ...this._meddle.state,
+        ...meddleState
+      };
+      this._meddle.active = true;
+      this._meddle.isFinite = true;
+      this._meddle.endState = null;
+      this._meddle.duration = duration;
+
+      if (force === true) {
+        // perpetual
+        this._meddle.isFinite = false;
+      } else if (force === false) {
+        this._meddle.time = _util.default.now() + duration;
+      } else {
+        this._meddle.time = _util.default.now() + duration + timeout;
+      }
     }
   }, {
     key: "getFrame",
@@ -1090,7 +1118,31 @@ function () {
 
       this.time = timeOrId;
       var bounds = this.getBoundingFrames();
-      this._state = (0, _transition.getInterpolatedState)(this._schema, bounds.prev, bounds.next, this.time);
+      var state = (0, _transition.interpolateBetweenFrames)(this._schema, bounds.prev, bounds.next, this.time); // check meddling
+
+      if (this._meddle.active) {
+        if (this._meddle.time !== undefined && this.time > this._meddle.time) {
+          // meddling is over
+          this._meddle = {
+            state: {}
+          };
+        }
+
+        if (this._meddle.isFinite && this.time > this._meddle.time - this._meddle.duration) {
+          if (!this._meddle.endState) {
+            this._meddle.endState = (0, _transition.interpolateBetweenFrames)(this._schema, bounds.prev, bounds.next, this._meddle.time);
+          }
+
+          var timeFraction = (0, _transition.getTimeFraction)(this._meddle.time, this._meddle.duration, this.time);
+          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, this._meddle.state, this._meddle.endState, timeFraction);
+          Object.assign(state, meddleTransitionState);
+        } else {
+          Object.assign(state, this._meddle.state);
+        }
+      } // set state
+
+
+      this._state = state;
       return this;
     }
   }, {
@@ -1442,6 +1494,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.interpolateProperty = interpolateProperty;
 exports.getInterpolatedState = getInterpolatedState;
+exports.getTimeFraction = getTimeFraction;
+exports.interpolateBetweenFrames = interpolateBetweenFrames;
 
 var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
 
@@ -1451,7 +1505,34 @@ function interpolateProperty(fn, from, to, progress) {
   return fn(from, to, progress);
 }
 
-function getInterpolatedState(schema, prevFrame, nextFrame, time) {
+function getInterpolatedState(schema, startState, endState, timeFraction) {
+  var nextState = { ...startState
+  };
+
+  for (var prop in endState) {
+    var def = schema[prop];
+    var val = void 0;
+
+    if (!def) {
+      // not specified in schema. just set
+      val = endState[prop];
+    } else {
+      var progress = def.easing(timeFraction);
+      val = interpolateProperty(def.interpolator, nextState[prop], endState[prop], progress);
+    }
+
+    nextState[prop] = val;
+  }
+
+  return nextState;
+}
+
+function getTimeFraction(endTime, duration, time) {
+  var startTime = endTime - duration;
+  return _util.default.clamp(0, 1, (time - startTime) / duration);
+}
+
+function interpolateBetweenFrames(schema, prevFrame, nextFrame, time) {
   // if we're at the beginning
   if (!prevFrame) {
     return { ...nextFrame.state
@@ -1464,30 +1545,8 @@ function getInterpolatedState(schema, prevFrame, nextFrame, time) {
     };
   }
 
-  var duration = nextFrame.meta.duration;
-  var nextState = { ...prevFrame.state
-  };
-
-  for (var prop in nextFrame.state) {
-    var def = schema[prop];
-    var val = void 0;
-
-    if (!def) {
-      // not specified in schema. just set
-      val = nextFrame.state[prop];
-    } else {
-      var startTime = nextFrame.meta.time - duration;
-
-      var timeFraction = _util.default.clamp(0, 1, (time - startTime) / duration);
-
-      var progress = def.easing(timeFraction);
-      val = interpolateProperty(def.interpolator, nextState[prop], nextFrame.state[prop], progress);
-    }
-
-    nextState[prop] = val;
-  }
-
-  return nextState;
+  var timeFraction = getTimeFraction(nextFrame.meta.time, nextFrame.meta.duration, time);
+  return getInterpolatedState(schema, prevFrame.state, nextFrame.state, timeFraction);
 }
 
 /***/ }),
