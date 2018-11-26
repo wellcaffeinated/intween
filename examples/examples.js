@@ -33,6 +33,7 @@ function demo1(){
 
   function anim( time ){
     window.requestAnimationFrame(anim)
+    frames.step()
     var state = frames.state
     rotate(state.x, state.y)
   }

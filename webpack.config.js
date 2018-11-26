@@ -49,7 +49,10 @@ const config = {
   },
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js']
+    extensions: ['.json', '.js'],
+    alias: {
+      '@': path.join(__dirname, 'src')
+    }
   }
 };
 
