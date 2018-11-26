@@ -6,7 +6,7 @@
 const frames = Keyframes({
   x: Number
   , y: Number
-  , pos: { 
+  , pos: {
     type: [ Number, Number ]
     , interpolator: Keyframes.Interpolators.Circular
   }
@@ -55,7 +55,7 @@ frames.prevFrame() // state look back
 
 frames.step( timestep ) // if using like video
 frames.next() // if using like slideshow
-frames.prev() 
+frames.prev()
 
 frames.export() // DEVELOPMENT tool. console.copy the current state for easier authoring
 ```

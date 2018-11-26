@@ -11,7 +11,23 @@ function demo1(){
     x: 0
     , y: 0
   }, {
-    transition: '1s'
+    defaultTransitionDuration: '3s'
+  })
+
+  frames.add({
+    x: 360
+  }, {
+    id: 'spin'
+    , time: '8s'
+    // , duration: 6000
+  })
+
+  frames.add({
+    y: 180
+  }, {
+    id: 'up'
+    , time: '10s'
+    , duration: 1000
   })
 
   // user interaction

@@ -1,13 +1,19 @@
+import util from '@/util'
+import { createSchema, createState } from '@/schema'
+import { getInterpolatedState } from '@/transition'
 import { timeParser } from '@/parsers/time'
 import { transitionParser } from '@/parsers/transition'
 const DEFAULT_FRAME_META = { time: 0 }
 const META_PARSERS = {
   time: timeParser
   , transition: transitionParser
+  , duration: timeParser
 }
 
 const DEFAULT_OPTIONS = {
-  sleepTime: 500
+  playbackRate: 1
+  , defaultTransitionDuration: 1000
+  , meddleTimeout: 500
 }
 
 // sorted add by time index
@@ -27,11 +33,11 @@ function addByTime( arr, obj ){
 }
 
 // parse meta to standardized format
-function parseMeta( meta ){
-  let ret = { ...meta } // clone
+function parseMeta( meta, defaults ){
+  let ret = { ...defaults, ...meta } // clone
 
   for ( let key in META_PARSERS ){
-    ret[key] = META_PARSERS( ret[key] )
+    ret[key] = META_PARSERS[key]( ret[key] )
   }
 
   return ret
@@ -43,7 +49,14 @@ export default class {
     this.framesById = {}
     this.frames = []
 
-    this._state = { ...schema }
+    this._schema = createSchema( schema )
+    this._state = {}
+
+    this._defaultFrame = {
+      state: createState( this._schema )
+      , meta: parseMeta({})
+    }
+
     this._targetState = null
 
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
@@ -60,7 +73,9 @@ export default class {
       meta = state.$meta || { ...DEFAULT_FRAME_META }
     }
 
-    meta = parseMeta( meta )
+    meta = parseMeta( meta, {
+      duration: this.options.defaultTransitionDuration
+    })
 
     // TODO check transition duration doesn't overlap with previous state
     // if it does: warn, and set to max allowable transition time
@@ -69,12 +84,11 @@ export default class {
       throw new Error(`Frame with id "${meta.id}" already defined`)
     }
 
-    if ( meta.inherit ){
-      let from = this.framesById[meta.inherit]
+    // inherit from previous state
+    state = { ...this.getPrevFrame(meta.time).state, ...state }
 
-      if ( !from ){
-        throw new Error(`No frame with id "${meta.inherit}" exists to be inherited`)
-      }
+    if ( meta.inherit ){
+      let from = this.getFrame( meta.inherit )
 
       state = { ...from.state, ...state }
       // cleanup
@@ -95,21 +109,58 @@ export default class {
     return this
   }
 
-  meddle( sleepTime ){
+  meddle( meddleTimeout ){
     // toggle user meddling
   }
 
-  seek( timeOrName ){
-    // immediately set correct state
+  getFrame( id ){
+    let frame = this.framesById[id]
+
+    if ( !frame ){
+      throw new Error(`No frame with id "${id}" exists to be inherited`)
+    }
+
+    return frame
   }
 
-  to( timeOrName ){
+  seek( timeOrId ){
+    if ( typeof timeOrId === 'string' ){
+      let frame = this.getFrame( timeOrId )
+
+      return this.seek( frame.meta.time )
+    }
+
+    this.time = timeOrId
+
+    let bounds = this.getBoundingFrames()
+
+    this._state = getInterpolatedState( this._schema, bounds.prev, bounds.next, this.time )
+
+    return this
+  }
+
+  to( timeOrId ){
     // transition to time, or frame id
   }
 
   step(){
-    // let time = Date.now()
+    let now = util.now()
+    let clockTime = this._clockTime || now
+    let playbackRate = this.options.playbackRate
+    let dt = now - clockTime
+    let time = this.time
 
+    this._clockTime = now
+
+    // if it's paused, don't step
+    if ( this.paused ){
+      return this
+    }
+
+    time += dt * playbackRate
+    this.seek( time )
+
+    return this
   }
 
   next(){
@@ -120,11 +171,37 @@ export default class {
     // transition back like slideshow
   }
 
-  getNextState(){
-    // look ahead
+  getNextFrame( time ){
+    return this.getBoundingFrames( time ).next
   }
 
-  getPrevState(){
-    // look back
+  getPrevFrame( time ){
+    return this.getBoundingFrames( time ).prev
+  }
+
+  getBoundingFrames( time ){
+    time = time || this.time
+    let next = null
+    let prev = null
+
+    for ( let i = 0, l = this.frames.length; i < l; i++ ){
+      next = this.frames[ i ]
+
+      if ( next.meta.time > time ){
+        break;
+      }
+
+      prev = next
+    }
+
+    if ( prev === next ){
+      next = null
+    }
+
+    if ( !prev ){
+      prev = this._defaultFrame
+    }
+
+    return { prev, next }
   }
 }
