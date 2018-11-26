@@ -871,9 +871,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _manager = _interopRequireDefault(__webpack_require__(/*! ./manager */ "./src/manager.js"));
-
 var _easingFunctions = _interopRequireDefault(__webpack_require__(/*! easing-functions */ "./node_modules/easing-functions/index.js"));
+
+var _manager = _interopRequireDefault(__webpack_require__(/*! @/manager */ "./src/manager.js"));
+
+var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolators */ "./src/interpolators.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -882,6 +884,7 @@ var Frames = function Frames(schema, meta) {
 };
 
 Frames.Easing = _easingFunctions.default;
+Frames.Interpolators = _interpolators.default;
 var _default = Frames;
 exports.default = _default;
 module.exports = exports.default;
@@ -902,9 +905,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+var Pi2 = Math.PI * 2;
+
+function shortestAngleDist(a0, a1) {
+  var da = (a1 - a0) % Pi2;
+  return (da - Math.PI) % Pi2 + Math.PI;
+}
+
 var Interpolators = {
   Linear: function Linear(from, to, t) {
     return from * (1 - t) + to * t;
+  },
+  Angle: function Angle(from, to, t) {
+    return from + shortestAngleDist(from, to) * t;
   },
   Array: function Array(from, to, t) {
     return to.map(function (v1, idx) {
@@ -1379,7 +1392,7 @@ function getType(val) {
 }
 
 function getDefaultValue(def) {
-  var val = def.type || def;
+  var val = def.type === undefined ? def : def.type;
 
   var type = _typeof(val); // non-specific defaults
 
@@ -1437,7 +1450,7 @@ function createSchema(schemaDef) {
     var type = void 0;
     var defaultVal = void 0;
 
-    if (_typeof(def) === 'object' && def.type) {
+    if (_typeof(def) === 'object' && def.type !== 'undefined') {
       type = getType(def.type);
       easing = def.easing || defaultEasing;
       interpolator = def.interpolator || null;

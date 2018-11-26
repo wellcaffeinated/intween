@@ -2,20 +2,29 @@ var byId = document.getElementById.bind(document)
 
 function demo1(){
   var el = byId('demo-1-cube')
+  const rad = Math.PI / 180
 
   function rotate(x, y){
+    x /= rad
+    y /= rad
     el.style.transform = 'translateZ(-100px) rotateY('+x+'deg) rotateX('+-y+'deg)'
   }
 
   var frames = Frames({
-    x: 0
-    , y: 0
+    x: {
+      type: 0
+      , interpolator: Frames.Interpolators.Angle
+    }
+    , y: {
+      type: 0
+      , interpolator: Frames.Interpolators.Angle
+    }
   }, {
     defaultTransitionDuration: '3s'
   })
 
   frames.add({
-    x: 360
+    x: Math.PI
   }, {
     id: 'spin'
     , time: '8s'
@@ -23,13 +32,14 @@ function demo1(){
   })
 
   frames.add({
-    y: 180
+    y: Math.PI
   }, {
     id: 'up'
     , time: '10s'
     , duration: '2s'
   })
 
+  console.log('schema', frames._schema)
   // user interaction
 
   var offsetX = 0
@@ -43,8 +53,8 @@ function demo1(){
     })
     .on('pan', function(e) {
       var state = {}
-      state.x = offsetX + e.deltaX
-      state.y = offsetY + e.deltaY
+      state.x = offsetX + e.deltaX * rad
+      state.y = offsetY + e.deltaY * rad
       frames.meddle( state )
     })
 

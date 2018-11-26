@@ -169,7 +169,13 @@ export default class {
         }
 
         let timeFraction = getTimeFraction( this._meddle.time, this._meddle.duration, this.time )
-        let meddleTransitionState = getInterpolatedState( this._schema, this._meddle.state, this._meddle.endState, timeFraction )
+        let meddleTransitionState = getInterpolatedState(
+          this._schema
+          , this._meddle.state
+          , this._meddle.endState
+          , timeFraction
+        )
+
         Object.assign( state, meddleTransitionState )
       } else {
         Object.assign( state, this._meddle.state )

@@ -32,7 +32,7 @@ function getType( val ){
 }
 
 function getDefaultValue( def ){
-  let val = def.type || def
+  let val = def.type === undefined ? def : def.type
   let type = typeof val
 
   // non-specific defaults
@@ -86,7 +86,7 @@ export function createSchema( schemaDef, defaultEasing = Easing.Linear.None ){
     let type
     let defaultVal
 
-    if ( typeof def === 'object' && def.type ){
+    if ( typeof def === 'object' && def.type !== 'undefined' ){
       type = getType( def.type )
       easing = def.easing || defaultEasing
       interpolator = def.interpolator || null

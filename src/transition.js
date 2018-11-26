@@ -35,6 +35,7 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
 
 export function getTimeFraction( endTime, duration, time ){
   let startTime = endTime - duration
+
   return util.clamp(0, 1, (time - startTime) / duration)
 }
 
