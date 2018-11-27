@@ -1,6 +1,7 @@
 import util from '@/util'
 import { createSchema, createState } from '@/schema'
 import { interpolateBetweenFrames, getTimeFraction, getInterpolatedState } from '@/transition'
+import EventEmitter from '@/event-emitter'
 import { timeParser } from '@/parsers/time'
 import { transitionParser } from '@/parsers/transition'
 const DEFAULT_FRAME_META = { time: 0 }
@@ -44,11 +45,14 @@ function parseMeta( meta, defaults ){
   return ret
 }
 
-export default class {
+export default class extends EventEmitter {
   constructor( schema, options ){
+    super()
+
     this.time = 0
     this.framesById = {}
     this.frames = []
+    this.paused = false
 
     this._schema = createSchema( schema )
     this._state = {}
@@ -66,6 +70,14 @@ export default class {
 
   get state(){
     return this._state
+  }
+
+  get totalTime(){
+    return this.frames[this.frames.length - 1].meta.time
+  }
+
+  get progress(){
+    return (this.time / this.totalTime * 100).toFixed(2)
   }
 
   // add a frame
@@ -184,6 +196,7 @@ export default class {
 
     // set state
     this._state = state
+    this.emit('seek')
     return this
   }
 
@@ -197,17 +210,24 @@ export default class {
     let playbackRate = this.options.playbackRate
     let dt = now - clockTime
     let time = this.time
+    let totalTime = this.totalTime
 
     this._clockTime = now
 
     // if it's paused, don't step
     if ( this.paused ){
-      return this
+      dt = 0
     }
 
     time += dt * playbackRate
+
+    if ( time >= totalTime ){
+      time = totalTime
+    }
+
     this.seek( time )
 
+    this.emit('step')
     return this
   }
 

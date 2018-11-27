@@ -1,4 +1,5 @@
 const util = {}
+const identity = a => a
 
 // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
 // Include a performance.now polyfill.
@@ -30,6 +31,36 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
 // clamp
 util.clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)
+}
+
+/**
+ * util.sortedIndex( array, value[, callback] ) -> Number
+ * - array (Array): The array to inspect
+ * - value (Mixed): The value to evaluate
+ * - callback (Function): Function called per iteration
+ *
+ * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
+ **/
+util.sortedIndex = function( array, value, callback ) {
+  let low = 0
+  let high = array ? array.length : low
+
+  // explicitly reference `identity` for better inlining in Firefox
+  callback = callback || identity
+  value = callback(value)
+
+  while (low < high) {
+    let mid
+
+    mid = (low + high) >>> 1
+    if ( callback(array[mid]) < value ){
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+
+  return low
 }
 
 export default util

@@ -856,6 +856,232 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./src/event-emitter.js":
+/*!******************************!*\
+  !*** ./src/event-emitter.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var defaultPriority = 1;
+
+function getPriority(val) {
+  return val._priority_;
+}
+
+var EventEmitter =
+/*#__PURE__*/
+function () {
+  function EventEmitter() {
+    _classCallCheck(this, EventEmitter);
+
+    // ensure topics hash is initialized
+    this._topics = this._topics || (this._topics = {});
+  }
+  /**
+  * EventEmitter#on( topic, fn( data, event )[, scope, priority] ) -> this
+  * EventEmitter#on( topicConfig[, scope, priority] ) -> this
+  * - topic (String): The topic name
+  * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
+  * - fn (Function): The callback function (if not using Object as previous argument)
+  * - data (Mixed): The data sent from the call to `.emit()`
+  * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
+  * - scope (Object): The scope to bind callback to
+  * - priority (Number): The priority of the callback (higher is earlier)
+  *
+  * Subscribe callback(s) to a topic(s).
+  **/
+
+
+  _createClass(EventEmitter, [{
+    key: "on",
+    value: function on(topic, fn, scope, priority) {
+      var listeners;
+      var orig;
+      var idx; // check if we're subscribing to multiple topics
+      // with an object
+
+      if (_typeof(topic) === 'object') {
+        for (var t in topic) {
+          this.on(t, topic[t], fn, scope);
+        }
+
+        return this;
+      }
+
+      listeners = this._topics[topic] || (this._topics[topic] = []);
+      orig = fn;
+
+      if (_typeof(scope) === 'object') {
+        fn = fn.bind(scope);
+        fn._bindfn_ = orig;
+        fn._one_ = orig._one_;
+        fn._scope_ = scope;
+      } else if (priority === undefined) {
+        priority = scope;
+      }
+
+      fn._priority_ = priority === undefined ? defaultPriority : priority;
+      idx = _util.default.sortedIndex(listeners, fn, getPriority);
+      listeners.splice(idx, 0, fn);
+      return this;
+    }
+    /**
+    * EventEmitter#off( topic, fn[, scope] ) -> this
+    * EventEmitter#off( topicCfg ) -> this
+    * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
+    * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
+    * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
+    * - scope (Object): The scope the callback was bound to. This is important if you are
+    *   binding methods that come from object prototypes.
+    *
+    * Unsubscribe callback(s) from topic(s).
+    **/
+
+  }, {
+    key: "off",
+    value: function off(topic, fn, scope) {
+      var listeners;
+      var listn;
+
+      if (topic === true) {
+        // purge all listeners
+        this._topics = {};
+        return this;
+      } // check if we're subscribing to multiple topics
+      // with an object
+
+
+      if (_typeof(topic) === 'object') {
+        for (var t in topic) {
+          this.off(t, topic[t]);
+        }
+
+        return this;
+      }
+
+      listeners = this._topics[topic];
+
+      if (!listeners) {
+        return this;
+      }
+
+      if (fn === true) {
+        // purge all listeners for topic
+        this._topics[topic] = [];
+        return this;
+      }
+
+      for (var i = 0, l = listeners.length; i < l; i++) {
+        listn = listeners[i];
+
+        if ((listn._bindfn_ === fn || listn === fn) && (!scope || listn._scope_ === scope) // check the scope too if specified
+        ) {
+            listeners.splice(i, 1);
+            break;
+          }
+      }
+
+      return this;
+    }
+    /**
+    * EventEmitter#emit( topic[, data] ) -> this
+    * - topic (String): The topic name
+    * - data (Mixed): The data to send
+    *
+    * Publish data to a topic.
+    **/
+
+  }, {
+    key: "emit",
+    value: function emit(topic, data) {
+      var listeners = this._topics[topic];
+      var l = listeners && listeners.length;
+      var handler;
+      var e;
+
+      if (!l) {
+        return this;
+      }
+
+      e = {}; // event data
+
+      e.topic = topic;
+      e.handler = handler; // reverse iterate so priorities work out correctly
+
+      while (l--) {
+        handler = listeners[l];
+        handler(data, e); // if _one_ flag is set, the unsubscribe
+
+        if (handler._one_) {
+          listeners.splice(l, 1);
+        }
+      }
+
+      return this;
+    }
+    /**
+    * EventEmitter#one( topic, fn( data, event )[, scope, priority] ) -> this
+    * EventEmitter#one( topicConfig[, scope, priority] ) -> this
+    * - topic (String): The topic name
+    * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
+    * - fn (Function): The callback function (if not using Object as previous argument)
+    * - data (Mixed): The data sent from the call to `.emit()`
+    * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
+    * - scope (Object): The scope to bind callback to
+    * - priority (Number): The priority of the callback (higher is earlier)
+    *
+    * Subscribe callback(s) to a topic(s), but only ONCE.
+    **/
+
+  }, {
+    key: "one",
+    value: function one(topic, fn, scope) {
+      // check if we're subscribing to multiple topics
+      // with an object
+      if (_typeof(topic) === 'object') {
+        for (var t in topic) {
+          this.one(t, topic[t], fn, scope);
+        }
+
+        return this;
+      } // set the _one_ flag
+
+
+      fn._one_ = true;
+      this.on(topic, fn, scope);
+      return this;
+    }
+  }]);
+
+  return EventEmitter;
+}();
+
+exports.default = EventEmitter;
+module.exports = exports.default;
+
+/***/ }),
+
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -952,17 +1178,29 @@ var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
 var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
 
+var _eventEmitter = _interopRequireDefault(__webpack_require__(/*! @/event-emitter */ "./src/event-emitter.js"));
+
 var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
 
 var _transition2 = __webpack_require__(/*! @/parsers/transition */ "./src/parsers/transition.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 var DEFAULT_FRAME_META = {
   time: 0
@@ -1012,24 +1250,31 @@ function parseMeta(meta, defaults) {
 
 var _class =
 /*#__PURE__*/
-function () {
+function (_EventEmitter) {
+  _inherits(_class, _EventEmitter);
+
   function _class(schema, options) {
+    var _this;
+
     _classCallCheck(this, _class);
 
-    this.time = 0;
-    this.framesById = {};
-    this.frames = [];
-    this._schema = (0, _schema.createSchema)(schema);
-    this._state = {};
-    this._meddle = {
+    _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this));
+    _this.time = 0;
+    _this.framesById = {};
+    _this.frames = [];
+    _this.paused = false;
+    _this._schema = (0, _schema.createSchema)(schema);
+    _this._state = {};
+    _this._meddle = {
       state: {}
     };
-    this._defaultFrame = {
-      state: (0, _schema.createState)(this._schema),
+    _this._defaultFrame = {
+      state: (0, _schema.createState)(_this._schema),
       meta: parseMeta({})
     };
-    this._targetState = null;
-    this.options = Object.assign({}, DEFAULT_OPTIONS, options);
+    _this._targetState = null;
+    _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
+    return _this;
   }
 
   _createClass(_class, [{
@@ -1156,6 +1401,7 @@ function () {
 
 
       this._state = state;
+      this.emit('seek');
       return this;
     }
   }, {
@@ -1171,14 +1417,21 @@ function () {
       var playbackRate = this.options.playbackRate;
       var dt = now - clockTime;
       var time = this.time;
+      var totalTime = this.totalTime;
       this._clockTime = now; // if it's paused, don't step
 
       if (this.paused) {
-        return this;
+        dt = 0;
       }
 
       time += dt * playbackRate;
+
+      if (time >= totalTime) {
+        time = totalTime;
+      }
+
       this.seek(time);
+      this.emit('step');
       return this;
     }
   }, {
@@ -1234,10 +1487,20 @@ function () {
     get: function get() {
       return this._state;
     }
+  }, {
+    key: "totalTime",
+    get: function get() {
+      return this.frames[this.frames.length - 1].meta.time;
+    }
+  }, {
+    key: "progress",
+    get: function get() {
+      return (this.time / this.totalTime * 100).toFixed(2);
+    }
   }]);
 
   return _class;
-}();
+}(_eventEmitter.default);
 
 exports.default = _class;
 module.exports = exports.default;
@@ -1578,9 +1841,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var util = {}; // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
+var util = {};
+
+var identity = function identity(a) {
+  return a;
+}; // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
+
 
 if (typeof window === 'undefined' && typeof process !== 'undefined') {
   util.now = function now() {
@@ -1606,6 +1874,36 @@ if (typeof window === 'undefined' && typeof process !== 'undefined') {
 
 util.clamp = function (min, max, v) {
   return Math.min(Math.max(v, min), max);
+};
+/**
+ * util.sortedIndex( array, value[, callback] ) -> Number
+ * - array (Array): The array to inspect
+ * - value (Mixed): The value to evaluate
+ * - callback (Function): Function called per iteration
+ *
+ * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
+ **/
+
+
+util.sortedIndex = function (array, value, callback) {
+  var low = 0;
+  var high = array ? array.length : low; // explicitly reference `identity` for better inlining in Firefox
+
+  callback = callback || identity;
+  value = callback(value);
+
+  while (low < high) {
+    var mid = void 0;
+    mid = low + high >>> 1;
+
+    if (callback(array[mid]) < value) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+
+  return low;
 };
 
 var _default = util;

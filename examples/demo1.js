@@ -1,5 +1,32 @@
 var byId = document.getElementById.bind(document)
 
+function initControls( btnId, progressId, frames ){
+  var btn = byId(btnId)
+  var progress = byId(progressId)
+
+  frames.on('seek', e => {
+    progress.style.width = frames.progress + '%'
+  })
+
+  var scrubber = new Hammer.Manager(progress.parentNode, {})
+  scrubber.add( new Hammer.Press({ time: 0 }) )
+  scrubber.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
+  scrubber.on('press pan', (e) => {
+      frames.paused = true
+      let pos = (e.center.x - progress.parentNode.offsetLeft) / progress.parentNode.offsetWidth
+
+      frames.seek( pos * frames.totalTime )
+    })
+    .on('pressup panend', e => {
+      frames.paused = false
+    })
+
+  btn.addEventListener('change', e => {
+    frames.paused = !frames.paused
+    btn.checked = frames.paused ? 'checked' : ''
+  })
+}
+
 function demo1(){
   var el = byId('demo-1-cube')
   const rad = Math.PI / 180
@@ -39,17 +66,20 @@ function demo1(){
     , duration: '2s'
   })
 
+  // frames.loop()
+
   console.log('schema', frames._schema)
   // user interaction
 
   var offsetX = 0
   var offsetY = 0
-  var hammertime = new Hammer(byId('demo-1'), {});
+  var hammertime = new Hammer(byId('demo-1-scene'), {});
   hammertime
-    .on('panstart', function(e){
+    .on('press', function(e){
       var state = frames.state
       offsetX = state.x
       offsetY = state.y
+      frames.meddle( { x: offsetX, y: offsetY } )
     })
     .on('pan', function(e) {
       var state = {}
@@ -64,6 +94,8 @@ function demo1(){
     var state = frames.state
     rotate(state.x, state.y)
   }
+
+  initControls('demo-1-play', 'demo-1-progress', frames)
 
   anim()
 }

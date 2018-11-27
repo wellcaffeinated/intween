@@ -9,7 +9,9 @@
   <body>
     <div id="main">
       <h1>Examples</h1>
+
       <div id="demo-1">
+        <h2>Demo 1</h2>
         <div id="demo-1-scene" class="scene">
           <div id="demo-1-cube" class="cube">
             <div class="cube__face cube__face--front"></div>
@@ -21,9 +23,33 @@
           </div>
         </div>
       </div>
+      <div class="controls">
+        <div class="playpause">
+          <input type="checkbox" value="None" id="demo-1-play" name="check" />
+          <label for="demo-1-play"></label>
+        </div>
+        <div class="progress-bar">
+          <span id="demo-1-progress" class="progress-bar-fill" style="width: 60%"></span>
+        </div>
+      </div>
     </div>
-    <script src="./vendor/hammer.js"></script>
+
+    <div id="demo-2">
+      <h2>Demo 2</h2>
+      <div id="demo-2-scene"></div>
+      <iframe id="demo-2-sc" class="iframe" width="100%" height="200" scrolling="no" frameborder="no"></iframe>
+    </div>
+
     <script src="../dist/frames.js"></script>
-    <script src="./examples.js"></script>
+
+    <script src="./vendor/hammer.js"></script>
+    <script src="./demo1.js"></script>
+
+    <script src="https://w.soundcloud.com/player/api.js"></script>
+    <script src="https://threejs.org/build/three.js"></script>
+		<script src="https://threejs.org/examples/js/controls/DragControls.js"></script>
+		<script src="https://threejs.org/examples/js/controls/TrackballControls.js"></script>
+		<script src="https://threejs.org/examples/js/libs/stats.min.js"></script>
+    <script src="./demo2.js"></script>
   </body>
 </html>
