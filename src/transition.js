@@ -1,5 +1,20 @@
 import util from '@/util'
 
+export function createTransitionFromFrame( frame, previousState ){
+  let startTime = frame.meta.time - frame.meta.duration
+  let endTime = frame.meta.time
+  let endState = frame.state
+  let startState = previousState // util.pick( previousState, Object.keys(endState) )
+
+  return {
+    startTime
+    , endTime
+    , startState
+    , endState
+    , frame
+  }
+}
+
 export function interpolateProperty( fn, from, to, progress ){
   return fn( from, to, progress )
 }
@@ -33,24 +48,8 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
   return nextState
 }
 
-export function getTimeFraction( endTime, duration, time ){
-  let startTime = endTime - duration
+export function getTimeFraction( startTime, endTime, time ){
+  let duration = endTime - startTime
 
   return util.clamp(0, 1, (time - startTime) / duration)
-}
-
-export function interpolateBetweenFrames( schema, prevFrame, nextFrame, time ){
-  // if we're at the beginning
-  if ( !prevFrame ){
-    return { ...nextFrame.state }
-  }
-
-  // if we're at the end...
-  if ( !nextFrame ){
-    return { ...prevFrame.state }
-  }
-
-  let timeFraction = getTimeFraction( nextFrame.meta.time, nextFrame.meta.duration, time )
-
-  return getInterpolatedState( schema, prevFrame.state, nextFrame.state, timeFraction )
 }

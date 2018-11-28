@@ -1178,6 +1178,8 @@ var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
 var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
 
+var _timeline = __webpack_require__(/*! @/timeline */ "./src/timeline.js");
+
 var _eventEmitter = _interopRequireDefault(__webpack_require__(/*! @/event-emitter */ "./src/event-emitter.js"));
 
 var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
@@ -1214,27 +1216,9 @@ var DEFAULT_OPTIONS = {
   playbackRate: 1,
   defaultTransitionDuration: 1000,
   meddleTimeout: 2000,
-  meddleDuration: 500 // sorted add by time index
+  meddleDuration: 500 // parse meta to standardized format
 
 };
-
-function addByTime(arr, obj) {
-  var idx = 0;
-
-  while (idx < arr.length) {
-    if (arr[0].time >= obj.time) {
-      // insert at idx
-      arr.splice(idx, 0, obj);
-      return arr;
-    }
-
-    idx++;
-  }
-
-  arr.push(obj);
-  return arr;
-} // parse meta to standardized format
-
 
 function parseMeta(meta, defaults) {
   var ret = { ...defaults,
@@ -1262,15 +1246,13 @@ function (_EventEmitter) {
     _this.time = 0;
     _this.framesById = {};
     _this.frames = [];
+    _this.timeline = [];
     _this.paused = false;
     _this._schema = (0, _schema.createSchema)(schema);
+    _this._defaultState = (0, _schema.createState)(_this._schema);
     _this._state = {};
     _this._meddle = {
       state: {}
-    };
-    _this._defaultFrame = {
-      state: (0, _schema.createState)(_this._schema),
-      meta: parseMeta({})
     };
     _this._targetState = null;
     _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
@@ -1292,26 +1274,19 @@ function (_EventEmitter) {
 
       meta = parseMeta(meta, {
         duration: this.options.defaultTransitionDuration
-      }); // TODO check transition duration doesn't overlap with previous state
-      // if it does: warn, and set to max allowable transition time
+      });
 
       if (meta.id && this.framesById[meta.id]) {
         throw new Error("Frame with id \"".concat(meta.id, "\" already defined"));
-      } // inherit from previous state
+      } // TODO decide if i wnat this
+      // if ( meta.inherit ){
+      //   let from = this.getFrame( meta.inherit )
+      //
+      //   state = { ...from.state, ...state }
+      //   // cleanup
+      //   delete state.$meta
+      // }
 
-
-      state = { ...this.getPrevFrame(meta.time).state,
-        ...state
-      };
-
-      if (meta.inherit) {
-        var from = this.getFrame(meta.inherit);
-        state = { ...from.state,
-          ...state
-        }; // cleanup
-
-        delete state.$meta;
-      }
 
       var frame = {
         state: state,
@@ -1321,10 +1296,16 @@ function (_EventEmitter) {
 
       if (meta.id) {
         this.framesById[meta.id] = frame;
-      } // add in order
+      }
 
-
-      addByTime(this.frames, frame);
+      this.frames.push(frame);
+      this.refreshTimeline();
+      return this;
+    }
+  }, {
+    key: "refreshTimeline",
+    value: function refreshTimeline() {
+      this.timeline = (0, _timeline.createTimeline)(this._schema, this.frames);
       return this;
     } // toggle user meddling
 
@@ -1375,8 +1356,7 @@ function (_EventEmitter) {
       }
 
       this.time = timeOrId;
-      var bounds = this.getBoundingFrames();
-      var state = (0, _transition.interpolateBetweenFrames)(this._schema, bounds.prev, bounds.next, this.time); // check meddling
+      var state = this.getStateAt(this.time); // check meddling
 
       if (this._meddle.active) {
         if (this._meddle.time !== undefined && this.time > this._meddle.time) {
@@ -1388,10 +1368,10 @@ function (_EventEmitter) {
 
         if (this._meddle.isFinite && this.time > this._meddle.time - this._meddle.duration) {
           if (!this._meddle.endState) {
-            this._meddle.endState = (0, _transition.interpolateBetweenFrames)(this._schema, bounds.prev, bounds.next, this._meddle.time);
+            this._meddle.endState = this.getStateAt(this._meddle.time);
           }
 
-          var timeFraction = (0, _transition.getTimeFraction)(this._meddle.time, this._meddle.duration, this.time);
+          var timeFraction = (0, _transition.getTimeFraction)(this._meddle.time - this._meddle.duration, this._meddle.time, this.time);
           var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, this._meddle.state, this._meddle.endState, timeFraction);
           Object.assign(state, meddleTransitionState);
         } else {
@@ -1403,6 +1383,19 @@ function (_EventEmitter) {
       this._state = state;
       this.emit('seek');
       return this;
+    }
+  }, {
+    key: "getStateAt",
+    value: function getStateAt(time) {
+      if (time >= this.totalTime) {
+        var t = this.timeline[this.timeline.length - 1].transition;
+        return { ...t.startState,
+          ...t.endState
+        };
+      }
+
+      var transitions = (0, _timeline.getTransitionsAtTime)(this.timeline, time);
+      return (0, _timeline.reduceTransitions)(this._schema, transitions, time, this._defaultState);
     }
   }, {
     key: "to",
@@ -1443,44 +1436,10 @@ function (_EventEmitter) {
     value: function back() {// transition back like slideshow
     }
   }, {
-    key: "getNextFrame",
-    value: function getNextFrame(time) {
-      return this.getBoundingFrames(time).next;
-    }
-  }, {
-    key: "getPrevFrame",
-    value: function getPrevFrame(time) {
-      return this.getBoundingFrames(time).prev;
-    }
-  }, {
-    key: "getBoundingFrames",
-    value: function getBoundingFrames(time) {
+    key: "getTransitions",
+    value: function getTransitions(time) {
       time = time || this.time;
-      var next = null;
-      var prev = null;
-
-      for (var i = 0, l = this.frames.length; i < l; i++) {
-        next = this.frames[i];
-
-        if (next.meta.time > time) {
-          break;
-        }
-
-        prev = next;
-      }
-
-      if (prev === next) {
-        next = null;
-      }
-
-      if (!prev) {
-        prev = this._defaultFrame;
-      }
-
-      return {
-        prev: prev,
-        next: next
-      };
+      return (0, _timeline.getTransitionsAtTime)(this.timeline, time);
     }
   }, {
     key: "state",
@@ -1490,7 +1449,7 @@ function (_EventEmitter) {
   }, {
     key: "totalTime",
     get: function get() {
-      return this.frames[this.frames.length - 1].meta.time;
+      return this.timeline[this.timeline.length - 1].time;
     }
   }, {
     key: "progress",
@@ -1755,6 +1714,138 @@ function createState(schema) {
 
 /***/ }),
 
+/***/ "./src/timeline.js":
+/*!*************************!*\
+  !*** ./src/timeline.js ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createTimeline = createTimeline;
+exports.getTransitionsAtTime = getTransitionsAtTime;
+exports.reduceTransitions = reduceTransitions;
+
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
+var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
+
+var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// throws if the timeline has conflicts
+// ---------------------------------------
+function validateTimeline(timeline) {} // Create a timeline array from specified frames
+// ---------------------------------------
+
+
+function createTimeline(schema) {
+  var frames = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+  if (!frames.length) {
+    return [];
+  }
+
+  var getTime = function getTime(v) {
+    return v.time;
+  };
+
+  var defaultState = (0, _schema.createState)(schema);
+  var timeline = [];
+  frames.forEach(function (frame) {
+    var idx;
+    var start = {
+      type: 'start',
+      frame: frame,
+      time: frame.meta.time - frame.meta.duration
+    };
+    var end = {
+      type: 'end',
+      frame: frame,
+      time: frame.meta.time
+    };
+    start.end = end;
+    end.start = start;
+    idx = _util.default.sortedIndex(timeline, start, getTime);
+    timeline.splice(idx, 0, start);
+    idx = _util.default.sortedIndex(timeline, end, getTime);
+    timeline.splice(idx, 0, end);
+  });
+  timeline.sort(function (a, b) {
+    if (a.time === b.time) {
+      return a.type > b.type ? 1 : -1;
+    }
+
+    return 0;
+  });
+  var prevState = defaultState; // assign inherited states
+
+  timeline.forEach(function (m, idx) {
+    // only go through ends
+    if (m.type !== 'end') {
+      return;
+    }
+
+    var transition = (0, _transition.createTransitionFromFrame)(m.frame, prevState);
+    m.transition = transition;
+    m.start.transition = transition;
+    prevState = { ...prevState,
+      ...transition.endState
+    };
+  });
+  validateTimeline(timeline);
+  return timeline;
+} // Get transition information needed
+// at specified time from timeline
+// ---------------------------------------
+
+
+function getTransitionsAtTime(timeline, time) {
+  var markers = [];
+  var idx;
+
+  for (var l = timeline.length, i = 0; i < l; i++) {
+    var m = timeline[i];
+
+    if (m.time > time) {
+      break;
+    }
+
+    if (m.type === 'start') {
+      markers.push(m);
+    } else {
+      // stop tracking its partner
+      idx = markers.indexOf(m.start);
+      markers.splice(idx, 1);
+    }
+  }
+
+  return markers.map(function (a) {
+    return a.transition;
+  });
+} // Get final state from transitions
+// ---------------------------------------
+
+
+function reduceTransitions(schema) {
+  var transitions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  var time = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  var initialState = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+  return transitions.reduce(function (state, tr) {
+    var progress = (0, _transition.getTimeFraction)(tr.startTime, tr.endTime, time);
+    return Object.assign(state, (0, _transition.getInterpolatedState)(schema, tr.startState, tr.endState, progress));
+  }, { ...initialState
+  });
+}
+
+/***/ }),
+
 /***/ "./src/transition.js":
 /*!***************************!*\
   !*** ./src/transition.js ***!
@@ -1768,14 +1859,29 @@ function createState(schema) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.createTransitionFromFrame = createTransitionFromFrame;
 exports.interpolateProperty = interpolateProperty;
 exports.getInterpolatedState = getInterpolatedState;
 exports.getTimeFraction = getTimeFraction;
-exports.interpolateBetweenFrames = interpolateBetweenFrames;
 
 var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function createTransitionFromFrame(frame, previousState) {
+  var startTime = frame.meta.time - frame.meta.duration;
+  var endTime = frame.meta.time;
+  var endState = frame.state;
+  var startState = previousState; // util.pick( previousState, Object.keys(endState) )
+
+  return {
+    startTime: startTime,
+    endTime: endTime,
+    startState: startState,
+    endState: endState,
+    frame: frame
+  };
+}
 
 function interpolateProperty(fn, from, to, progress) {
   return fn(from, to, progress);
@@ -1803,26 +1909,9 @@ function getInterpolatedState(schema, startState, endState, timeFraction) {
   return nextState;
 }
 
-function getTimeFraction(endTime, duration, time) {
-  var startTime = endTime - duration;
+function getTimeFraction(startTime, endTime, time) {
+  var duration = endTime - startTime;
   return _util.default.clamp(0, 1, (time - startTime) / duration);
-}
-
-function interpolateBetweenFrames(schema, prevFrame, nextFrame, time) {
-  // if we're at the beginning
-  if (!prevFrame) {
-    return { ...nextFrame.state
-    };
-  } // if we're at the end...
-
-
-  if (!nextFrame) {
-    return { ...prevFrame.state
-    };
-  }
-
-  var timeFraction = getTimeFraction(nextFrame.meta.time, nextFrame.meta.duration, time);
-  return getInterpolatedState(schema, prevFrame.state, nextFrame.state, timeFraction);
 }
 
 /***/ }),
@@ -1904,6 +1993,14 @@ util.sortedIndex = function (array, value, callback) {
   }
 
   return low;
+};
+
+util.pick = function (obj) {
+  var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  return keys.reduce(function (out, k) {
+    out[k] = obj[k];
+    return out;
+  }, {});
 };
 
 var _default = util;

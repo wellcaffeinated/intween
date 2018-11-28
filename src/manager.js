@@ -1,37 +1,26 @@
 import util from '@/util'
 import { createSchema, createState } from '@/schema'
-import { interpolateBetweenFrames, getTimeFraction, getInterpolatedState } from '@/transition'
+import { getTimeFraction, getInterpolatedState } from '@/transition'
+import {
+  getTransitionsAtTime
+  , createTimeline
+  , reduceTransitions
+} from '@/timeline'
 import EventEmitter from '@/event-emitter'
 import { timeParser } from '@/parsers/time'
 import { transitionParser } from '@/parsers/transition'
+
 const DEFAULT_FRAME_META = { time: 0 }
 const META_PARSERS = {
   time: timeParser
   , transition: transitionParser
   , duration: timeParser
 }
-
 const DEFAULT_OPTIONS = {
   playbackRate: 1
   , defaultTransitionDuration: 1000
   , meddleTimeout: 2000
   , meddleDuration: 500
-}
-
-// sorted add by time index
-function addByTime( arr, obj ){
-  let idx = 0
-
-  while ( idx < arr.length ){
-    if ( arr[0].time >= obj.time ){
-      // insert at idx
-      arr.splice( idx, 0, obj )
-      return arr
-    }
-    idx++
-  }
-  arr.push( obj )
-  return arr
 }
 
 // parse meta to standardized format
@@ -52,16 +41,13 @@ export default class extends EventEmitter {
     this.time = 0
     this.framesById = {}
     this.frames = []
+    this.timeline = []
     this.paused = false
 
     this._schema = createSchema( schema )
+    this._defaultState = createState( this._schema )
     this._state = {}
     this._meddle = { state: {} }
-
-    this._defaultFrame = {
-      state: createState( this._schema )
-      , meta: parseMeta({})
-    }
 
     this._targetState = null
 
@@ -73,7 +59,7 @@ export default class extends EventEmitter {
   }
 
   get totalTime(){
-    return this.frames[this.frames.length - 1].meta.time
+    return this.timeline[this.timeline.length - 1].time
   }
 
   get progress(){
@@ -91,23 +77,18 @@ export default class extends EventEmitter {
       duration: this.options.defaultTransitionDuration
     })
 
-    // TODO check transition duration doesn't overlap with previous state
-    // if it does: warn, and set to max allowable transition time
-
     if ( meta.id && this.framesById[meta.id] ){
       throw new Error(`Frame with id "${meta.id}" already defined`)
     }
 
-    // inherit from previous state
-    state = { ...this.getPrevFrame(meta.time).state, ...state }
-
-    if ( meta.inherit ){
-      let from = this.getFrame( meta.inherit )
-
-      state = { ...from.state, ...state }
-      // cleanup
-      delete state.$meta
-    }
+    // TODO decide if i wnat this
+    // if ( meta.inherit ){
+    //   let from = this.getFrame( meta.inherit )
+    //
+    //   state = { ...from.state, ...state }
+    //   // cleanup
+    //   delete state.$meta
+    // }
 
     let frame = {
       state
@@ -118,8 +99,15 @@ export default class extends EventEmitter {
     if ( meta.id ){
       this.framesById[ meta.id ] = frame
     }
-    // add in order
-    addByTime( this.frames, frame )
+
+    this.frames.push( frame )
+    this.refreshTimeline()
+
+    return this
+  }
+
+  refreshTimeline(){
+    this.timeline = createTimeline( this._schema, this.frames )
     return this
   }
 
@@ -163,9 +151,7 @@ export default class extends EventEmitter {
 
     this.time = timeOrId
 
-    let bounds = this.getBoundingFrames()
-
-    let state = interpolateBetweenFrames( this._schema, bounds.prev, bounds.next, this.time )
+    let state = this.getStateAt( this.time )
 
     // check meddling
     if ( this._meddle.active ){
@@ -177,10 +163,14 @@ export default class extends EventEmitter {
       if ( this._meddle.isFinite && this.time > (this._meddle.time - this._meddle.duration) ){
 
         if ( !this._meddle.endState ){
-          this._meddle.endState = interpolateBetweenFrames( this._schema, bounds.prev, bounds.next, this._meddle.time )
+          this._meddle.endState = this.getStateAt( this._meddle.time )
         }
 
-        let timeFraction = getTimeFraction( this._meddle.time, this._meddle.duration, this.time )
+        let timeFraction = getTimeFraction(
+          this._meddle.time - this._meddle.duration
+          , this._meddle.time
+          , this.time
+        )
         let meddleTransitionState = getInterpolatedState(
           this._schema
           , this._meddle.state
@@ -198,6 +188,18 @@ export default class extends EventEmitter {
     this._state = state
     this.emit('seek')
     return this
+  }
+
+  getStateAt( time ){
+    if ( time >= this.totalTime ){
+      let t = this.timeline[this.timeline.length - 1].transition
+
+      return { ...t.startState, ...t.endState }
+    }
+
+    let transitions = getTransitionsAtTime( this.timeline, time )
+
+    return reduceTransitions( this._schema, transitions, time, this._defaultState )
   }
 
   to( timeOrId ){
@@ -239,37 +241,8 @@ export default class extends EventEmitter {
     // transition back like slideshow
   }
 
-  getNextFrame( time ){
-    return this.getBoundingFrames( time ).next
-  }
-
-  getPrevFrame( time ){
-    return this.getBoundingFrames( time ).prev
-  }
-
-  getBoundingFrames( time ){
+  getTransitions( time ){
     time = time || this.time
-    let next = null
-    let prev = null
-
-    for ( let i = 0, l = this.frames.length; i < l; i++ ){
-      next = this.frames[ i ]
-
-      if ( next.meta.time > time ){
-        break;
-      }
-
-      prev = next
-    }
-
-    if ( prev === next ){
-      next = null
-    }
-
-    if ( !prev ){
-      prev = this._defaultFrame
-    }
-
-    return { prev, next }
+    return getTransitionsAtTime( this.timeline, time )
   }
 }

@@ -51,7 +51,7 @@ function demo1(){
   })
 
   frames.add({
-    x: Math.PI
+    x: 1.2 * Math.PI
   }, {
     id: 'spin'
     , time: '8s'
@@ -91,12 +91,16 @@ function demo1(){
   function anim( time ){
     window.requestAnimationFrame(anim)
     frames.step()
+  }
+
+  frames.on('seek', e => {
     var state = frames.state
     rotate(state.x, state.y)
-  }
+  })
 
   initControls('demo-1-play', 'demo-1-progress', frames)
 
+  // console.log(frames.getTransitions( 9000 ))
   anim()
 }
 

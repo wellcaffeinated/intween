@@ -63,4 +63,11 @@ util.sortedIndex = function( array, value, callback ) {
   return low
 }
 
+util.pick = function( obj, keys = [] ){
+  return keys.reduce( (out, k) => {
+    out[k] = obj[k]
+    return out
+  }, {})
+}
+
 export default util
