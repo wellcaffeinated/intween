@@ -21,6 +21,14 @@ export function interpolateProperty( fn, from, to, progress ){
 
 export function getInterpolatedState( schema, startState, endState, timeFraction ){
 
+  if ( timeFraction <= 0 ){
+    return { ...startState }
+  }
+
+  if ( timeFraction >= 1 ){
+    return { ...endState }
+  }
+
   let nextState = { ...startState }
 
   for ( let prop in endState ){

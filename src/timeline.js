@@ -107,7 +107,7 @@ export function createTimeline( schema, frames = [] ){
   let conflicts = getConflictingFrames( timeline )
 
   if ( conflicts ){
-    throw new Error('The following overlapping frames modify the same state paths:\n'+
+    throw new Error('The following overlapping frames modify the same state paths:\n' +
       `paths: ${conflicts.paths}\n` +
       `frames: ${JSON.stringify(conflicts.frames, null, 2)}`
     )

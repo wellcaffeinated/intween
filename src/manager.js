@@ -14,7 +14,8 @@ const DEFAULT_OPTIONS = {
   playbackRate: 1
   , defaultTransitionDuration: 1000
   , meddleTimeout: 2000
-  , meddleDuration: 500
+  , meddleRelaxDuration: 500
+  , meddleRelaxDelay: 1000
 }
 
 export default class extends EventEmitter {
@@ -30,11 +31,10 @@ export default class extends EventEmitter {
     this._schema = createSchema( schema )
     this._defaultState = createState( this._schema )
     this._state = {}
-    this._meddle = { state: {} }
-
-    this._targetState = null
 
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
+    // reset
+    this.unmeddle()
   }
 
   get state(){
@@ -77,24 +77,25 @@ export default class extends EventEmitter {
   }
 
   // toggle user meddling
-  meddle( meddleState, { duration, timeout, force } = {} ){
-    duration = duration || this.options.meddleDuration
-    timeout = timeout || this.options.meddleTimeout
+  meddle( meddleState, { relaxDuration, relaxDelay, freeze } = {} ){
+    relaxDelay = relaxDelay || this.options.meddleRelaxDelay
+    relaxDuration = relaxDuration || this.options.meddleRelaxDuration
 
     this._meddle.state = { ...this._meddle.state, ...meddleState }
-    this._meddle.active = true
-    this._meddle.isFinite = true
+    this._meddle.startTime = false
     this._meddle.endState = null
-    this._meddle.duration = duration
+    this._meddle.active = true
+    this._meddle.freeze = freeze
+    this._meddle.relaxDelay = relaxDelay
+    this._meddle.relaxDuration = relaxDuration
 
-    if ( force === true ){
-      // perpetual
-      this._meddle.isFinite = false
-    } else if ( force === false ){
-      this._meddle.time = util.now() + duration
-    } else {
-      this._meddle.time = util.now() + duration + timeout
-    }
+    return this
+  }
+
+  // force meddling to reset
+  unmeddle(){
+    this._meddle = { state: {} }
+    return this
   }
 
   getFrame( id ){
@@ -120,32 +121,46 @@ export default class extends EventEmitter {
 
     // check meddling
     if ( this._meddle.active ){
-      if ( this._meddle.time !== undefined && this.time > this._meddle.time ){
-        // meddling is over
-        this._meddle = { state: {} }
+      let meddle = this._meddle
+
+      if ( !meddle.freeze && meddle.startTime === false ){
+        meddle.startTime = this.time
+        meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration
+        meddle.endState = this.getStateAt( meddle.endTime )
       }
 
-      if ( this._meddle.isFinite && this.time > (this._meddle.time - this._meddle.duration) ){
+      if ( !meddle.freeze &&
+        (this.time >= meddle.endTime || this.time < meddle.startTime)
+      ){
+        // meddling is over
+        this.unmeddle()
+      }
 
-        if ( !this._meddle.endState ){
-          this._meddle.endState = this.getStateAt( this._meddle.time )
-        }
+      if ( this.time >= this.totalTime ){
+        // this will force a reset when the timeline is re-entered
+        meddle.startTime = this.totalTime
+      }
+
+      if ( meddle.freeze ){
+
+        Object.assign( state, this._meddle.state )
+
+      } else {
 
         let timeFraction = getTimeFraction(
-          this._meddle.time - this._meddle.duration
-          , this._meddle.time
+          meddle.startTime + meddle.relaxDelay
+          , meddle.endTime
           , this.time
         )
+
         let meddleTransitionState = getInterpolatedState(
           this._schema
-          , this._meddle.state
-          , this._meddle.endState
+          , meddle.state
+          , meddle.endState
           , timeFraction
         )
 
         Object.assign( state, meddleTransitionState )
-      } else {
-        Object.assign( state, this._meddle.state )
       }
     }
 

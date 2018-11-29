@@ -1278,7 +1278,8 @@ var DEFAULT_OPTIONS = {
   playbackRate: 1,
   defaultTransitionDuration: 1000,
   meddleTimeout: 2000,
-  meddleDuration: 500
+  meddleRelaxDuration: 500,
+  meddleRelaxDelay: 1000
 };
 
 var _default =
@@ -1300,11 +1301,10 @@ function (_EventEmitter) {
     _this._schema = (0, _schema.createSchema)(schema);
     _this._defaultState = (0, _schema.createState)(_this._schema);
     _this._state = {};
-    _this._meddle = {
-      state: {}
-    };
-    _this._targetState = null;
-    _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
+    _this.options = Object.assign({}, DEFAULT_OPTIONS, options); // reset
+
+    _this.unmeddle();
+
     return _this;
   }
 
@@ -1340,26 +1340,29 @@ function (_EventEmitter) {
     key: "meddle",
     value: function meddle(meddleState) {
       var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          duration = _ref.duration,
-          timeout = _ref.timeout,
-          force = _ref.force;
+          relaxDuration = _ref.relaxDuration,
+          relaxDelay = _ref.relaxDelay,
+          freeze = _ref.freeze;
 
-      duration = duration || this.options.meddleDuration;
-      timeout = timeout || this.options.meddleTimeout;
+      relaxDelay = relaxDelay || this.options.meddleRelaxDelay;
+      relaxDuration = relaxDuration || this.options.meddleRelaxDuration;
       this._meddle.state = _objectSpread({}, this._meddle.state, meddleState);
-      this._meddle.active = true;
-      this._meddle.isFinite = true;
+      this._meddle.startTime = false;
       this._meddle.endState = null;
-      this._meddle.duration = duration;
+      this._meddle.active = true;
+      this._meddle.freeze = freeze;
+      this._meddle.relaxDelay = relaxDelay;
+      this._meddle.relaxDuration = relaxDuration;
+      return this;
+    } // force meddling to reset
 
-      if (force === true) {
-        // perpetual
-        this._meddle.isFinite = false;
-      } else if (force === false) {
-        this._meddle.time = _util.default.now() + duration;
-      } else {
-        this._meddle.time = _util.default.now() + duration + timeout;
-      }
+  }, {
+    key: "unmeddle",
+    value: function unmeddle() {
+      this._meddle = {
+        state: {}
+      };
+      return this;
     }
   }, {
     key: "getFrame",
@@ -1384,23 +1387,30 @@ function (_EventEmitter) {
       var state = this.getStateAt(this.time); // check meddling
 
       if (this._meddle.active) {
-        if (this._meddle.time !== undefined && this.time > this._meddle.time) {
-          // meddling is over
-          this._meddle = {
-            state: {}
-          };
+        var meddle = this._meddle;
+
+        if (!meddle.freeze && meddle.startTime === false) {
+          meddle.startTime = this.time;
+          meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration;
+          meddle.endState = this.getStateAt(meddle.endTime);
         }
 
-        if (this._meddle.isFinite && this.time > this._meddle.time - this._meddle.duration) {
-          if (!this._meddle.endState) {
-            this._meddle.endState = this.getStateAt(this._meddle.time);
-          }
+        if (!meddle.freeze && (this.time >= meddle.endTime || this.time < meddle.startTime)) {
+          // meddling is over
+          this.unmeddle();
+        }
 
-          var timeFraction = (0, _transition.getTimeFraction)(this._meddle.time - this._meddle.duration, this._meddle.time, this.time);
-          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, this._meddle.state, this._meddle.endState, timeFraction);
-          Object.assign(state, meddleTransitionState);
-        } else {
+        if (this.time >= this.totalTime) {
+          // this will force a reset when the timeline is re-entered
+          meddle.startTime = this.totalTime;
+        }
+
+        if (meddle.freeze) {
           Object.assign(state, this._meddle.state);
+        } else {
+          var timeFraction = (0, _transition.getTimeFraction)(meddle.startTime + meddle.relaxDelay, meddle.endTime, this.time);
+          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, meddle.endState, timeFraction);
+          Object.assign(state, meddleTransitionState);
         }
       } // set state
 
@@ -1957,6 +1967,14 @@ function interpolateProperty(fn, from, to, progress) {
 }
 
 function getInterpolatedState(schema, startState, endState, timeFraction) {
+  if (timeFraction <= 0) {
+    return _objectSpread({}, startState);
+  }
+
+  if (timeFraction >= 1) {
+    return _objectSpread({}, endState);
+  }
+
   var nextState = _objectSpread({}, startState);
 
   for (var prop in endState) {
