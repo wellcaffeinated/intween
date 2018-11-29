@@ -8,17 +8,20 @@ function initControls( btnId, progressId, frames ){
     progress.style.width = frames.progress + '%'
   })
 
+  var prevPauseState
   var scrubber = new Hammer.Manager(progress.parentNode, {})
   scrubber.add( new Hammer.Press({ time: 0 }) )
   scrubber.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
-  scrubber.on('press pan', (e) => {
+  scrubber.on('panstart', () => {
+      prevPauseState = frames.paused
+    }).on('press pan', (e) => {
       frames.paused = true
       let pos = (e.center.x - progress.parentNode.offsetLeft) / progress.parentNode.offsetWidth
 
       frames.seek( pos * frames.totalTime )
     })
     .on('pressup panend', e => {
-      frames.paused = false
+      frames.paused = prevPauseState
     })
 
   btn.addEventListener('change', e => {
@@ -40,11 +43,11 @@ function demo1(){
   var frames = Frames({
     x: {
       type: 0
-      , interpolator: Frames.Interpolators.Angle
+      // , interpolator: Frames.Interpolators.Angle
     }
     , y: {
       type: 0
-      , interpolator: Frames.Interpolators.Angle
+      // , interpolator: Frames.Interpolators.Angle
     }
   }, {
     defaultTransitionDuration: '3s'
@@ -63,8 +66,18 @@ function demo1(){
   }, {
     id: 'up'
     , time: '10s'
+    , duration: '4s'
+  })
+
+  frames.add({
+    x: 0
+  }, {
+    id: 'origin'
+    , time: '10s'
     , duration: '2s'
   })
+
+  console.log(frames.timeline)
 
   // frames.loop()
 

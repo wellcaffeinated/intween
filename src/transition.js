@@ -4,7 +4,7 @@ export function createTransitionFromFrame( frame, previousState ){
   let startTime = frame.meta.time - frame.meta.duration
   let endTime = frame.meta.time
   let endState = frame.state
-  let startState = previousState // util.pick( previousState, Object.keys(endState) )
+  let startState = util.pick( previousState, Object.keys(endState) )
 
   return {
     startTime

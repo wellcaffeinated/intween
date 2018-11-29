@@ -1,37 +1,20 @@
 import util from '@/util'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
+import { createFrame } from '@/frame'
 import {
   getTransitionsAtTime
   , createTimeline
   , reduceTransitions
+  , getStartState
 } from '@/timeline'
 import EventEmitter from '@/event-emitter'
-import { timeParser } from '@/parsers/time'
-import { transitionParser } from '@/parsers/transition'
 
-const DEFAULT_FRAME_META = { time: 0 }
-const META_PARSERS = {
-  time: timeParser
-  , transition: transitionParser
-  , duration: timeParser
-}
 const DEFAULT_OPTIONS = {
   playbackRate: 1
   , defaultTransitionDuration: 1000
   , meddleTimeout: 2000
   , meddleDuration: 500
-}
-
-// parse meta to standardized format
-function parseMeta( meta, defaults ){
-  let ret = { ...defaults, ...meta } // clone
-
-  for ( let key in META_PARSERS ){
-    ret[key] = META_PARSERS[key]( ret[key] )
-  }
-
-  return ret
 }
 
 export default class extends EventEmitter {
@@ -68,36 +51,18 @@ export default class extends EventEmitter {
 
   // add a frame
   add( state, meta ){
-    if ( !state ){ return this }
-    if ( !meta ){
-      meta = state.$meta || { ...DEFAULT_FRAME_META }
-    }
 
-    meta = parseMeta( meta, {
+    let frame = createFrame(state, meta, {
       duration: this.options.defaultTransitionDuration
     })
 
-    if ( meta.id && this.framesById[meta.id] ){
-      throw new Error(`Frame with id "${meta.id}" already defined`)
-    }
-
-    // TODO decide if i wnat this
-    // if ( meta.inherit ){
-    //   let from = this.getFrame( meta.inherit )
-    //
-    //   state = { ...from.state, ...state }
-    //   // cleanup
-    //   delete state.$meta
-    // }
-
-    let frame = {
-      state
-      , meta
+    if ( frame.meta.id && this.framesById[frame.meta.id] ){
+      throw new Error(`Frame with id "${frame.meta.id}" already defined`)
     }
 
     // add to id list
-    if ( meta.id ){
-      this.framesById[ meta.id ] = frame
+    if ( frame.meta.id ){
+      this.framesById[ frame.meta.id ] = frame
     }
 
     this.frames.push( frame )
@@ -192,14 +157,16 @@ export default class extends EventEmitter {
 
   getStateAt( time ){
     if ( time >= this.totalTime ){
-      let t = this.timeline[this.timeline.length - 1].transition
+      let m = this.timeline[this.timeline.length - 1]
+      let t = m.transition
 
-      return { ...t.startState, ...t.endState }
+      return { ...m.state, ...t.endState }
     }
 
     let transitions = getTransitionsAtTime( this.timeline, time )
+    let startState = getStartState( this.timeline, time, this._defaultState )
 
-    return reduceTransitions( this._schema, transitions, time, this._defaultState )
+    return reduceTransitions( this._schema, transitions, time, startState )
   }
 
   to( timeOrId ){

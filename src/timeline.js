@@ -2,10 +2,46 @@ import util from '@/util'
 import { createState } from '@/schema'
 import { getInterpolatedState, createTransitionFromFrame, getTimeFraction } from '@/transition'
 
-// throws if the timeline has conflicts
+// Check for conflicting overlaps
 // ---------------------------------------
-function validateTimeline( timeline ){
+function getConflictingFrames( timeline ){
+  let markers = []
+  let idx
 
+  for ( let l = timeline.length, i = 0; i < l; i++ ){
+    let m = timeline[ i ]
+
+    if ( m.type === 'start' ){
+      markers.push( m )
+    } else {
+      // stop tracking its partner
+      idx = markers.indexOf( m.start )
+      markers.splice( idx, 1 )
+    }
+
+    for ( let l = markers.length, i = 0; i < l; i++ ){
+      let m = markers[ i ]
+
+      for ( let j = i + 1; j < l; j++ ){
+        let paths = util.getIntersectingPaths(
+          m.transition.endState
+          , markers[ j ].transition.endState
+        )
+
+        if ( paths.length ){
+          return {
+            paths
+            , frames: [
+              m.frame
+              , markers[ j ].frame
+            ]
+          }
+        }
+      }
+    }
+  }
+
+  return false
 }
 
 // Create a timeline array from specified frames
@@ -56,7 +92,26 @@ export function createTimeline( schema, frames = [] ){
     prevState = { ...prevState, ...transition.endState }
   })
 
-  validateTimeline( timeline )
+  prevState = defaultState
+
+  // assign a reduced end state to each marker
+  timeline.forEach( m => {
+    if ( m.type !== 'end' ){ return }
+
+    let transitions = getTransitionsAtTime( timeline, m.time )
+
+    prevState = reduceTransitions( schema, transitions, m.time, prevState )
+    m.state = prevState
+  })
+
+  let conflicts = getConflictingFrames( timeline )
+
+  if ( conflicts ){
+    throw new Error('The following overlapping frames modify the same state paths:\n'+
+      `paths: ${conflicts.paths}\n` +
+      `frames: ${JSON.stringify(conflicts.frames, null, 2)}`
+    )
+  }
 
   return timeline
 }
@@ -71,7 +126,7 @@ export function getTransitionsAtTime( timeline, time ){
   for ( let l = timeline.length, i = 0; i < l; i++ ){
     let m = timeline[ i ]
 
-    if ( m.time > time ){
+    if ( m.time >= time ){
       break
     }
 
@@ -85,6 +140,27 @@ export function getTransitionsAtTime( timeline, time ){
   }
 
   return markers.map(a => a.transition)
+}
+
+// Get the cached complete state at the
+// last end marker
+// ---------------------------------------
+export function getStartState( timeline, time, defaultState ){
+  let state = defaultState
+
+  for ( let l = timeline.length, i = 0; i < l; i++ ){
+    let m = timeline[ i ]
+
+    if ( m.time > time ){
+      return state
+    }
+
+    if ( m.type === 'end' ){
+      state = m.state
+    }
+  }
+
+  return state
 }
 
 // Get final state from transitions

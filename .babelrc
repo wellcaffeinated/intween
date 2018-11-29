@@ -1,6 +1,18 @@
 {
-  "presets": ["env"],
+  "presets": [["@babel/env", { "modules": "commonjs" }]],
   "plugins": [
     "babel-plugin-add-module-exports"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        ["module-resolver", {
+          "root": ["./"],
+          "alias": {
+            "@": "./src"
+          }
+        }]
+      ]
+    }
+  }
 }

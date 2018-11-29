@@ -70,4 +70,10 @@ util.pick = function( obj, keys = [] ){
   }, {})
 }
 
+util.getIntersectingPaths = function ( o1, o2 ){
+  return Object.keys(o1).filter(
+    Object.prototype.hasOwnProperty.bind( o2 )
+  )
+}
+
 export default util

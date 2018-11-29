@@ -2,7 +2,7 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("Frames", [], factory);
+		define([], factory);
 	else if(typeof exports === 'object')
 		exports["Frames"] = factory();
 	else
@@ -1082,6 +1082,72 @@ module.exports = exports.default;
 
 /***/ }),
 
+/***/ "./src/frame.js":
+/*!**********************!*\
+  !*** ./src/frame.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createFrame = createFrame;
+
+var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var DEFAULT_FRAME_META = {
+  time: 0
+};
+var META_PARSERS = {
+  time: _time.timeParser,
+  duration: _time.timeParser // parse meta to standardized format
+
+};
+
+function parseMeta(meta, defaults) {
+  var ret = _objectSpread({}, defaults, meta); // clone
+
+
+  for (var key in META_PARSERS) {
+    ret[key] = META_PARSERS[key](ret[key]);
+  }
+
+  return ret;
+}
+
+function createFrame(state, meta, defaultMetaOptions) {
+  if (!state) {
+    throw new Error('Can not create frame without state');
+  }
+
+  state = _objectSpread({}, state);
+  meta = parseMeta(meta || state.$meta, _objectSpread({}, defaultMetaOptions, DEFAULT_FRAME_META));
+  delete state.$meta;
+
+  if (!meta.duration) {
+    meta.duration = meta.time - meta.startTime;
+  }
+
+  if (!meta.startTime) {
+    meta.startTime = meta.time - meta.duration;
+  }
+
+  return {
+    state: state,
+    meta: meta
+  };
+}
+
+/***/ }),
+
 /***/ "./src/index.js":
 /*!**********************!*\
   !*** ./src/index.js ***!
@@ -1178,17 +1244,19 @@ var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
 var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
 
+var _frame = __webpack_require__(/*! @/frame */ "./src/frame.js");
+
 var _timeline = __webpack_require__(/*! @/timeline */ "./src/timeline.js");
 
 var _eventEmitter = _interopRequireDefault(__webpack_require__(/*! @/event-emitter */ "./src/event-emitter.js"));
 
-var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
-
-var _transition2 = __webpack_require__(/*! @/parsers/transition */ "./src/parsers/transition.js");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1200,49 +1268,30 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var DEFAULT_FRAME_META = {
-  time: 0
-};
-var META_PARSERS = {
-  time: _time.timeParser,
-  transition: _transition2.transitionParser,
-  duration: _time.timeParser
-};
 var DEFAULT_OPTIONS = {
   playbackRate: 1,
   defaultTransitionDuration: 1000,
   meddleTimeout: 2000,
-  meddleDuration: 500 // parse meta to standardized format
-
+  meddleDuration: 500
 };
 
-function parseMeta(meta, defaults) {
-  var ret = { ...defaults,
-    ...meta
-  }; // clone
-
-  for (var key in META_PARSERS) {
-    ret[key] = META_PARSERS[key](ret[key]);
-  }
-
-  return ret;
-}
-
-var _class =
+var _default =
 /*#__PURE__*/
 function (_EventEmitter) {
-  _inherits(_class, _EventEmitter);
+  _inherits(_default, _EventEmitter);
 
-  function _class(schema, options) {
+  function _default(schema, options) {
     var _this;
 
-    _classCallCheck(this, _class);
+    _classCallCheck(this, _default);
 
-    _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(_default).call(this));
     _this.time = 0;
     _this.framesById = {};
     _this.frames = [];
@@ -1259,43 +1308,21 @@ function (_EventEmitter) {
     return _this;
   }
 
-  _createClass(_class, [{
+  _createClass(_default, [{
     key: "add",
     // add a frame
     value: function add(state, meta) {
-      if (!state) {
-        return this;
-      }
-
-      if (!meta) {
-        meta = state.$meta || { ...DEFAULT_FRAME_META
-        };
-      }
-
-      meta = parseMeta(meta, {
+      var frame = (0, _frame.createFrame)(state, meta, {
         duration: this.options.defaultTransitionDuration
       });
 
-      if (meta.id && this.framesById[meta.id]) {
-        throw new Error("Frame with id \"".concat(meta.id, "\" already defined"));
-      } // TODO decide if i wnat this
-      // if ( meta.inherit ){
-      //   let from = this.getFrame( meta.inherit )
-      //
-      //   state = { ...from.state, ...state }
-      //   // cleanup
-      //   delete state.$meta
-      // }
+      if (frame.meta.id && this.framesById[frame.meta.id]) {
+        throw new Error("Frame with id \"".concat(frame.meta.id, "\" already defined"));
+      } // add to id list
 
 
-      var frame = {
-        state: state,
-        meta: meta // add to id list
-
-      };
-
-      if (meta.id) {
-        this.framesById[meta.id] = frame;
+      if (frame.meta.id) {
+        this.framesById[frame.meta.id] = frame;
       }
 
       this.frames.push(frame);
@@ -1319,9 +1346,7 @@ function (_EventEmitter) {
 
       duration = duration || this.options.meddleDuration;
       timeout = timeout || this.options.meddleTimeout;
-      this._meddle.state = { ...this._meddle.state,
-        ...meddleState
-      };
+      this._meddle.state = _objectSpread({}, this._meddle.state, meddleState);
       this._meddle.active = true;
       this._meddle.isFinite = true;
       this._meddle.endState = null;
@@ -1388,14 +1413,14 @@ function (_EventEmitter) {
     key: "getStateAt",
     value: function getStateAt(time) {
       if (time >= this.totalTime) {
-        var t = this.timeline[this.timeline.length - 1].transition;
-        return { ...t.startState,
-          ...t.endState
-        };
+        var m = this.timeline[this.timeline.length - 1];
+        var t = m.transition;
+        return _objectSpread({}, m.state, t.endState);
       }
 
       var transitions = (0, _timeline.getTransitionsAtTime)(this.timeline, time);
-      return (0, _timeline.reduceTransitions)(this._schema, transitions, time, this._defaultState);
+      var startState = (0, _timeline.getStartState)(this.timeline, time, this._defaultState);
+      return (0, _timeline.reduceTransitions)(this._schema, transitions, time, startState);
     }
   }, {
     key: "to",
@@ -1458,10 +1483,10 @@ function (_EventEmitter) {
     }
   }]);
 
-  return _class;
+  return _default;
 }(_eventEmitter.default);
 
-exports.default = _class;
+exports.default = _default;
 module.exports = exports.default;
 
 /***/ }),
@@ -1523,38 +1548,6 @@ function timeParser(strOrNumber) {
   }
 
   return 0;
-}
-
-/***/ }),
-
-/***/ "./src/parsers/transition.js":
-/*!***********************************!*\
-  !*** ./src/parsers/transition.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.transitionParser = transitionParser;
-
-var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
-
-function transitionParser(val) {
-  if (!Array.isArray(val)) {
-    var transition = {};
-    transition.back = transition.forward = (0, _time.timeParser)(val);
-    return transition;
-  }
-
-  return {
-    forward: (0, _time.timeParser)(val[0]),
-    back: (0, _time.timeParser)(val[1])
-  };
 }
 
 /***/ }),
@@ -1729,6 +1722,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createTimeline = createTimeline;
 exports.getTransitionsAtTime = getTransitionsAtTime;
+exports.getStartState = getStartState;
 exports.reduceTransitions = reduceTransitions;
 
 var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
@@ -1739,9 +1733,45 @@ var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js")
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// throws if the timeline has conflicts
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Check for conflicting overlaps
 // ---------------------------------------
-function validateTimeline(timeline) {} // Create a timeline array from specified frames
+function getConflictingFrames(timeline) {
+  var markers = [];
+  var idx;
+
+  for (var l = timeline.length, i = 0; i < l; i++) {
+    var m = timeline[i];
+
+    if (m.type === 'start') {
+      markers.push(m);
+    } else {
+      // stop tracking its partner
+      idx = markers.indexOf(m.start);
+      markers.splice(idx, 1);
+    }
+
+    for (var _l = markers.length, _i = 0; _i < _l; _i++) {
+      var _m = markers[_i];
+
+      for (var j = _i + 1; j < _l; j++) {
+        var paths = _util.default.getIntersectingPaths(_m.transition.endState, markers[j].transition.endState);
+
+        if (paths.length) {
+          return {
+            paths: paths,
+            frames: [_m.frame, markers[j].frame]
+          };
+        }
+      }
+    }
+  }
+
+  return false;
+} // Create a timeline array from specified frames
 // ---------------------------------------
 
 
@@ -1795,11 +1825,25 @@ function createTimeline(schema) {
     var transition = (0, _transition.createTransitionFromFrame)(m.frame, prevState);
     m.transition = transition;
     m.start.transition = transition;
-    prevState = { ...prevState,
-      ...transition.endState
-    };
+    prevState = _objectSpread({}, prevState, transition.endState);
   });
-  validateTimeline(timeline);
+  prevState = defaultState; // assign a reduced end state to each marker
+
+  timeline.forEach(function (m) {
+    if (m.type !== 'end') {
+      return;
+    }
+
+    var transitions = getTransitionsAtTime(timeline, m.time);
+    prevState = reduceTransitions(schema, transitions, m.time, prevState);
+    m.state = prevState;
+  });
+  var conflicts = getConflictingFrames(timeline);
+
+  if (conflicts) {
+    throw new Error('The following overlapping frames modify the same state paths:\n' + "paths: ".concat(conflicts.paths, "\n") + "frames: ".concat(JSON.stringify(conflicts.frames, null, 2)));
+  }
+
   return timeline;
 } // Get transition information needed
 // at specified time from timeline
@@ -1813,7 +1857,7 @@ function getTransitionsAtTime(timeline, time) {
   for (var l = timeline.length, i = 0; i < l; i++) {
     var m = timeline[i];
 
-    if (m.time > time) {
+    if (m.time >= time) {
       break;
     }
 
@@ -1829,6 +1873,27 @@ function getTransitionsAtTime(timeline, time) {
   return markers.map(function (a) {
     return a.transition;
   });
+} // Get the cached complete state at the
+// last end marker
+// ---------------------------------------
+
+
+function getStartState(timeline, time, defaultState) {
+  var state = defaultState;
+
+  for (var l = timeline.length, i = 0; i < l; i++) {
+    var m = timeline[i];
+
+    if (m.time > time) {
+      return state;
+    }
+
+    if (m.type === 'end') {
+      state = m.state;
+    }
+  }
+
+  return state;
 } // Get final state from transitions
 // ---------------------------------------
 
@@ -1840,8 +1905,7 @@ function reduceTransitions(schema) {
   return transitions.reduce(function (state, tr) {
     var progress = (0, _transition.getTimeFraction)(tr.startTime, tr.endTime, time);
     return Object.assign(state, (0, _transition.getInterpolatedState)(schema, tr.startState, tr.endState, progress));
-  }, { ...initialState
-  });
+  }, _objectSpread({}, initialState));
 }
 
 /***/ }),
@@ -1868,11 +1932,16 @@ var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function createTransitionFromFrame(frame, previousState) {
   var startTime = frame.meta.time - frame.meta.duration;
   var endTime = frame.meta.time;
   var endState = frame.state;
-  var startState = previousState; // util.pick( previousState, Object.keys(endState) )
+
+  var startState = _util.default.pick(previousState, Object.keys(endState));
 
   return {
     startTime: startTime,
@@ -1888,8 +1957,7 @@ function interpolateProperty(fn, from, to, progress) {
 }
 
 function getInterpolatedState(schema, startState, endState, timeFraction) {
-  var nextState = { ...startState
-  };
+  var nextState = _objectSpread({}, startState);
 
   for (var prop in endState) {
     var def = schema[prop];
@@ -2001,6 +2069,10 @@ util.pick = function (obj) {
     out[k] = obj[k];
     return out;
   }, {});
+};
+
+util.getIntersectingPaths = function (o1, o2) {
+  return Object.keys(o1).filter(Object.prototype.hasOwnProperty.bind(o2));
 };
 
 var _default = util;
