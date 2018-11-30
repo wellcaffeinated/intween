@@ -1619,7 +1619,11 @@ function getType(val) {
 function getDefaultValue(def) {
   var val = def.type === undefined ? def : def.type;
 
-  var type = _typeof(val); // non-specific defaults
+  var type = _typeof(val);
+
+  if (Number.isFinite(val)) {
+    return val;
+  } // non-specific defaults
 
 
   if (val === Number) {
@@ -1643,7 +1647,7 @@ function getDefaultValue(def) {
   } // specific defaults
 
 
-  if (type === 'array') {
+  if (Array.isArray(val)) {
     return val.map(getDefaultValue);
   }
 
@@ -1675,10 +1679,11 @@ function createSchema(schemaDef) {
     var type = void 0;
     var defaultVal = void 0;
 
-    if (_typeof(def) === 'object' && def.type !== 'undefined') {
+    if (_typeof(def) === 'object' && def.type !== undefined) {
       type = getType(def.type);
       easing = def.easing || defaultEasing;
       interpolator = def.interpolator || null;
+      defaultVal = def.default;
     } else {
       type = getType(def);
     }

@@ -35,6 +35,10 @@ function getDefaultValue( def ){
   let val = def.type === undefined ? def : def.type
   let type = typeof val
 
+  if ( Number.isFinite( val ) ){
+    return val
+  }
+
   // non-specific defaults
   if ( val === Number ){
     return 0
@@ -57,7 +61,7 @@ function getDefaultValue( def ){
   }
 
   // specific defaults
-  if ( type === 'array' ){
+  if ( Array.isArray( val ) ){
     return val.map( getDefaultValue )
   }
 
@@ -86,10 +90,11 @@ export function createSchema( schemaDef, defaultEasing = Easing.Linear.None ){
     let type
     let defaultVal
 
-    if ( typeof def === 'object' && def.type !== 'undefined' ){
+    if ( typeof def === 'object' && def.type !== undefined ){
       type = getType( def.type )
       easing = def.easing || defaultEasing
       interpolator = def.interpolator || null
+      defaultVal = def.default
 
     } else {
       type = getType( def )

@@ -77,11 +77,11 @@ function demo1(){
     , duration: '2s'
   })
 
-  console.log(frames.timeline)
+  // console.log(frames.timeline)
 
   // frames.loop()
 
-  console.log('schema', frames._schema)
+  // console.log('schema', frames._schema)
   // user interaction
 
   var offsetX = 0

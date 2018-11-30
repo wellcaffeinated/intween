@@ -141,27 +141,32 @@
     const schema = { cameraPhi: s.phi, cameraTheta: s.theta, cameraR: s.radius }
 
     objects.forEach( (obj, i) => {
-      schema[`object-${i}-x`] = obj.position.x
-      schema[`object-${i}-y`] = obj.position.y
-      schema[`object-${i}-z`] = obj.position.z
+      schema[`object-${i}`] = obj.position.toArray()
     })
 
     const frames = Frames( schema )
+    // console.log(frames._schema)
 
     dragControls.addEventListener('drag', (e) => {
-      let x = e.object.position.x
-      let y = e.object.position.y
-      let z = e.object.position.z
       let i = objects.indexOf( e.object )
 
       frames.meddle({
-        [`object-${i}-x`]: x
-        , [`object-${i}-y`]: y
-        , [`object-${i}-z`]: z
+        [`object-${i}`]: e.object.position.toArray()
       })
     })
 
+    let userMeddle = false
+    controls.addEventListener('start', e => {
+      userMeddle = true
+    })
+
+    controls.addEventListener('end', e => {
+      userMeddle = false
+    })
+
     controls.addEventListener('change', e => {
+      if ( !userMeddle ){ return }
+
       s.setFromVector3( e.target.object.position )
 
       frames.meddle({
@@ -185,14 +190,14 @@
       let z = Math.random() * 800 - 400
 
       frames.add({
-        [`object-${i}-x`]: x
-        , [`object-${i}-y`]: y
-        , [`object-${i}-z`]: z
+        [`object-${i}`]: [x, y, z]
       }, {
         time: (Math.random() * 60 + 11) * 1000
         , duration: '10s'
       })
     }
+
+    // console.log(frames.timeline)
 
     animate()
 
@@ -208,13 +213,12 @@
       s.phi = state.cameraPhi
       s.theta = state.cameraTheta
 
-      console.log(s)
+      // console.log(time, state.cameraTheta)
       camera.position.setFromSpherical( s )
+      controls.update()
 
       objects.forEach( (obj, i) => {
-        obj.position.x = state[`object-${i}-x`]
-        obj.position.y = state[`object-${i}-y`]
-        obj.position.z = state[`object-${i}-z`]
+        obj.position.fromArray( state[`object-${i}`] )
       })
     })
   }
