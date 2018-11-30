@@ -1392,7 +1392,7 @@ function (_EventEmitter) {
         if (!meddle.freeze && meddle.startTime === false) {
           meddle.startTime = this.time;
           meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration;
-          meddle.endState = this.getStateAt(meddle.endTime);
+          meddle.endState = _util.default.pick(this.getStateAt(meddle.endTime), Object.keys(meddle.state));
         }
 
         if (!meddle.freeze && (this.time >= meddle.endTime || this.time < meddle.startTime)) {

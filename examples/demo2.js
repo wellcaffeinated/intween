@@ -2,7 +2,7 @@
   var byId = document.getElementById.bind(document)
   const cameraDist = 1000
   var container, stats;
-  var camera, controls, scene, renderer;
+  var camera, controls, scene, renderer, dragControls;
   var objects = [];
 
   function getSoundcloud(){
@@ -81,7 +81,7 @@
 
     container.appendChild( renderer.domElement );
 
-    var dragControls = new THREE.DragControls( objects, camera, renderer.domElement );
+    dragControls = new THREE.DragControls( objects, camera, renderer.domElement );
     dragControls.addEventListener( 'dragstart', function () {
 
       controls.enabled = false;
@@ -133,19 +133,67 @@
 
 
   function demo2(){
-    const frames = Frames({
-      ang: 0
+    init()
+
+    let s = new THREE.Spherical()
+
+    s.setFromVector3( camera.position )
+    const schema = { cameraPhi: s.phi, cameraTheta: s.theta, cameraR: s.radius }
+
+    objects.forEach( (obj, i) => {
+      schema[`object-${i}-x`] = obj.position.x
+      schema[`object-${i}-y`] = obj.position.y
+      schema[`object-${i}-z`] = obj.position.z
+    })
+
+    const frames = Frames( schema )
+
+    dragControls.addEventListener('drag', (e) => {
+      let x = e.object.position.x
+      let y = e.object.position.y
+      let z = e.object.position.z
+      let i = objects.indexOf( e.object )
+
+      frames.meddle({
+        [`object-${i}-x`]: x
+        , [`object-${i}-y`]: y
+        , [`object-${i}-z`]: z
+      })
+    })
+
+    controls.addEventListener('change', e => {
+      s.setFromVector3( e.target.object.position )
+
+      frames.meddle({
+        cameraPhi: s.phi
+        , cameraTheta: s.theta
+        , cameraR: s.radius
+      })
     })
 
     frames.add({
-      ang: 10 * 2 * Math.PI
+      cameraTheta: 10 * 2 * Math.PI
     }, {
       id: 'camera'
       , time: '04:54'
       , duration: '04:54'
     })
 
-    init()
+    for ( let i = 0, l = objects.length; i < l; i++ ){
+      let x = Math.random() * 1000 - 500
+      let y = Math.random() * 600 - 300
+      let z = Math.random() * 800 - 400
+
+      frames.add({
+        [`object-${i}-x`]: x
+        , [`object-${i}-y`]: y
+        , [`object-${i}-z`]: z
+      }, {
+        time: (Math.random() * 60 + 11) * 1000
+        , duration: '10s'
+      })
+    }
+
     animate()
 
     const widget = getSoundcloud()
@@ -155,11 +203,19 @@
       frames.seek(time)
 
       let state = frames.state
-      let x = camera.position.x
-      let z = camera.position.z
-      let r = Math.sqrt(x * x + z * z)
-      camera.position.x = r * Math.sin(state.ang)
-      camera.position.z = r * Math.cos(state.ang)
+
+      s.radius = state.cameraR
+      s.phi = state.cameraPhi
+      s.theta = state.cameraTheta
+
+      console.log(s)
+      camera.position.setFromSpherical( s )
+
+      objects.forEach( (obj, i) => {
+        obj.position.x = state[`object-${i}-x`]
+        obj.position.y = state[`object-${i}-y`]
+        obj.position.z = state[`object-${i}-z`]
+      })
     })
   }
 

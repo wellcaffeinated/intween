@@ -126,7 +126,10 @@ export default class extends EventEmitter {
       if ( !meddle.freeze && meddle.startTime === false ){
         meddle.startTime = this.time
         meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration
-        meddle.endState = this.getStateAt( meddle.endTime )
+        meddle.endState = util.pick(
+          this.getStateAt( meddle.endTime )
+          , Object.keys(meddle.state)
+        )
       }
 
       if ( !meddle.freeze &&
