@@ -1,118 +1,58 @@
 import Easing from 'easing-functions'
-import Interpolators from '@/interpolators'
+import { isExplicit, getType, getTypeCfg } from '@/type'
 
-function getType( val ){
-  let type = typeof val
+const DEFAULT_EASING = Easing.Linear.None
 
-  if ( type === 'string' ){
-    return val
-  }
-
-  if ( val === Number || type === 'number' ){
-    return 'number'
-  }
-
-  if ( val === Boolean || type === 'boolean' ){
-    return 'boolean'
-  }
-
-  if ( val === String ){
-    return 'string'
-  }
-
-  if ( val === Array || Array.isArray( val ) ){
-    return 'array'
-  }
-
-  if ( val === Object || type === 'object' ){
-    return 'object'
-  }
-
-  return type
-}
-
-function getDefaultValue( def ){
-  let val = def.type === undefined ? def : def.type
-  let type = typeof val
-
-  if ( Number.isFinite( val ) ){
-    return val
-  }
-
-  // non-specific defaults
-  if ( val === Number ){
-    return 0
-  }
-
-  if ( val === Boolean ){
-    return false
-  }
-
-  if ( val === String ){
-    return ''
-  }
-
-  if ( val === Array ){
-    return []
-  }
-
-  if ( val === Object ){
-    return {}
-  }
-
-  // specific defaults
-  if ( Array.isArray( val ) ){
-    return val.map( getDefaultValue )
-  }
-
-  if ( type === 'object' ){
-    let ret = {}
-    let keys = Object.keys(val)
-
-    for ( let k of keys ){
-      ret[ k ] = getDefaultValue( val[k] )
-    }
-
-    return ret
-  }
-
-  return val
-}
-
-export function createSchema( schemaDef, defaultEasing = Easing.Linear.None ){
+export function createSchema( schemaDef ){
   let schema = {}
   let props = Object.keys( schemaDef )
 
   for ( let prop of props ){
     let def = schemaDef[ prop ]
-    let easing = defaultEasing
+    let easing = DEFAULT_EASING
     let interpolator = null
     let type
+    let cfg
     let defaultVal
 
     if ( typeof def === 'object' && def.type !== undefined ){
       type = getType( def.type )
-      easing = def.easing || defaultEasing
-      interpolator = def.interpolator || null
-      defaultVal = def.default
+      cfg = getTypeCfg( type )
+      if ( !cfg ){
+        throw new Error(`Unrecognized type ${type}`)
+      }
+
+      if ( isExplicit( type, def.type ) ){
+        defaultVal = def.default || cfg.default
+      } else {
+        defaultVal = def.type
+      }
+
+      easing = def.easing || DEFAULT_EASING
+      interpolator = def.interpolator || cfg.interpolator
 
     } else {
-      type = getType( def )
-    }
+      if ( typeof def === 'string' ){
+        type = 'string'
+      } else {
+        type = getType( def )
+      }
 
-    if ( type === 'array' ){
-      interpolator = interpolator || Interpolators.Array
-    }
+      cfg = getTypeCfg( type )
+      if ( !cfg ){
+        throw new Error(`Unrecognized type ${type}`)
+      }
 
-    if ( defaultVal === undefined ){
-      defaultVal = getDefaultValue( def )
+      easing = def.easing || DEFAULT_EASING
+      interpolator = cfg.interpolator
+      defaultVal = isExplicit( type, def ) ? cfg.default : def
     }
 
     schema[ prop ] = {
       type
       , easing
       , default: defaultVal
-      , interpolator: interpolator || Interpolators.Linear
+      , interpolator: interpolator
       , def
     }
   }

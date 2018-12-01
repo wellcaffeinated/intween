@@ -135,13 +135,27 @@
   function demo2(){
     init()
 
+    Frames.registerType({
+      type: 'vector'
+      , default: new THREE.Vector3()
+      , interpolator: (from, to, t) => {
+        let v = new THREE.Vector3()
+
+        v.copy( from )
+        return v.lerp( to, t )
+      }
+    })
+
     let s = new THREE.Spherical()
 
     s.setFromVector3( camera.position )
     const schema = { cameraPhi: s.phi, cameraTheta: s.theta, cameraR: s.radius }
 
     objects.forEach( (obj, i) => {
-      schema[`object-${i}`] = obj.position.toArray()
+      schema[`object-${i}`] = {
+        type: 'vector'
+        , default: obj.position.clone()
+      }
     })
 
     const frames = Frames( schema )
@@ -151,7 +165,7 @@
       let i = objects.indexOf( e.object )
 
       frames.meddle({
-        [`object-${i}`]: e.object.position.toArray()
+        [`object-${i}`]: e.object.position.clone()
       })
     })
 
@@ -190,7 +204,7 @@
       let z = Math.random() * 800 - 400
 
       frames.add({
-        [`object-${i}`]: [x, y, z]
+        [`object-${i}`]: new THREE.Vector3(x, y, z)
       }, {
         time: (Math.random() * 60 + 11) * 1000
         , duration: '10s'
@@ -213,12 +227,14 @@
       s.phi = state.cameraPhi
       s.theta = state.cameraTheta
 
+      // console.log(state['object-2'])
+
       // console.log(time, state.cameraTheta)
       camera.position.setFromSpherical( s )
       controls.update()
 
       objects.forEach( (obj, i) => {
-        obj.position.fromArray( state[`object-${i}`] )
+        obj.position.copy( state[`object-${i}`] )
       })
     })
   }

@@ -1169,6 +1169,8 @@ var _manager = _interopRequireDefault(__webpack_require__(/*! @/manager */ "./sr
 
 var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolators */ "./src/interpolators.js"));
 
+var _type = __webpack_require__(/*! @/type */ "./src/type.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Frames = function Frames(schema, meta) {
@@ -1177,6 +1179,7 @@ var Frames = function Frames(schema, meta) {
 
 Frames.Easing = _easingFunctions.default;
 Frames.Interpolators = _interpolators.default;
+Frames.registerType = _type.registerType;
 var _default = Frames;
 exports.default = _default;
 module.exports = exports.default;
@@ -1197,11 +1200,22 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var Pi2 = Math.PI * 2;
 
 function shortestAngleDist(a0, a1) {
   var da = (a1 - a0) % Pi2;
   return (da - Math.PI) % Pi2 + Math.PI;
+}
+
+function toCharCodes(str) {
+  return str.split('').map(function (c) {
+    return c.charCodeAt();
+  });
 }
 
 var Interpolators = {
@@ -1215,6 +1229,17 @@ var Interpolators = {
     return to.map(function (v1, idx) {
       return Interpolators.Linear(from[idx], v1, t);
     });
+  },
+  Object: function Object(from, to, t) {
+    return _util.default.mapProperties(from, function (val, key) {
+      return Interpolators.Linear(val, to[key], t);
+    });
+  },
+  String: function String(from, to, t) {
+    return Interpolators.Array(toCharCodes(from), toCharCodes(to), t).join('');
+  },
+  Step: function Step(from, to, t) {
+    return t > 0.5 ? to : from;
   }
 };
 var _default = Interpolators;
@@ -1580,127 +1605,66 @@ exports.createState = createState;
 
 var _easingFunctions = _interopRequireDefault(__webpack_require__(/*! easing-functions */ "./node_modules/easing-functions/index.js"));
 
-var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolators */ "./src/interpolators.js"));
+var _type = __webpack_require__(/*! @/type */ "./src/type.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function getType(val) {
-  var type = _typeof(val);
-
-  if (type === 'string') {
-    return val;
-  }
-
-  if (val === Number || type === 'number') {
-    return 'number';
-  }
-
-  if (val === Boolean || type === 'boolean') {
-    return 'boolean';
-  }
-
-  if (val === String) {
-    return 'string';
-  }
-
-  if (val === Array || Array.isArray(val)) {
-    return 'array';
-  }
-
-  if (val === Object || type === 'object') {
-    return 'object';
-  }
-
-  return type;
-}
-
-function getDefaultValue(def) {
-  var val = def.type === undefined ? def : def.type;
-
-  var type = _typeof(val);
-
-  if (Number.isFinite(val)) {
-    return val;
-  } // non-specific defaults
-
-
-  if (val === Number) {
-    return 0;
-  }
-
-  if (val === Boolean) {
-    return false;
-  }
-
-  if (val === String) {
-    return '';
-  }
-
-  if (val === Array) {
-    return [];
-  }
-
-  if (val === Object) {
-    return {};
-  } // specific defaults
-
-
-  if (Array.isArray(val)) {
-    return val.map(getDefaultValue);
-  }
-
-  if (type === 'object') {
-    var ret = {};
-    var keys = Object.keys(val);
-
-    for (var _i = 0; _i < keys.length; _i++) {
-      var k = keys[_i];
-      ret[k] = getDefaultValue(val[k]);
-    }
-
-    return ret;
-  }
-
-  return val;
-}
+var DEFAULT_EASING = _easingFunctions.default.Linear.None;
 
 function createSchema(schemaDef) {
-  var defaultEasing = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _easingFunctions.default.Linear.None;
   var schema = {};
   var props = Object.keys(schemaDef);
 
-  for (var _i2 = 0; _i2 < props.length; _i2++) {
-    var prop = props[_i2];
+  for (var _i = 0; _i < props.length; _i++) {
+    var prop = props[_i];
     var def = schemaDef[prop];
-    var easing = defaultEasing;
+    var easing = DEFAULT_EASING;
     var interpolator = null;
     var type = void 0;
+    var cfg = void 0;
     var defaultVal = void 0;
 
     if (_typeof(def) === 'object' && def.type !== undefined) {
-      type = getType(def.type);
-      easing = def.easing || defaultEasing;
-      interpolator = def.interpolator || null;
-      defaultVal = def.default;
+      type = (0, _type.getType)(def.type);
+      cfg = (0, _type.getTypeCfg)(type);
+
+      if (!cfg) {
+        throw new Error("Unrecognized type ".concat(type));
+      }
+
+      if ((0, _type.isExplicit)(type, def.type)) {
+        defaultVal = def.default || cfg.default;
+      } else {
+        defaultVal = def.type;
+      }
+
+      easing = def.easing || DEFAULT_EASING;
+      interpolator = def.interpolator || cfg.interpolator;
     } else {
-      type = getType(def);
-    }
+      if (typeof def === 'string') {
+        type = 'string';
+      } else {
+        type = (0, _type.getType)(def);
+      }
 
-    if (type === 'array') {
-      interpolator = interpolator || _interpolators.default.Array;
-    }
+      cfg = (0, _type.getTypeCfg)(type);
 
-    if (defaultVal === undefined) {
-      defaultVal = getDefaultValue(def);
+      if (!cfg) {
+        throw new Error("Unrecognized type ".concat(type));
+      }
+
+      easing = def.easing || DEFAULT_EASING;
+      interpolator = cfg.interpolator;
+      defaultVal = (0, _type.isExplicit)(type, def) ? cfg.default : def;
     }
 
     schema[prop] = {
       type: type,
       easing: easing,
       default: defaultVal,
-      interpolator: interpolator || _interpolators.default.Linear,
+      interpolator: interpolator,
       def: def
     };
   }
@@ -1712,8 +1676,8 @@ function createState(schema) {
   var state = {};
   var props = Object.keys(schema);
 
-  for (var _i3 = 0; _i3 < props.length; _i3++) {
-    var prop = props[_i3];
+  for (var _i2 = 0; _i2 < props.length; _i2++) {
+    var prop = props[_i2];
     state[prop] = schema[prop].default;
   }
 
@@ -2007,6 +1971,146 @@ function getTimeFraction(startTime, endTime, time) {
 
 /***/ }),
 
+/***/ "./src/type.js":
+/*!*********************!*\
+  !*** ./src/type.js ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.registerType = registerType;
+exports.getType = getType;
+exports.isExplicit = isExplicit;
+exports.getTypeCfg = getTypeCfg;
+exports.NATIVE_TYPES = void 0;
+
+var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolators */ "./src/interpolators.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var NATIVE_TYPES = {
+  'number': {
+    type: 'number',
+    default: 0,
+    interpolator: _interpolators.default.Linear
+  },
+  'string': {
+    type: 'string',
+    default: '',
+    interpolator: _interpolators.default.String
+  },
+  'boolean': {
+    type: 'boolean',
+    default: false,
+    interpolator: _interpolators.default.Switch
+  },
+  'array': {
+    type: 'array',
+    default: [],
+    interpolator: _interpolators.default.Array
+  },
+  'object': {
+    type: 'object',
+    default: {},
+    interpolator: _interpolators.default.Object
+  }
+};
+exports.NATIVE_TYPES = NATIVE_TYPES;
+var CUSTOM_TYPES = {};
+
+function registerType(cfg) {
+  var type = cfg.type,
+      interpolator = cfg.interpolator;
+
+  if (!type || !interpolator) {
+    throw new Error('Custom types must have "type" and "interpolator" specified');
+  }
+
+  if (CUSTOM_TYPES[type]) {
+    throw new Error("Custom type \"".concat(type, "\" is already registered"));
+  }
+
+  CUSTOM_TYPES[type] = {
+    type: type,
+    interpolator: interpolator,
+    default: cfg.default
+  };
+}
+
+function getType(val) {
+  var type = _typeof(val);
+
+  if (type === 'string') {
+    return val;
+  }
+
+  if (val === Number || type === 'number') {
+    return 'number';
+  }
+
+  if (val === Boolean || type === 'boolean') {
+    return 'boolean';
+  }
+
+  if (val === String) {
+    return 'string';
+  }
+
+  if (val === Array || Array.isArray(val)) {
+    return 'array';
+  }
+
+  if (val === Object) {
+    return 'object';
+  }
+
+  if (type === 'object') {
+    throw new Error('Can not use implicit definition for objects or custom types');
+  }
+
+  return type;
+} // determine if the schema declaration is an explicit declaration
+// of the type. eg: (type: 2) is implicit number
+
+
+function isExplicit(type, val) {
+  if (type === 'string') {
+    return val === 'string' || val === String;
+  }
+
+  if (type === 'number') {
+    return val === 'number' || val === Number;
+  }
+
+  if (type === 'boolean') {
+    return val === 'boolean' || val === Boolean;
+  }
+
+  if (type === 'array') {
+    return val === 'array' || val === Array;
+  }
+
+  if (type === 'object') {
+    return val === 'object' || val === Object;
+  }
+
+  return true;
+}
+
+function getTypeCfg(type) {
+  return NATIVE_TYPES[type] || CUSTOM_TYPES[type];
+}
+
+/***/ }),
+
 /***/ "./src/util/index.js":
 /*!***************************!*\
   !*** ./src/util/index.js ***!
@@ -2055,6 +2159,21 @@ if (typeof window === 'undefined' && typeof process !== 'undefined') {
 util.clamp = function (min, max, v) {
   return Math.min(Math.max(v, min), max);
 };
+
+util.mapProperties = function (obj, fn) {
+  return Object.keys(obj).reduce(function (ret, val, key) {
+    ret[key] = fn(val, key);
+    return ret;
+  }, {});
+};
+
+util.pick = function (obj) {
+  var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  return keys.reduce(function (out, k) {
+    out[k] = obj[k];
+    return out;
+  }, {});
+};
 /**
  * util.sortedIndex( array, value[, callback] ) -> Number
  * - array (Array): The array to inspect
@@ -2084,14 +2203,6 @@ util.sortedIndex = function (array, value, callback) {
   }
 
   return low;
-};
-
-util.pick = function (obj) {
-  var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-  return keys.reduce(function (out, k) {
-    out[k] = obj[k];
-    return out;
-  }, {});
 };
 
 util.getIntersectingPaths = function (o1, o2) {

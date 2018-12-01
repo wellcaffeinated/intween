@@ -33,6 +33,20 @@ util.clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)
 }
 
+util.mapProperties = function( obj, fn ){
+  return Object.keys( obj ).reduce( (ret, val, key) => {
+    ret[key] = fn(val, key)
+    return ret
+  }, {} )
+}
+
+util.pick = function( obj, keys = [] ){
+  return keys.reduce( (out, k) => {
+    out[k] = obj[k]
+    return out
+  }, {})
+}
+
 /**
  * util.sortedIndex( array, value[, callback] ) -> Number
  * - array (Array): The array to inspect
@@ -61,13 +75,6 @@ util.sortedIndex = function( array, value, callback ) {
   }
 
   return low
-}
-
-util.pick = function( obj, keys = [] ){
-  return keys.reduce( (out, k) => {
-    out[k] = obj[k]
-    return out
-  }, {})
 }
 
 util.getIntersectingPaths = function ( o1, o2 ){
