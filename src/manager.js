@@ -1,4 +1,5 @@
 import util from '@/util'
+import Easing from 'easing-functions'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { createFrame } from '@/frame'
@@ -77,9 +78,9 @@ export default class extends EventEmitter {
   }
 
   // toggle user meddling
-  meddle( meddleState, { relaxDuration, relaxDelay, freeze } = {} ){
-    relaxDelay = relaxDelay || this.options.meddleRelaxDelay
-    relaxDuration = relaxDuration || this.options.meddleRelaxDuration
+  meddle( meddleState, { relaxDuration, relaxDelay, freeze, easing } = {} ){
+    relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay
+    relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration
 
     this._meddle.state = { ...this._meddle.state, ...meddleState }
     this._meddle.startTime = false
@@ -88,6 +89,7 @@ export default class extends EventEmitter {
     this._meddle.freeze = freeze
     this._meddle.relaxDelay = relaxDelay
     this._meddle.relaxDuration = relaxDuration
+    this._meddle.easing = easing || Easing.Linear.None
 
     return this
   }
@@ -161,6 +163,7 @@ export default class extends EventEmitter {
           , meddle.state
           , meddle.endState
           , timeFraction
+          , meddle.easing
         )
 
         Object.assign( state, meddleTransitionState )

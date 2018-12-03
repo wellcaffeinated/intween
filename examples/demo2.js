@@ -110,8 +110,8 @@
     info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - draggable cubes';
     container.appendChild( info );
 
-    // stats = new Stats();
-    // container.appendChild( stats.dom );
+    stats = new Stats();
+    container.appendChild( stats.dom );
 
     //
 
@@ -123,7 +123,6 @@
     requestAnimationFrame( animate );
 
     render();
-    // stats.update();
   }
 
   function render() {
@@ -236,6 +235,7 @@
       objects.forEach( (obj, i) => {
         obj.position.copy( state[`object-${i}`] )
       })
+      stats.update()
     })
   }
 

@@ -57,8 +57,9 @@ function demo1(){
     x: 1.2 * Math.PI
   }, {
     id: 'spin'
-    , time: '8s'
+    , time: '6s'
     , duration: 6000
+    , easing: Frames.Easing.Quadratic.In
   })
 
   frames.add({
@@ -67,6 +68,7 @@ function demo1(){
     id: 'up'
     , time: '10s'
     , duration: '4s'
+    , easing: Frames.Easing.Quadratic.InOut
   })
 
   frames.add({
@@ -74,7 +76,8 @@ function demo1(){
   }, {
     id: 'origin'
     , time: '10s'
-    , duration: '2s'
+    , duration: '4s'
+    , easing: Frames.Easing.Quadratic.Out
   })
 
   // console.log(frames.timeline)
@@ -98,7 +101,7 @@ function demo1(){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      frames.meddle( state )
+      frames.meddle( state, { easing: Frames.Easing.Elastic.Out, relaxDuration: 2000, relaxDelay: 0 } )
     })
 
   function anim( time ){

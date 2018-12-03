@@ -171,7 +171,7 @@ export function reduceTransitions( schema, transitions = [], time = 0, initialSt
 
     return Object.assign(
       state
-      , getInterpolatedState( schema, tr.startState, tr.endState, progress )
+      , getInterpolatedState( schema, tr.startState, tr.endState, progress, tr.easing )
     )
   }, { ...initialState })
 }

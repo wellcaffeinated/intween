@@ -1265,6 +1265,8 @@ exports.default = void 0;
 
 var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
 
+var _easingFunctions = _interopRequireDefault(__webpack_require__(/*! easing-functions */ "./node_modules/easing-functions/index.js"));
+
 var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
 var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
@@ -1367,10 +1369,11 @@ function (_EventEmitter) {
       var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
           relaxDuration = _ref.relaxDuration,
           relaxDelay = _ref.relaxDelay,
-          freeze = _ref.freeze;
+          freeze = _ref.freeze,
+          easing = _ref.easing;
 
-      relaxDelay = relaxDelay || this.options.meddleRelaxDelay;
-      relaxDuration = relaxDuration || this.options.meddleRelaxDuration;
+      relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay;
+      relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration;
       this._meddle.state = _objectSpread({}, this._meddle.state, meddleState);
       this._meddle.startTime = false;
       this._meddle.endState = null;
@@ -1378,6 +1381,7 @@ function (_EventEmitter) {
       this._meddle.freeze = freeze;
       this._meddle.relaxDelay = relaxDelay;
       this._meddle.relaxDuration = relaxDuration;
+      this._meddle.easing = easing || _easingFunctions.default.Linear.None;
       return this;
     } // force meddling to reset
 
@@ -1434,7 +1438,7 @@ function (_EventEmitter) {
           Object.assign(state, this._meddle.state);
         } else {
           var timeFraction = (0, _transition.getTimeFraction)(meddle.startTime + meddle.relaxDelay, meddle.endTime, this.time);
-          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, meddle.endState, timeFraction);
+          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, meddle.endState, timeFraction, meddle.easing);
           Object.assign(state, meddleTransitionState);
         }
       } // set state
@@ -1883,7 +1887,7 @@ function reduceTransitions(schema) {
   var initialState = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   return transitions.reduce(function (state, tr) {
     var progress = (0, _transition.getTimeFraction)(tr.startTime, tr.endTime, time);
-    return Object.assign(state, (0, _transition.getInterpolatedState)(schema, tr.startState, tr.endState, progress));
+    return Object.assign(state, (0, _transition.getInterpolatedState)(schema, tr.startState, tr.endState, progress, tr.easing));
   }, _objectSpread({}, initialState));
 }
 
@@ -1909,6 +1913,8 @@ exports.getTimeFraction = getTimeFraction;
 
 var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
 
+var _easingFunctions = _interopRequireDefault(__webpack_require__(/*! easing-functions */ "./node_modules/easing-functions/index.js"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
@@ -1922,11 +1928,13 @@ function createTransitionFromFrame(frame, previousState) {
 
   var startState = _util.default.pick(previousState, Object.keys(endState));
 
+  var easing = frame.meta.easing || _easingFunctions.default.Linear.None;
   return {
     startTime: startTime,
     endTime: endTime,
     startState: startState,
     endState: endState,
+    easing: easing,
     frame: frame
   };
 }
@@ -1935,7 +1943,7 @@ function interpolateProperty(fn, from, to, progress) {
   return fn(from, to, progress);
 }
 
-function getInterpolatedState(schema, startState, endState, timeFraction) {
+function getInterpolatedState(schema, startState, endState, timeFraction, easing) {
   if (timeFraction <= 0) {
     return _objectSpread({}, startState);
   }
@@ -1954,7 +1962,7 @@ function getInterpolatedState(schema, startState, endState, timeFraction) {
       // not specified in schema. just set
       val = endState[prop];
     } else {
-      var progress = def.easing(timeFraction);
+      var progress = easing(timeFraction);
       val = interpolateProperty(def.interpolator, nextState[prop], endState[prop], progress);
     }
 

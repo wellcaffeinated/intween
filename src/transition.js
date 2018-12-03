@@ -1,16 +1,19 @@
 import util from '@/util'
+import Easing from 'easing-functions'
 
 export function createTransitionFromFrame( frame, previousState ){
   let startTime = frame.meta.time - frame.meta.duration
   let endTime = frame.meta.time
   let endState = frame.state
   let startState = util.pick( previousState, Object.keys(endState) )
+  let easing = frame.meta.easing || Easing.Linear.None
 
   return {
     startTime
     , endTime
     , startState
     , endState
+    , easing
     , frame
   }
 }
@@ -19,7 +22,7 @@ export function interpolateProperty( fn, from, to, progress ){
   return fn( from, to, progress )
 }
 
-export function getInterpolatedState( schema, startState, endState, timeFraction ){
+export function getInterpolatedState( schema, startState, endState, timeFraction, easing ){
 
   if ( timeFraction <= 0 ){
     return { ...startState }
@@ -40,7 +43,7 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
       val = endState[ prop ]
     } else {
 
-      let progress = def.easing( timeFraction )
+      let progress = easing( timeFraction )
 
       val = interpolateProperty(
         def.interpolator
