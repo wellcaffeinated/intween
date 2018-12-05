@@ -95,9 +95,15 @@ function demo1(){
       var state = frames.state
       offsetX = state.x
       offsetY = state.y
-      frames.meddle( { x: offsetX, y: offsetY } )
+      frames.meddle( { x: offsetX, y: offsetY }, { freeze: true } )
     })
     .on('pan', function(e) {
+      var state = {}
+      state.x = offsetX + e.deltaX * rad
+      state.y = offsetY + e.deltaY * rad
+      frames.meddle( state, { freeze: true } )
+    })
+    .on('panend', function(e){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad

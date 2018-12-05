@@ -47,6 +47,19 @@ util.pick = function( obj, keys = [] ){
   }, {})
 }
 
+// Only take properties that are present in
+// first object
+// ---------------------------------------
+util.mergeIntersecting = function( first, second ){
+  return {
+    ...first
+    , ...util.pick(
+      second
+      , Object.keys(first)
+    )
+  }
+}
+
 /**
  * util.sortedIndex( array, value[, callback] ) -> Number
  * - array (Array): The array to inspect

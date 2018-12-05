@@ -141,9 +141,9 @@ export default class extends EventEmitter {
         this.unmeddle()
       }
 
-      if ( this.time >= this.totalTime ){
+      if ( !meddle.freeze && this.time > this.totalTime ){
         // this will force a reset when the timeline is re-entered
-        meddle.startTime = this.totalTime
+        this.unmeddle()
       }
 
       if ( meddle.freeze ){
@@ -161,7 +161,7 @@ export default class extends EventEmitter {
         let meddleTransitionState = getInterpolatedState(
           this._schema
           , meddle.state
-          , meddle.endState
+          , util.mergeIntersecting( meddle.endState, state )
           , timeFraction
           , meddle.easing
         )

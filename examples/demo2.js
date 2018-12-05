@@ -139,7 +139,7 @@
       , default: new THREE.Vector3()
       , interpolator: (from, to, t) => {
         let v = new THREE.Vector3()
-
+        if (!from){ console.log(from, to)}
         v.copy( from )
         return v.lerp( to, t )
       }
@@ -165,7 +165,7 @@
 
       frames.meddle({
         [`object-${i}`]: e.object.position.clone()
-      })
+      }, { easing: Frames.Easing.Elastic.Out })
     })
 
     let userMeddle = false
@@ -186,7 +186,7 @@
         cameraPhi: s.phi
         , cameraTheta: s.theta
         , cameraR: s.radius
-      })
+      }, { easing: Frames.Easing.Elastic.Out })
     })
 
     frames.add({
@@ -207,6 +207,7 @@
       }, {
         time: (Math.random() * 60 + 11) * 1000
         , duration: '10s'
+        , easing: Frames.Easing.Bounce.Out
       })
     }
 

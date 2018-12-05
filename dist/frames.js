@@ -1429,16 +1429,16 @@ function (_EventEmitter) {
           this.unmeddle();
         }
 
-        if (this.time >= this.totalTime) {
+        if (!meddle.freeze && this.time > this.totalTime) {
           // this will force a reset when the timeline is re-entered
-          meddle.startTime = this.totalTime;
+          this.unmeddle();
         }
 
         if (meddle.freeze) {
           Object.assign(state, this._meddle.state);
         } else {
           var timeFraction = (0, _transition.getTimeFraction)(meddle.startTime + meddle.relaxDelay, meddle.endTime, this.time);
-          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, meddle.endState, timeFraction, meddle.easing);
+          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, _util.default.mergeIntersecting(meddle.endState, state), timeFraction, meddle.easing);
           Object.assign(state, meddleTransitionState);
         }
       } // set state
@@ -2133,6 +2133,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var util = {};
 
 var identity = function identity(a) {
@@ -2181,6 +2186,13 @@ util.pick = function (obj) {
     out[k] = obj[k];
     return out;
   }, {});
+}; // Only take properties that are present in
+// first object
+// ---------------------------------------
+
+
+util.mergeIntersecting = function (first, second) {
+  return _objectSpread({}, first, util.pick(second, Object.keys(first)));
 };
 /**
  * util.sortedIndex( array, value[, callback] ) -> Number
