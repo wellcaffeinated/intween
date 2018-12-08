@@ -89,40 +89,59 @@ function demo1(){
 
   var offsetX = 0
   var offsetY = 0
-  var hammertime = new Hammer(byId('demo-1-scene'), {});
-  hammertime
+  var ht = new Hammer.Manager(byId('demo-1-scene'), {})
+  ht.add( new Hammer.Press({ time: 0 }) )
+  ht.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
+  ht
     .on('press', function(e){
       var state = frames.state
       offsetX = state.x
       offsetY = state.y
-      frames.meddle( { x: offsetX, y: offsetY }, { freeze: true } )
+      frames.meddle( { x: offsetX, y: offsetY }, { freeze: true, transitionDuration: 100 } )
     })
     .on('pan', function(e) {
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      frames.meddle( state, { freeze: true } )
+      frames.meddle( state, { freeze: true, transitionDuration: 100 } )
     })
     .on('panend', function(e){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      frames.meddle( state, { easing: Frames.Easing.Elastic.Out, relaxDuration: 2000, relaxDelay: 0 } )
+      frames.meddle( state, { easing: Frames.Easing.Elastic.Out, relaxDuration: 2000, relaxDelay: 0, transitionDuration: 100 } )
     })
 
-  function anim( time ){
+  let smoother = Frames.Animation.Smoothener( frames, { duration: 100 } )
+
+  frames.on('update', e => {
+    var state = frames.state
+    smoother.setState( state )
+  })
+
+  function anim(){
     window.requestAnimationFrame(anim)
     frames.step()
+
+    let state = smoother.update()
+    rotate(state.x, state.y)
+
+    // if ( frames.time < 2000 ){
+    //   Plotly.extendTraces('graph', {
+    //     y: [[state.x]]
+    //   }, [0])
+    // }
   }
 
-  frames.on('seek', e => {
-    var state = frames.state
-    rotate(state.x, state.y)
-  })
+  // Plotly.plot('graph', [{
+  //   y: []
+  //   , mode: 'lines'
+  //   , line: {color: '#80CAF6'}
+  // }])
 
   initControls('demo-1-play', 'demo-1-progress', frames)
 
-  // console.log(frames.getTransitions( 9000 ))
+  frames.paused = true
   anim()
 }
 

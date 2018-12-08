@@ -119,12 +119,6 @@
   //
 
 
-  function animate() {
-    requestAnimationFrame( animate );
-
-    render();
-  }
-
   function render() {
     controls.update();
     renderer.render( scene, camera );
@@ -211,18 +205,12 @@
       })
     }
 
+    let smoother = Frames.Animation.Smoothener( frames, { duration: 100 } )
+
     // console.log(frames.timeline)
-
-    animate()
-
-    const widget = getSoundcloud()
-
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
-      let time = e.currentPosition
-      frames.seek(time)
-
-      let state = frames.state
-
+    function animate() {
+      requestAnimationFrame( animate );
+      let state = smoother.update()
       s.radius = state.cameraR
       s.phi = state.cameraPhi
       s.theta = state.cameraTheta
@@ -237,6 +225,21 @@
         obj.position.copy( state[`object-${i}`] )
       })
       stats.update()
+      render();
+    }
+
+    animate()
+
+    frames.on('update', () => {
+      let state = frames.state
+      smoother.setState( state )
+    })
+
+    const widget = getSoundcloud()
+
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
+      let time = e.currentPosition
+      frames.seek(time)
     })
   }
 

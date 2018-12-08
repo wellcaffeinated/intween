@@ -41,6 +41,10 @@ util.mapProperties = function( obj, fn ){
 }
 
 util.pick = function( obj, keys = [] ){
+  if ( !keys ){
+    // all
+    return { ...obj }
+  }
   return keys.reduce( (out, k) => {
     out[k] = obj[k]
     return out

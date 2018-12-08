@@ -3,6 +3,7 @@ import Easing from 'easing-functions'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { createFrame } from '@/frame'
+import { timeParser } from '@/parsers/time'
 import {
   getTransitionsAtTime
   , createTimeline
@@ -31,7 +32,8 @@ export default class extends EventEmitter {
 
     this._schema = createSchema( schema )
     this._defaultState = createState( this._schema )
-    this._state = {}
+    this._state = { ...this._defaultState }
+    this._prevState = { ...this._defaultState }
 
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     // reset
@@ -68,7 +70,7 @@ export default class extends EventEmitter {
 
     this.frames.push( frame )
     this.refreshTimeline()
-
+    this._updateState()
     return this
   }
 
@@ -78,19 +80,21 @@ export default class extends EventEmitter {
   }
 
   // toggle user meddling
-  meddle( meddleState, { relaxDuration, relaxDelay, freeze, easing } = {} ){
+  meddle( meddleState, { relaxDuration, relaxDelay, freeze, easing, transitionDuration } = {} ){
     relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay
     relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration
 
     this._meddle.state = { ...this._meddle.state, ...meddleState }
+
     this._meddle.startTime = false
-    this._meddle.endState = null
+    this._meddle.relaxState = null
     this._meddle.active = true
     this._meddle.freeze = freeze
     this._meddle.relaxDelay = relaxDelay
     this._meddle.relaxDuration = relaxDuration
     this._meddle.easing = easing || Easing.Linear.None
 
+    this._updateState()
     return this
   }
 
@@ -110,70 +114,76 @@ export default class extends EventEmitter {
     return frame
   }
 
-  seek( timeOrId ){
-    if ( typeof timeOrId === 'string' ){
-      let frame = this.getFrame( timeOrId )
-
-      return this.seek( frame.meta.time )
+  seek( time ){
+    if ( typeof time === 'string' ){
+      time = timeParser( time )
     }
 
-    this.time = timeOrId
+    this.time = time
 
-    let state = this.getStateAt( this.time )
-
-    // check meddling
-    if ( this._meddle.active ){
-      let meddle = this._meddle
-
-      if ( !meddle.freeze && meddle.startTime === false ){
-        meddle.startTime = this.time
-        meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration
-        meddle.endState = util.pick(
-          this.getStateAt( meddle.endTime )
-          , Object.keys(meddle.state)
-        )
-      }
-
-      if ( !meddle.freeze &&
-        (this.time >= meddle.endTime || this.time < meddle.startTime)
-      ){
-        // meddling is over
-        this.unmeddle()
-      }
-
-      if ( !meddle.freeze && this.time > this.totalTime ){
-        // this will force a reset when the timeline is re-entered
-        this.unmeddle()
-      }
-
-      if ( meddle.freeze ){
-
-        Object.assign( state, this._meddle.state )
-
-      } else {
-
-        let timeFraction = getTimeFraction(
-          meddle.startTime + meddle.relaxDelay
-          , meddle.endTime
-          , this.time
-        )
-
-        let meddleTransitionState = getInterpolatedState(
-          this._schema
-          , meddle.state
-          , util.mergeIntersecting( meddle.endState, state )
-          , timeFraction
-          , meddle.easing
-        )
-
-        Object.assign( state, meddleTransitionState )
-      }
-    }
-
-    // set state
-    this._state = state
+    this._updateState()
     this.emit('seek')
     return this
+  }
+
+  _updateState(){
+    let state = this.getStateAt( this.time )
+
+    state = this._assignMeddleState( state )
+    // set state
+    this._prevState = this._state
+    this._state = state
+    this.emit('update')
+  }
+
+  _assignMeddleState( state ){
+    // check meddling
+    if ( !this._meddle.active ){
+      return state
+    }
+
+    let meddle = this._meddle
+
+    if ( meddle.freeze ){
+      return Object.assign( state, meddle.state )
+    }
+
+    if ( meddle.startTime === false ){
+      meddle.startTime = this.time
+      meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration
+      meddle.relaxState = util.pick(
+        this.getStateAt( meddle.endTime )
+        , Object.keys(meddle.state)
+      )
+    }
+
+    if ( this.time >= meddle.endTime || this.time < meddle.startTime ){
+      // meddling is over
+      this.unmeddle()
+    }
+
+    if ( this.time > this.totalTime ){
+      // this will force a reset when the timeline is re-entered
+      this.unmeddle()
+    }
+
+    let timeFraction = getTimeFraction(
+      meddle.startTime + meddle.relaxDelay
+      , meddle.endTime
+      , this.time
+    )
+
+    let meddleTransitionState = getInterpolatedState(
+      this._schema
+      , meddle.state
+      , util.mergeIntersecting( meddle.relaxState, state )
+      , timeFraction
+      , meddle.easing
+    )
+
+    Object.assign( state, meddleTransitionState )
+
+    return state
   }
 
   getStateAt( time ){
@@ -181,7 +191,7 @@ export default class extends EventEmitter {
       let m = this.timeline[this.timeline.length - 1]
       let t = m.transition
 
-      return { ...m.state, ...t.endState }
+      return { ...m.state, ...t.relaxState }
     }
 
     let transitions = getTransitionsAtTime( this.timeline, time )
@@ -190,8 +200,10 @@ export default class extends EventEmitter {
     return reduceTransitions( this._schema, transitions, time, startState )
   }
 
-  to( timeOrId ){
-    // transition to time, or frame id
+  to( frameId ){
+    let frame = this.getFrame( frameId )
+
+    return this.seek( frame.meta.time )
   }
 
   step(){
@@ -206,7 +218,7 @@ export default class extends EventEmitter {
 
     // if it's paused, don't step
     if ( this.paused ){
-      dt = 0
+      return this
     }
 
     time += dt * playbackRate

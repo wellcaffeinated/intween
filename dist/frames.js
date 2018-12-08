@@ -856,6 +856,96 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./src/animation/smoothener.js":
+/*!*************************************!*\
+  !*** ./src/animation/smoothener.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Smoothener = Smoothener;
+
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
+var _easingFunctions = _interopRequireDefault(__webpack_require__(/*! easing-functions */ "./node_modules/easing-functions/index.js"));
+
+var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Helper to smooth state changes
+// let smooth = Smoothener( frames )
+// smooth.setState( state ) // when state changed
+// state = smooth.update() // when animation frame
+// ---------------------------------------
+function Smoothener(manager) {
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      _ref$duration = _ref.duration,
+      duration = _ref$duration === void 0 ? 80 : _ref$duration,
+      _ref$keys = _ref.keys,
+      keys = _ref$keys === void 0 ? null : _ref$keys,
+      _ref$easing = _ref.easing,
+      easing = _ref$easing === void 0 ? _easingFunctions.default.Cubic.Out : _ref$easing;
+
+  var state = manager.state;
+  var targetState = state;
+  var startState = state;
+  var startTime = 0;
+  var endTime = -1;
+  var lastTime;
+  var smoothener = {
+    duration: duration,
+    easing: easing,
+
+    get state() {
+      return state;
+    }
+
+  };
+
+  smoothener.setState = function (newState) {
+    var now = _util.default.now();
+
+    startTime = lastTime || now;
+    endTime = startTime + smoothener.duration;
+    targetState = _util.default.pick(newState, keys);
+    startState = _objectSpread({}, state);
+  };
+
+  smoothener.update = function () {
+    var now = _util.default.now();
+
+    if (now > endTime) {
+      lastTime = now;
+      state = targetState;
+      return state;
+    }
+
+    if (lastTime === now) {
+      return state;
+    }
+
+    lastTime = now;
+    var timeFraction = (0, _transition.getTimeFraction)(startTime, endTime, now);
+    state = (0, _transition.getInterpolatedState)(manager._schema, startState, targetState, timeFraction, smoothener.easing);
+    return state;
+  };
+
+  return smoothener;
+}
+
+/***/ }),
+
 /***/ "./src/event-emitter.js":
 /*!******************************!*\
   !*** ./src/event-emitter.js ***!
@@ -1165,9 +1255,13 @@ exports.default = void 0;
 
 var _easingFunctions = _interopRequireDefault(__webpack_require__(/*! easing-functions */ "./node_modules/easing-functions/index.js"));
 
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
 var _manager = _interopRequireDefault(__webpack_require__(/*! @/manager */ "./src/manager.js"));
 
 var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolators */ "./src/interpolators.js"));
+
+var _smoothener = __webpack_require__(/*! @/animation/smoothener */ "./src/animation/smoothener.js");
 
 var _type = __webpack_require__(/*! @/type */ "./src/type.js");
 
@@ -1177,9 +1271,13 @@ var Frames = function Frames(schema, meta) {
   return new _manager.default(schema, meta);
 };
 
+Frames.Util = _util.default;
 Frames.Easing = _easingFunctions.default;
 Frames.Interpolators = _interpolators.default;
 Frames.registerType = _type.registerType;
+Frames.Animation = {
+  Smoothener: _smoothener.Smoothener
+};
 var _default = Frames;
 exports.default = _default;
 module.exports = exports.default;
@@ -1273,6 +1371,8 @@ var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js")
 
 var _frame = __webpack_require__(/*! @/frame */ "./src/frame.js");
 
+var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
+
 var _timeline = __webpack_require__(/*! @/timeline */ "./src/timeline.js");
 
 var _eventEmitter = _interopRequireDefault(__webpack_require__(/*! @/event-emitter */ "./src/event-emitter.js"));
@@ -1327,7 +1427,8 @@ function (_EventEmitter) {
     _this.paused = false;
     _this._schema = (0, _schema.createSchema)(schema);
     _this._defaultState = (0, _schema.createState)(_this._schema);
-    _this._state = {};
+    _this._state = _objectSpread({}, _this._defaultState);
+    _this._prevState = _objectSpread({}, _this._defaultState);
     _this.options = Object.assign({}, DEFAULT_OPTIONS, options); // reset
 
     _this.unmeddle();
@@ -1354,6 +1455,9 @@ function (_EventEmitter) {
 
       this.frames.push(frame);
       this.refreshTimeline();
+
+      this._updateState();
+
       return this;
     }
   }, {
@@ -1370,18 +1474,22 @@ function (_EventEmitter) {
           relaxDuration = _ref.relaxDuration,
           relaxDelay = _ref.relaxDelay,
           freeze = _ref.freeze,
-          easing = _ref.easing;
+          easing = _ref.easing,
+          transitionDuration = _ref.transitionDuration;
 
       relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay;
       relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration;
       this._meddle.state = _objectSpread({}, this._meddle.state, meddleState);
       this._meddle.startTime = false;
-      this._meddle.endState = null;
+      this._meddle.relaxState = null;
       this._meddle.active = true;
       this._meddle.freeze = freeze;
       this._meddle.relaxDelay = relaxDelay;
       this._meddle.relaxDuration = relaxDuration;
       this._meddle.easing = easing || _easingFunctions.default.Linear.None;
+
+      this._updateState();
+
       return this;
     } // force meddling to reset
 
@@ -1406,47 +1514,62 @@ function (_EventEmitter) {
     }
   }, {
     key: "seek",
-    value: function seek(timeOrId) {
-      if (typeof timeOrId === 'string') {
-        var frame = this.getFrame(timeOrId);
-        return this.seek(frame.meta.time);
+    value: function seek(time) {
+      if (typeof time === 'string') {
+        time = (0, _time.timeParser)(time);
       }
 
-      this.time = timeOrId;
-      var state = this.getStateAt(this.time); // check meddling
+      this.time = time;
 
-      if (this._meddle.active) {
-        var meddle = this._meddle;
+      this._updateState();
 
-        if (!meddle.freeze && meddle.startTime === false) {
-          meddle.startTime = this.time;
-          meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration;
-          meddle.endState = _util.default.pick(this.getStateAt(meddle.endTime), Object.keys(meddle.state));
-        }
-
-        if (!meddle.freeze && (this.time >= meddle.endTime || this.time < meddle.startTime)) {
-          // meddling is over
-          this.unmeddle();
-        }
-
-        if (!meddle.freeze && this.time > this.totalTime) {
-          // this will force a reset when the timeline is re-entered
-          this.unmeddle();
-        }
-
-        if (meddle.freeze) {
-          Object.assign(state, this._meddle.state);
-        } else {
-          var timeFraction = (0, _transition.getTimeFraction)(meddle.startTime + meddle.relaxDelay, meddle.endTime, this.time);
-          var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, _util.default.mergeIntersecting(meddle.endState, state), timeFraction, meddle.easing);
-          Object.assign(state, meddleTransitionState);
-        }
-      } // set state
-
-
-      this._state = state;
       this.emit('seek');
       return this;
+    }
+  }, {
+    key: "_updateState",
+    value: function _updateState() {
+      var state = this.getStateAt(this.time);
+      state = this._assignMeddleState(state); // set state
+
+      this._prevState = this._state;
+      this._state = state;
+      this.emit('update');
+    }
+  }, {
+    key: "_assignMeddleState",
+    value: function _assignMeddleState(state) {
+      // check meddling
+      if (!this._meddle.active) {
+        return state;
+      }
+
+      var meddle = this._meddle;
+
+      if (meddle.freeze) {
+        return Object.assign(state, meddle.state);
+      }
+
+      if (meddle.startTime === false) {
+        meddle.startTime = this.time;
+        meddle.endTime = meddle.startTime + meddle.relaxDelay + meddle.relaxDuration;
+        meddle.relaxState = _util.default.pick(this.getStateAt(meddle.endTime), Object.keys(meddle.state));
+      }
+
+      if (this.time >= meddle.endTime || this.time < meddle.startTime) {
+        // meddling is over
+        this.unmeddle();
+      }
+
+      if (this.time > this.totalTime) {
+        // this will force a reset when the timeline is re-entered
+        this.unmeddle();
+      }
+
+      var timeFraction = (0, _transition.getTimeFraction)(meddle.startTime + meddle.relaxDelay, meddle.endTime, this.time);
+      var meddleTransitionState = (0, _transition.getInterpolatedState)(this._schema, meddle.state, _util.default.mergeIntersecting(meddle.relaxState, state), timeFraction, meddle.easing);
+      Object.assign(state, meddleTransitionState);
+      return state;
     }
   }, {
     key: "getStateAt",
@@ -1454,7 +1577,7 @@ function (_EventEmitter) {
       if (time >= this.totalTime) {
         var m = this.timeline[this.timeline.length - 1];
         var t = m.transition;
-        return _objectSpread({}, m.state, t.endState);
+        return _objectSpread({}, m.state, t.relaxState);
       }
 
       var transitions = (0, _timeline.getTransitionsAtTime)(this.timeline, time);
@@ -1463,7 +1586,9 @@ function (_EventEmitter) {
     }
   }, {
     key: "to",
-    value: function to(timeOrId) {// transition to time, or frame id
+    value: function to(frameId) {
+      var frame = this.getFrame(frameId);
+      return this.seek(frame.meta.time);
     }
   }, {
     key: "step",
@@ -1478,7 +1603,7 @@ function (_EventEmitter) {
       this._clockTime = now; // if it's paused, don't step
 
       if (this.paused) {
-        dt = 0;
+        return this;
       }
 
       time += dt * playbackRate;
@@ -2182,6 +2307,12 @@ util.mapProperties = function (obj, fn) {
 
 util.pick = function (obj) {
   var keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+  if (!keys) {
+    // all
+    return _objectSpread({}, obj);
+  }
+
   return keys.reduce(function (out, k) {
     out[k] = obj[k];
     return out;

@@ -25,20 +25,24 @@
       </div>
       <div class="controls">
         <div class="playpause">
-          <input type="checkbox" value="None" id="demo-1-play" name="check" />
+          <input type="checkbox" value="None" id="demo-1-play" name="check" checked />
           <label for="demo-1-play"></label>
         </div>
         <div class="progress-bar">
-          <span id="demo-1-progress" class="progress-bar-fill" style="width: 60%"></span>
+          <span id="demo-1-progress" class="progress-bar-fill" style="width: 0%"></span>
         </div>
       </div>
     </div>
+
+    <div id="graph"></div>
 
     <div id="demo-2">
       <h2>Demo 2</h2>
       <div id="demo-2-scene"></div>
       <iframe id="demo-2-sc" class="iframe" width="100%" height="200" scrolling="no" frameborder="no"></iframe>
     </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <script src="../dist/frames.js"></script>
 
