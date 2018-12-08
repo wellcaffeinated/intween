@@ -1,33 +1,38 @@
 var byId = document.getElementById.bind(document)
 
-function initControls( btnId, progressId, frames ){
+function initControls( btnId, progressId, player ){
   var btn = byId(btnId)
   var progress = byId(progressId)
 
-  frames.on('seek', e => {
-    progress.style.width = frames.progress + '%'
+  player.on('update', e => {
+    progress.style.width = player.progress + '%'
+  })
+
+  player.on('togglePause', () => {
+    btn.checked = player.paused ? 'checked' : ''
   })
 
   var prevPauseState
   var scrubber = new Hammer.Manager(progress.parentNode, {})
   scrubber.add( new Hammer.Press({ time: 0 }) )
   scrubber.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
-  scrubber.on('panstart', () => {
-      prevPauseState = frames.paused
+  scrubber.on('press', () => {
+      prevPauseState = player.paused
+      player.togglePause( true )
     }).on('press pan', (e) => {
-      frames.paused = true
       let pos = (e.center.x - progress.parentNode.offsetLeft) / progress.parentNode.offsetWidth
 
-      frames.seek( pos * frames.totalTime )
+      player.seek( pos * player.totalTime )
     })
     .on('pressup panend', e => {
-      frames.paused = prevPauseState
+      player.togglePause( prevPauseState )
     })
 
   btn.addEventListener('change', e => {
-    frames.paused = !frames.paused
-    btn.checked = frames.paused ? 'checked' : ''
+    player.togglePause()
   })
+
+  btn.checked = player.paused ? 'checked' : ''
 }
 
 function demo1(){
@@ -114,16 +119,19 @@ function demo1(){
 
   let smoother = Frames.Animation.Smoothener( frames, { duration: 100 } )
 
-  frames.on('update', e => {
+  frames.on('update', () => {
     var state = frames.state
     smoother.setState( state )
   })
 
-  function anim(){
-    window.requestAnimationFrame(anim)
-    frames.step()
+  let player = Frames.Player({ totalTime: frames.totalTime })
+  player.on('update', ( time ) => {
+    frames.seek( time )
+  })
 
+  player.on('animate', ( now ) => {
     let state = smoother.update()
+
     rotate(state.x, state.y)
 
     // if ( frames.time < 2000 ){
@@ -131,7 +139,7 @@ function demo1(){
     //     y: [[state.x]]
     //   }, [0])
     // }
-  }
+  })
 
   // Plotly.plot('graph', [{
   //   y: []
@@ -139,10 +147,7 @@ function demo1(){
   //   , line: {color: '#80CAF6'}
   // }])
 
-  initControls('demo-1-play', 'demo-1-progress', frames)
-
-  frames.paused = true
-  anim()
+  initControls('demo-1-play', 'demo-1-progress', player)
 }
 
 demo1()

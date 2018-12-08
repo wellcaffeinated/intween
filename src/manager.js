@@ -13,8 +13,7 @@ import {
 import EventEmitter from '@/event-emitter'
 
 const DEFAULT_OPTIONS = {
-  playbackRate: 1
-  , defaultTransitionDuration: 1000
+  defaultTransitionDuration: 1000
   , meddleTimeout: 2000
   , meddleRelaxDuration: 500
   , meddleRelaxDelay: 1000
@@ -28,7 +27,6 @@ export default class extends EventEmitter {
     this.framesById = {}
     this.frames = []
     this.timeline = []
-    this.paused = false
 
     this._schema = createSchema( schema )
     this._defaultState = createState( this._schema )
@@ -115,10 +113,7 @@ export default class extends EventEmitter {
   }
 
   seek( time ){
-    if ( typeof time === 'string' ){
-      time = timeParser( time )
-    }
-
+    time = timeParser( time )
     this.time = time
 
     this._updateState()
@@ -204,33 +199,6 @@ export default class extends EventEmitter {
     let frame = this.getFrame( frameId )
 
     return this.seek( frame.meta.time )
-  }
-
-  step(){
-    let now = util.now()
-    let clockTime = this._clockTime || now
-    let playbackRate = this.options.playbackRate
-    let dt = now - clockTime
-    let time = this.time
-    let totalTime = this.totalTime
-
-    this._clockTime = now
-
-    // if it's paused, don't step
-    if ( this.paused ){
-      return this
-    }
-
-    time += dt * playbackRate
-
-    if ( time >= totalTime ){
-      time = totalTime
-    }
-
-    this.seek( time )
-
-    this.emit('step')
-    return this
   }
 
   next(){

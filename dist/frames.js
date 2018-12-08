@@ -1261,6 +1261,8 @@ var _manager = _interopRequireDefault(__webpack_require__(/*! @/manager */ "./sr
 
 var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolators */ "./src/interpolators.js"));
 
+var _player = _interopRequireDefault(__webpack_require__(/*! @/player */ "./src/player.js"));
+
 var _smoothener = __webpack_require__(/*! @/animation/smoothener */ "./src/animation/smoothener.js");
 
 var _type = __webpack_require__(/*! @/type */ "./src/type.js");
@@ -1274,6 +1276,7 @@ var Frames = function Frames(schema, meta) {
 Frames.Util = _util.default;
 Frames.Easing = _easingFunctions.default;
 Frames.Interpolators = _interpolators.default;
+Frames.Player = _player.default;
 Frames.registerType = _type.registerType;
 Frames.Animation = {
   Smoothener: _smoothener.Smoothener
@@ -1402,7 +1405,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 var DEFAULT_OPTIONS = {
-  playbackRate: 1,
   defaultTransitionDuration: 1000,
   meddleTimeout: 2000,
   meddleRelaxDuration: 500,
@@ -1424,7 +1426,6 @@ function (_EventEmitter) {
     _this.framesById = {};
     _this.frames = [];
     _this.timeline = [];
-    _this.paused = false;
     _this._schema = (0, _schema.createSchema)(schema);
     _this._defaultState = (0, _schema.createState)(_this._schema);
     _this._state = _objectSpread({}, _this._defaultState);
@@ -1515,10 +1516,7 @@ function (_EventEmitter) {
   }, {
     key: "seek",
     value: function seek(time) {
-      if (typeof time === 'string') {
-        time = (0, _time.timeParser)(time);
-      }
-
+      time = (0, _time.timeParser)(time);
       this.time = time;
 
       this._updateState();
@@ -1589,32 +1587,6 @@ function (_EventEmitter) {
     value: function to(frameId) {
       var frame = this.getFrame(frameId);
       return this.seek(frame.meta.time);
-    }
-  }, {
-    key: "step",
-    value: function step() {
-      var now = _util.default.now();
-
-      var clockTime = this._clockTime || now;
-      var playbackRate = this.options.playbackRate;
-      var dt = now - clockTime;
-      var time = this.time;
-      var totalTime = this.totalTime;
-      this._clockTime = now; // if it's paused, don't step
-
-      if (this.paused) {
-        return this;
-      }
-
-      time += dt * playbackRate;
-
-      if (time >= totalTime) {
-        time = totalTime;
-      }
-
-      this.seek(time);
-      this.emit('step');
-      return this;
     }
   }, {
     key: "next",
@@ -1713,6 +1685,162 @@ function timeParser(strOrNumber) {
 
   return 0;
 }
+
+/***/ }),
+
+/***/ "./src/player.js":
+/*!***********************!*\
+  !*** ./src/player.js ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _default;
+
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
+var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
+
+var _eventEmitter = _interopRequireDefault(__webpack_require__(/*! @/event-emitter */ "./src/event-emitter.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+var PlayerStack = [];
+
+function step() {
+  window.requestAnimationFrame(step);
+
+  var now = _util.default.now();
+
+  for (var l = PlayerStack.length, i = 0; i < l; i++) {
+    PlayerStack[i].step(now);
+  }
+}
+
+step();
+
+var Player =
+/*#__PURE__*/
+function (_EventEmitter) {
+  _inherits(Player, _EventEmitter);
+
+  function Player() {
+    var _this;
+
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        totalTime = _ref.totalTime,
+        _ref$playbackRate = _ref.playbackRate,
+        playbackRate = _ref$playbackRate === void 0 ? 1 : _ref$playbackRate;
+
+    _classCallCheck(this, Player);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this));
+
+    if (!totalTime) {
+      throw new Error('Player: "totalTime" not set');
+    }
+
+    _this.totalTime = (0, _time.timeParser)(totalTime);
+    _this.clockTime = _util.default.now();
+    _this.time = 0;
+    _this.playbackRate = playbackRate;
+    _this.paused = true;
+    PlayerStack.push(_assertThisInitialized(_assertThisInitialized(_this)));
+    return _this;
+  }
+
+  _createClass(Player, [{
+    key: "togglePause",
+    value: function togglePause(paused) {
+      if (paused === undefined) {
+        paused = !this.paused;
+      }
+
+      this.paused = !!paused;
+
+      if (this.paused) {
+        this.emit('pause');
+      } else {
+        this.emit('play');
+      }
+
+      this.emit('togglePause');
+      return this;
+    }
+  }, {
+    key: "seek",
+    value: function seek(time) {
+      this.time = time;
+      this.emit('update', time);
+      this.emit('seek', time);
+      return this;
+    }
+  }, {
+    key: "step",
+    value: function step(now) {
+      var clockTime = this._clockTime;
+      var playbackRate = this.playbackRate;
+      var dt = now - clockTime;
+      var time = this.time;
+      var totalTime = this.totalTime;
+      this._clockTime = now;
+      this.emit('animate', now); // if it's paused, don't step
+
+      if (this.paused) {
+        return this;
+      }
+
+      time += dt * playbackRate;
+
+      if (time >= totalTime) {
+        time = totalTime;
+        this.togglePause(true);
+      }
+
+      this.time = time;
+      this.emit('update', time);
+      this.emit('playback', time);
+      return this;
+    }
+  }, {
+    key: "progress",
+    get: function get() {
+      return (this.time / this.totalTime * 100).toFixed(2);
+    }
+  }]);
+
+  return Player;
+}(_eventEmitter.default);
+
+function _default(config) {
+  return new Player(config);
+}
+
+module.exports = exports.default;
 
 /***/ }),
 
