@@ -29,7 +29,11 @@ const config = {
   output: {
     path: __dirname + '/dist',
     filename: outputFile,
-    library: libraryName,
+    library: {
+      root: libraryName
+      , amd: pkg.name
+      , commonjs: pkg.name
+    },
     libraryTarget: 'umd'
   },
   module: {

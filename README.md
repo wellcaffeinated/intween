@@ -1,19 +1,19 @@
-# frames.js
+# Copilot
 
 # ideas
 
 ```javascript
-const frames = Keyframes({
+const manager = Copilot({
   x: Number
   , y: Number
   , pos: {
     type: [ Number, Number ]
-    , interpolator: Keyframes.Interpolators.Circular
+    , interpolator: Keymanager.Interpolators.Circular
   }
   , toggle: Boolean
   , binaryValue: {
     type: Number // 0 or 1
-    , interpolator: Keyframes.Interpolators.Immediate
+    , interpolator: Keymanager.Interpolators.Immediate
   }
   , selectBox: [ 'One', 'Two', 'Three' ] // infers that this is a property that stores one of the following values
 }, {
@@ -21,7 +21,7 @@ const frames = Keyframes({
 })
 
 
-frames.frame({
+manager.frame({
   x: 50
   // the rest set to zero
 }, {
@@ -31,7 +31,7 @@ frames.frame({
 })
 
 
-frames.frame({
+manager.frame({
   $meta: {
     inherit: 'start'
     , time: '10s'
@@ -42,20 +42,20 @@ frames.frame({
   , y: 10
 })
 
-frames.to('the next one') // transition to named frame
+manager.to('the next one') // transition to named frame
 
-frames.get() // get the state
+manager.get() // get the state
 
-frames.set({  }) // set the state
+manager.set({  }) // set the state
 
-frames.meddle({ }) // user meddling. Tracks changes for future snap back
+manager.meddle({ }) // user meddling. Tracks changes for future snap back
 
-frames.nextFrame() // state look ahead
-frames.prevFrame() // state look back
+manager.nextFrame() // state look ahead
+manager.prevFrame() // state look back
 
-frames.step( timestep ) // if using like video
-frames.next() // if using like slideshow
-frames.prev()
+manager.step( timestep ) // if using like video
+manager.next() // if using like slideshow
+manager.prev()
 
-frames.export() // DEVELOPMENT tool. console.copy the current state for easier authoring
+manager.export() // DEVELOPMENT tool. console.copy the current state for easier authoring
 ```
