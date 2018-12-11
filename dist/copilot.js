@@ -1262,6 +1262,8 @@ var _interpolators = _interopRequireDefault(__webpack_require__(/*! @/interpolat
 
 var _player = _interopRequireDefault(__webpack_require__(/*! @/player */ "./src/player.js"));
 
+var _syncher = _interopRequireDefault(__webpack_require__(/*! @/syncher */ "./src/syncher.js"));
+
 var _smoothener = __webpack_require__(/*! @/animation/smoothener */ "./src/animation/smoothener.js");
 
 var _type = __webpack_require__(/*! @/type */ "./src/type.js");
@@ -1276,6 +1278,7 @@ Copilot.Util = _util.default;
 Copilot.Easing = _easingFunctions.default;
 Copilot.Interpolators = _interpolators.default;
 Copilot.Player = _player.default;
+Copilot.Syncher = _syncher.default;
 Copilot.registerType = _type.registerType;
 Copilot.Animation = {
   Smoothener: _smoothener.Smoothener
@@ -1933,6 +1936,103 @@ function createState(schema) {
   }
 
   return state;
+}
+
+/***/ }),
+
+/***/ "./src/syncher.js":
+/*!************************!*\
+  !*** ./src/syncher.js ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = Syncher;
+
+var _util = _interopRequireDefault(__webpack_require__(/*! @/util */ "./src/util/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Syncher() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      getTime = _ref.getTime,
+      isPlaying = _ref.isPlaying,
+      onFrame = _ref.onFrame,
+      _ref$getPlaybackRate = _ref.getPlaybackRate,
+      getPlaybackRate = _ref$getPlaybackRate === void 0 ? function () {
+    return 1;
+  } : _ref$getPlaybackRate,
+      _ref$threshold = _ref.threshold,
+      threshold = _ref$threshold === void 0 ? 5000 / 60 : _ref$threshold;
+
+  if (!getTime) {
+    throw new Error('Must call Syncher with a "getTime" function');
+  }
+
+  if (!isPlaying) {
+    throw new Error('Must call Syncher with a "isPlaying" function');
+  }
+
+  if (!onFrame) {
+    throw new Error('Must call Syncher with a "onFrame" function');
+  }
+
+  var stop = false;
+  var lastClockTime = 0;
+  var timeStarted;
+  var lastTime = 0;
+
+  var update = function update() {
+    if (stop) {
+      return;
+    }
+
+    window.requestAnimationFrame(update);
+
+    var now = _util.default.now();
+
+    var syncTime = getTime() || 0;
+    var isPlayingVal = !!isPlaying();
+    var playbackRate = +getPlaybackRate();
+    var time;
+
+    if (!isPlayingVal || !timeStarted) {
+      timeStarted = syncTime;
+      time = syncTime;
+    } else {
+      // extrapolate
+      var dt = (now - lastClockTime) * playbackRate;
+      time = lastTime + dt;
+
+      if (Math.abs(time - syncTime) > threshold) {
+        // resync
+        time = syncTime;
+        timeStarted = time;
+      }
+    }
+
+    lastClockTime = now;
+    lastTime = time;
+    onFrame(time, now, {
+      syncTime: syncTime,
+      isPlaying: isPlayingVal,
+      playbackRate: playbackRate
+    });
+  };
+
+  update();
+
+  function destroy() {
+    stop = true;
+  }
+
+  return destroy;
 }
 
 /***/ }),

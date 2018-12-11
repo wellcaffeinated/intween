@@ -3,6 +3,7 @@ import util from '@/util'
 import Manager from '@/manager'
 import Interpolators from '@/interpolators'
 import Player from '@/player'
+import Syncher from '@/syncher'
 import { Smoothener } from '@/animation/smoothener'
 import { registerType } from '@/type'
 
@@ -14,6 +15,7 @@ Copilot.Util = util
 Copilot.Easing = Easing
 Copilot.Interpolators = Interpolators
 Copilot.Player = Player
+Copilot.Syncher = Syncher
 Copilot.registerType = registerType
 Copilot.Animation = { Smoothener }
 
