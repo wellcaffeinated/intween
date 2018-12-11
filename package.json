@@ -1,8 +1,8 @@
 {
-  "name": "frames",
+  "name": "copilot",
   "version": "0.0.1",
   "description": "Make interactive videos easily",
-  "main": "dist/frames.js",
+  "main": "dist/copilot.js",
   "scripts": {
     "build": "webpack --env dev && webpack --env build && npm run test",
     "dev": "webpack --progress --colors --watch --env dev",

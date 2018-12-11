@@ -110,14 +110,12 @@
     info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - draggable cubes';
     container.appendChild( info );
 
-    stats = new Stats();
-    container.appendChild( stats.dom );
+    // stats = new Stats();
+    // container.appendChild( stats.dom );
 
     //
-
   }
   //
-
 
   function render() {
     controls.update();
@@ -128,7 +126,7 @@
   function demo2(){
     init()
 
-    Frames.registerType({
+    Copilot.registerType({
       type: 'vector'
       , default: new THREE.Vector3()
       , interpolator: (from, to, t) => {
@@ -151,15 +149,15 @@
       }
     })
 
-    const frames = Frames( schema )
-    // console.log(frames._schema)
+    const manager = Copilot( schema )
+    // console.log(manager._schema)
 
     dragControls.addEventListener('drag', (e) => {
       let i = objects.indexOf( e.object )
 
-      frames.meddle({
+      manager.meddle({
         [`object-${i}`]: e.object.position.clone()
-      }, { easing: Frames.Easing.Elastic.Out })
+      }, { easing: Copilot.Easing.Elastic.Out })
     })
 
     let userMeddle = false
@@ -176,14 +174,14 @@
 
       s.setFromVector3( e.target.object.position )
 
-      frames.meddle({
+      manager.meddle({
         cameraPhi: s.phi
         , cameraTheta: s.theta
         , cameraR: s.radius
-      }, { easing: Frames.Easing.Elastic.Out })
+      }, { easing: Copilot.Easing.Elastic.Out })
     })
 
-    frames.add({
+    manager.add({
       cameraTheta: 10 * 2 * Math.PI
     }, {
       id: 'camera'
@@ -196,20 +194,20 @@
       let y = Math.random() * 600 - 300
       let z = Math.random() * 800 - 400
 
-      frames.add({
+      manager.add({
         [`object-${i}`]: new THREE.Vector3(x, y, z)
       }, {
         time: (Math.random() * 60 + 11) * 1000
         , duration: '10s'
-        , easing: Frames.Easing.Bounce.Out
+        , easing: Copilot.Easing.Bounce.Out
       })
     }
 
-    let smoother = Frames.Animation.Smoothener( frames, { duration: 100 } )
+    let smoother = Copilot.Animation.Smoothener( manager, { duration: 100 } )
 
-    // console.log(frames.timeline)
+    // console.log(manager.timeline)
     function animate() {
-      requestAnimationFrame( animate );
+      requestAnimationFrame( animate )
       let state = smoother.update()
       s.radius = state.cameraR
       s.phi = state.cameraPhi
@@ -224,14 +222,14 @@
       objects.forEach( (obj, i) => {
         obj.position.copy( state[`object-${i}`] )
       })
-      stats.update()
-      render();
+      // stats.update()
+      render()
     }
 
     animate()
 
-    frames.on('update', () => {
-      let state = frames.state
+    manager.on('update', () => {
+      let state = manager.state
       smoother.setState( state )
     })
 
@@ -239,7 +237,7 @@
 
     widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
       let time = e.currentPosition
-      frames.seek(time)
+      manager.seek(time)
     })
   }
 

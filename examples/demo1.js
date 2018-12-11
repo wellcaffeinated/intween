@@ -45,51 +45,51 @@ function demo1(){
     el.style.transform = 'translateZ(-100px) rotateY('+x+'deg) rotateX('+-y+'deg)'
   }
 
-  var frames = Frames({
+  var manager = Copilot({
     x: {
       type: 0
-      // , interpolator: Frames.Interpolators.Angle
+      // , interpolator: Copilot.Interpolators.Angle
     }
     , y: {
       type: 0
-      // , interpolator: Frames.Interpolators.Angle
+      // , interpolator: Copilot.Interpolators.Angle
     }
   }, {
     defaultTransitionDuration: '3s'
   })
 
-  frames.add({
+  manager.add({
     x: 1.2 * Math.PI
   }, {
     id: 'spin'
     , time: '6s'
     , duration: 6000
-    , easing: Frames.Easing.Quadratic.In
+    , easing: Copilot.Easing.Quadratic.In
   })
 
-  frames.add({
+  manager.add({
     y: Math.PI
   }, {
     id: 'up'
     , time: '10s'
     , duration: '4s'
-    , easing: Frames.Easing.Quadratic.InOut
+    , easing: Copilot.Easing.Quadratic.InOut
   })
 
-  frames.add({
+  manager.add({
     x: 0
   }, {
     id: 'origin'
     , time: '10s'
     , duration: '4s'
-    , easing: Frames.Easing.Quadratic.Out
+    , easing: Copilot.Easing.Quadratic.Out
   })
 
-  // console.log(frames.timeline)
+  // console.log(manager.timeline)
 
-  // frames.loop()
+  // manager.loop()
 
-  // console.log('schema', frames._schema)
+  // console.log('schema', manager._schema)
   // user interaction
 
   var offsetX = 0
@@ -99,34 +99,34 @@ function demo1(){
   ht.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
   ht
     .on('press', function(e){
-      var state = frames.state
+      var state = manager.state
       offsetX = state.x
       offsetY = state.y
-      frames.meddle( { x: offsetX, y: offsetY }, { freeze: true, transitionDuration: 100 } )
+      manager.meddle( { x: offsetX, y: offsetY }, { freeze: true, transitionDuration: 100 } )
     })
     .on('pan', function(e) {
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      frames.meddle( state, { freeze: true, transitionDuration: 100 } )
+      manager.meddle( state, { freeze: true, transitionDuration: 100 } )
     })
     .on('panend', function(e){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      frames.meddle( state, { easing: Frames.Easing.Elastic.Out, relaxDuration: 2000, relaxDelay: 0, transitionDuration: 100 } )
+      manager.meddle( state, { easing: Copilot.Easing.Elastic.Out, relaxDuration: 2000, relaxDelay: 0, transitionDuration: 100 } )
     })
 
-  let smoother = Frames.Animation.Smoothener( frames, { duration: 100 } )
+  let smoother = Copilot.Animation.Smoothener( manager, { duration: 100 } )
 
-  frames.on('update', () => {
-    var state = frames.state
+  manager.on('update', () => {
+    var state = manager.state
     smoother.setState( state )
   })
 
-  let player = Frames.Player({ totalTime: frames.totalTime })
+  let player = Copilot.Player({ totalTime: manager.totalTime })
   player.on('update', ( time ) => {
-    frames.seek( time )
+    manager.seek( time )
   })
 
   player.on('animate', ( now ) => {
@@ -134,7 +134,7 @@ function demo1(){
 
     rotate(state.x, state.y)
 
-    // if ( frames.time < 2000 ){
+    // if ( manager.time < 2000 ){
     //   Plotly.extendTraces('graph', {
     //     y: [[state.x]]
     //   }, [0])

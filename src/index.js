@@ -6,15 +6,15 @@ import Player from '@/player'
 import { Smoothener } from '@/animation/smoothener'
 import { registerType } from '@/type'
 
-const Frames = function( schema, meta ){
+const Copilot = function( schema, meta ){
   return new Manager( schema, meta )
 }
 
-Frames.Util = util
-Frames.Easing = Easing
-Frames.Interpolators = Interpolators
-Frames.Player = Player
-Frames.registerType = registerType
-Frames.Animation = { Smoothener }
+Copilot.Util = util
+Copilot.Easing = Easing
+Copilot.Interpolators = Interpolators
+Copilot.Player = Player
+Copilot.registerType = registerType
+Copilot.Animation = { Smoothener }
 
-export default Frames
+export default Copilot
