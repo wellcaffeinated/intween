@@ -16,11 +16,11 @@ let outputFile, mode;
 
 if (env === 'build') {
   mode = 'production';
-  outputFile = fileName + '.min.js';
 } else {
   mode = 'development';
-  outputFile = fileName + '.js';
 }
+
+outputFile = fileName + '.js';
 
 const config = {
   mode: mode,
@@ -29,11 +29,8 @@ const config = {
   output: {
     path: __dirname + '/dist',
     filename: outputFile,
-    library: {
-      root: libraryName
-      , amd: pkg.name
-      , commonjs: pkg.name
-    },
+    library: libraryName,
+    libraryExport: 'default',
     libraryTarget: 'umd'
   },
   module: {

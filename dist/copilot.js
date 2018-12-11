@@ -1168,7 +1168,6 @@ function () {
 }();
 
 exports.default = EventEmitter;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1283,7 +1282,6 @@ Copilot.Animation = {
 };
 var _default = Copilot;
 exports.default = _default;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1345,7 +1343,6 @@ var Interpolators = {
 };
 var _default = Interpolators;
 exports.default = _default;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1623,7 +1620,6 @@ function (_EventEmitter) {
 }(_eventEmitter.default);
 
 exports.default = _default;
-module.exports = exports.default;
 
 /***/ }),
 
@@ -1839,8 +1835,6 @@ function (_EventEmitter) {
 function _default(config) {
   return new Player(config);
 }
-
-module.exports = exports.default;
 
 /***/ }),
 
@@ -2490,11 +2484,10 @@ util.getIntersectingPaths = function (o1, o2) {
 
 var _default = util;
 exports.default = _default;
-module.exports = exports.default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../node_modules/process/browser.js */ "./node_modules/process/browser.js")))
 
 /***/ })
 
-/******/ });
+/******/ })["default"];
 });
 //# sourceMappingURL=copilot.js.map
