@@ -1309,9 +1309,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var Pi2 = Math.PI * 2;
 
-function shortestAngleDist(a0, a1) {
-  var da = (a1 - a0) % Pi2;
-  return (da - Math.PI) % Pi2 + Math.PI;
+function shortestModDist(a0, a1, modulo) {
+  var moduloBy2 = 0.5 * modulo;
+  var da = (a1 - a0) % modulo;
+  var cycles = (a1 - a0) / modulo | 0;
+  return (da - moduloBy2) % modulo + moduloBy2 + cycles;
 }
 
 function toCharCodes(str) {
@@ -1322,25 +1324,31 @@ function toCharCodes(str) {
 
 var Interpolators = {
   Linear: function Linear(from, to, t) {
-    return from * (1 - t) + to * t;
+    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    return opts.modulo ? from + shortestModDist(from, to, opts.modulo) * t : from * (1 - t) + to * t;
   },
   Angle: function Angle(from, to, t) {
-    return from + shortestAngleDist(from, to) * t;
+    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    return from + shortestModDist(from, to, Pi2) * t;
   },
   Array: function Array(from, to, t) {
+    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     return to.map(function (v1, idx) {
       return Interpolators.Linear(from[idx], v1, t);
     });
   },
   Object: function Object(from, to, t) {
+    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     return _util.default.mapProperties(from, function (val, key) {
       return Interpolators.Linear(val, to[key], t);
     });
   },
   String: function String(from, to, t) {
+    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     return Interpolators.Array(toCharCodes(from), toCharCodes(to), t).join('');
   },
   Step: function Step(from, to, t) {
+    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     return t > 0.5 ? to : from;
   }
 };
@@ -1475,8 +1483,7 @@ function (_EventEmitter) {
           relaxDuration = _ref.relaxDuration,
           relaxDelay = _ref.relaxDelay,
           freeze = _ref.freeze,
-          easing = _ref.easing,
-          transitionDuration = _ref.transitionDuration;
+          easing = _ref.easing;
 
       relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay;
       relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration;
@@ -1876,6 +1883,7 @@ function createSchema(schemaDef) {
     var def = schemaDef[prop];
     var easing = DEFAULT_EASING;
     var interpolator = null;
+    var interpolatorOpts = def.interpolatorOpts || {};
     var type = void 0;
     var cfg = void 0;
     var defaultVal = void 0;
@@ -1919,6 +1927,7 @@ function createSchema(schemaDef) {
       easing: easing,
       default: defaultVal,
       interpolator: interpolator,
+      interpolatorOpts: interpolatorOpts,
       def: def
     };
   }
@@ -2287,7 +2296,8 @@ function createTransitionFromFrame(frame, previousState) {
 }
 
 function interpolateProperty(fn, from, to, progress) {
-  return fn(from, to, progress);
+  var opts = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+  return fn(from, to, progress, opts);
 }
 
 function getInterpolatedState(schema, startState, endState, timeFraction, easing) {
@@ -2310,7 +2320,7 @@ function getInterpolatedState(schema, startState, endState, timeFraction, easing
       val = endState[prop];
     } else {
       var progress = easing(timeFraction);
-      val = interpolateProperty(def.interpolator, nextState[prop], endState[prop], progress);
+      val = interpolateProperty(def.interpolator, nextState[prop], endState[prop], progress, def.interpolatorOpts);
     }
 
     nextState[prop] = val;
@@ -2365,7 +2375,7 @@ var NATIVE_TYPES = {
   'boolean': {
     type: 'boolean',
     default: false,
-    interpolator: _interpolators.default.Switch
+    interpolator: _interpolators.default.Step
   },
   'array': {
     type: 'array',

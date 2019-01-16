@@ -11,6 +11,7 @@ export function createSchema( schemaDef ){
     let def = schemaDef[ prop ]
     let easing = DEFAULT_EASING
     let interpolator = null
+    let interpolatorOpts = def.interpolatorOpts || {}
     let type
     let cfg
     let defaultVal
@@ -53,6 +54,7 @@ export function createSchema( schemaDef ){
       , easing
       , default: defaultVal
       , interpolator: interpolator
+      , interpolatorOpts
       , def
     }
   }

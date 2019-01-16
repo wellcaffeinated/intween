@@ -14,7 +14,7 @@ export const NATIVE_TYPES = {
   , 'boolean': {
     type: 'boolean'
     , default: false
-    , interpolator: Interpolators.Switch
+    , interpolator: Interpolators.Step
   }
   , 'array': {
     type: 'array'

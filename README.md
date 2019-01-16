@@ -2,18 +2,24 @@
 
 # ideas
 
+Should have 'auto' duration setting to make duration since last frame
+
 ```javascript
 const manager = Copilot({
   x: Number
   , y: Number
   , pos: {
     type: [ Number, Number ]
-    , interpolator: Keymanager.Interpolators.Circular
+    , interpolator: Copilot.Interpolators.Circular
+  }
+  , angle: {
+    type: Number
+    , modulo: Math.PI * 2 // allows for transitioning around a cyclic property
   }
   , toggle: Boolean
   , binaryValue: {
     type: Number // 0 or 1
-    , interpolator: Keymanager.Interpolators.Immediate
+    , interpolator: Copilot.Interpolators.Immediate
   }
   , selectBox: [ 'One', 'Two', 'Three' ] // infers that this is a property that stores one of the following values
 }, {
@@ -58,4 +64,16 @@ manager.next() // if using like slideshow
 manager.prev()
 
 manager.export() // DEVELOPMENT tool. console.copy the current state for easier authoring
+
+// Syncher helper for jittery audio players (eg: howler)
+let cleanup = Copilot.Syncher({
+  getPlaybackRate: () => howl.rate()
+  , isPlaying: () => howl.playing()
+  , getTime: () => howl.seek() * 1000
+  , onFrame: ( time, now, { isPlaying } ) => {
+    // do stuff eg...
+    manager.seek( time )
+  }
+})
+
 ```

@@ -78,7 +78,7 @@ export default class extends EventEmitter {
   }
 
   // toggle user meddling
-  meddle( meddleState, { relaxDuration, relaxDelay, freeze, easing, transitionDuration } = {} ){
+  meddle( meddleState, { relaxDuration, relaxDelay, freeze, easing } = {} ){
     relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay
     relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration
 
