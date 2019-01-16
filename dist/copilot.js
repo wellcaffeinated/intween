@@ -1543,7 +1543,7 @@ function (_EventEmitter) {
     key: "seek",
     value: function seek(time) {
       time = (0, _time.timeParser)(time);
-      this.time = time;
+      this.time = Math.min(time, this.totalTime);
 
       this._updateState();
 

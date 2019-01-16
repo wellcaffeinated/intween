@@ -136,7 +136,7 @@ export default class extends EventEmitter {
 
   seek( time ){
     time = timeParser( time )
-    this.time = time
+    this.time = Math.min(time, this.totalTime)
 
     this._updateState()
     this.emit('seek')
