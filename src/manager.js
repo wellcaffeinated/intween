@@ -19,6 +19,8 @@ const DEFAULT_OPTIONS = {
   , meddleRelaxDelay: 1000
 }
 
+const DEFAULT_MEDDLE = '__DEFAULT__'
+
 export default class extends EventEmitter {
   constructor( schema, options ){
     super()
@@ -78,27 +80,47 @@ export default class extends EventEmitter {
   }
 
   // toggle user meddling
-  meddle( meddleState, { relaxDuration, relaxDelay, freeze, easing } = {} ){
+  meddle( name, meddleState, meddleOpts = {} ){
+    if ( typeof name !== 'string' ){
+      meddleOpts = meddleState
+      meddleState = name
+      name = DEFAULT_MEDDLE
+    }
+
+    let { relaxDuration, relaxDelay, freeze, easing } = meddleOpts
+
     relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay
     relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration
 
-    this._meddle.state = { ...this._meddle.state, ...meddleState }
+    let meddle = this._meddles[ name ]
 
-    this._meddle.startTime = false
-    this._meddle.relaxState = null
-    this._meddle.active = true
-    this._meddle.freeze = freeze
-    this._meddle.relaxDelay = relaxDelay
-    this._meddle.relaxDuration = relaxDuration
-    this._meddle.easing = easing || Easing.Linear.None
+    if ( !meddle ){
+      meddle = this._meddles[ name ] = { state: {} }
+    }
+
+    meddle.state = { ...meddle.state, ...meddleState }
+
+    meddle.startTime = false
+    meddle.relaxState = null
+    meddle.active = true
+    meddle.freeze = freeze
+    meddle.relaxDelay = relaxDelay
+    meddle.relaxDuration = relaxDuration
+    meddle.easing = easing || Easing.Linear.None
 
     this._updateState()
     return this
   }
 
   // force meddling to reset
-  unmeddle(){
-    this._meddle = { state: {} }
+  unmeddle( name ){
+    if ( !name ){
+      this._meddles = {}
+      return this
+    }
+
+    delete this._meddles[name]
+
     return this
   }
 
@@ -124,20 +146,22 @@ export default class extends EventEmitter {
   _updateState(){
     let state = this.getStateAt( this.time )
 
-    state = this._assignMeddleState( state )
+    Object.keys( this._meddles ).reduce( (state, name) =>
+      this._assignMeddleState( state, name )
+    , state)
     // set state
     this._prevState = this._state
     this._state = state
     this.emit('update')
   }
 
-  _assignMeddleState( state ){
+  _assignMeddleState( state, name ){
+    let meddle = this._meddles[name || DEFAULT_MEDDLE]
+
     // check meddling
-    if ( !this._meddle.active ){
+    if ( !meddle.active ){
       return state
     }
-
-    let meddle = this._meddle
 
     if ( meddle.freeze ){
       return Object.assign( state, meddle.state )
@@ -154,12 +178,12 @@ export default class extends EventEmitter {
 
     if ( this.time >= meddle.endTime || this.time < meddle.startTime ){
       // meddling is over
-      this.unmeddle()
+      this.unmeddle(name)
     }
 
     if ( this.time > this.totalTime ){
       // this will force a reset when the timeline is re-entered
-      this.unmeddle()
+      this.unmeddle(name)
     }
 
     let timeFraction = getTimeFraction(

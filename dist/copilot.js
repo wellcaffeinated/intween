@@ -1418,6 +1418,7 @@ var DEFAULT_OPTIONS = {
   meddleRelaxDuration: 500,
   meddleRelaxDelay: 1000
 };
+var DEFAULT_MEDDLE = '__DEFAULT__';
 
 var _default =
 /*#__PURE__*/
@@ -1478,23 +1479,38 @@ function (_EventEmitter) {
 
   }, {
     key: "meddle",
-    value: function meddle(meddleState) {
-      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          relaxDuration = _ref.relaxDuration,
-          relaxDelay = _ref.relaxDelay,
-          freeze = _ref.freeze,
-          easing = _ref.easing;
+    value: function meddle(name, meddleState) {
+      var meddleOpts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
+      if (typeof name !== 'string') {
+        meddleOpts = meddleState;
+        meddleState = name;
+        name = DEFAULT_MEDDLE;
+      }
+
+      var _meddleOpts = meddleOpts,
+          relaxDuration = _meddleOpts.relaxDuration,
+          relaxDelay = _meddleOpts.relaxDelay,
+          freeze = _meddleOpts.freeze,
+          easing = _meddleOpts.easing;
       relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay;
       relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration;
-      this._meddle.state = _objectSpread({}, this._meddle.state, meddleState);
-      this._meddle.startTime = false;
-      this._meddle.relaxState = null;
-      this._meddle.active = true;
-      this._meddle.freeze = freeze;
-      this._meddle.relaxDelay = relaxDelay;
-      this._meddle.relaxDuration = relaxDuration;
-      this._meddle.easing = easing || _easingFunctions.default.Linear.None;
+      var meddle = this._meddles[name];
+
+      if (!meddle) {
+        meddle = this._meddles[name] = {
+          state: {}
+        };
+      }
+
+      meddle.state = _objectSpread({}, meddle.state, meddleState);
+      meddle.startTime = false;
+      meddle.relaxState = null;
+      meddle.active = true;
+      meddle.freeze = freeze;
+      meddle.relaxDelay = relaxDelay;
+      meddle.relaxDuration = relaxDuration;
+      meddle.easing = easing || _easingFunctions.default.Linear.None;
 
       this._updateState();
 
@@ -1503,10 +1519,13 @@ function (_EventEmitter) {
 
   }, {
     key: "unmeddle",
-    value: function unmeddle() {
-      this._meddle = {
-        state: {}
-      };
+    value: function unmeddle(name) {
+      if (!name) {
+        this._meddles = {};
+        return this;
+      }
+
+      delete this._meddles[name];
       return this;
     }
   }, {
@@ -1534,8 +1553,12 @@ function (_EventEmitter) {
   }, {
     key: "_updateState",
     value: function _updateState() {
+      var _this2 = this;
+
       var state = this.getStateAt(this.time);
-      state = this._assignMeddleState(state); // set state
+      Object.keys(this._meddles).reduce(function (state, name) {
+        return _this2._assignMeddleState(state, name);
+      }, state); // set state
 
       this._prevState = this._state;
       this._state = state;
@@ -1543,13 +1566,12 @@ function (_EventEmitter) {
     }
   }, {
     key: "_assignMeddleState",
-    value: function _assignMeddleState(state) {
-      // check meddling
-      if (!this._meddle.active) {
+    value: function _assignMeddleState(state, name) {
+      var meddle = this._meddles[name || DEFAULT_MEDDLE]; // check meddling
+
+      if (!meddle.active) {
         return state;
       }
-
-      var meddle = this._meddle;
 
       if (meddle.freeze) {
         return Object.assign(state, meddle.state);
@@ -1563,12 +1585,12 @@ function (_EventEmitter) {
 
       if (this.time >= meddle.endTime || this.time < meddle.startTime) {
         // meddling is over
-        this.unmeddle();
+        this.unmeddle(name);
       }
 
       if (this.time > this.totalTime) {
         // this will force a reset when the timeline is re-entered
-        this.unmeddle();
+        this.unmeddle(name);
       }
 
       var timeFraction = (0, _transition.getTimeFraction)(meddle.startTime + meddle.relaxDelay, meddle.endTime, this.time);

@@ -20,7 +20,10 @@ const Interpolators = {
     from * ( 1 - t ) + to * t
   , Angle: ( from, to, t, opts = {} ) => from + shortestModDist(from, to, Pi2) * t
   , Array: ( from, to, t, opts = {} ) => to.map( (v1, idx) => Interpolators.Linear( from[idx], v1, t ) )
-  , Object: ( from, to, t, opts = {} ) => util.mapProperties( from, (val, key) => Interpolators.Linear( val, to[key], t ) )
+  , Object: ( from, to, t, opts = {} ) =>
+    util.mapProperties( from, (val, key) =>
+      Interpolators.Linear( val, to[key], t )
+    )
   , String: ( from, to, t, opts = {} ) => Interpolators.Array( toCharCodes(from), toCharCodes(to), t ).join('')
   , Step: ( from, to, t, opts = {} ) => (t > 0.5) ? to : from
 }
