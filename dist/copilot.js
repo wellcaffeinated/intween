@@ -1264,6 +1264,8 @@ var _player = _interopRequireDefault(__webpack_require__(/*! @/player */ "./src/
 
 var _syncher = _interopRequireDefault(__webpack_require__(/*! @/syncher */ "./src/syncher.js"));
 
+var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
+
 var _smoothener = __webpack_require__(/*! @/animation/smoothener */ "./src/animation/smoothener.js");
 
 var _type = __webpack_require__(/*! @/type */ "./src/type.js");
@@ -1281,7 +1283,9 @@ Copilot.Player = _player.default;
 Copilot.Syncher = _syncher.default;
 Copilot.registerType = _type.registerType;
 Copilot.Animation = {
-  Smoothener: _smoothener.Smoothener
+  Smoothener: _smoothener.Smoothener,
+  getTimeFraction: _transition.getTimeFraction,
+  interpolateProperty: _transition.interpolateProperty
 };
 var _default = Copilot;
 exports.default = _default;
@@ -1348,8 +1352,11 @@ var Interpolators = {
     return Interpolators.Array(toCharCodes(from), toCharCodes(to), t).join('');
   },
   Step: function Step(from, to, t) {
-    var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    return t > 0.5 ? to : from;
+    var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
+        _ref$threshold = _ref.threshold,
+        threshold = _ref$threshold === void 0 ? 0.5 : _ref$threshold;
+
+    return t > threshold ? to : from;
   }
 };
 var _default = Interpolators;

@@ -4,6 +4,7 @@ import Manager from '@/manager'
 import Interpolators from '@/interpolators'
 import Player from '@/player'
 import Syncher from '@/syncher'
+import { getTimeFraction, interpolateProperty } from '@/transition'
 import { Smoothener } from '@/animation/smoothener'
 import { registerType } from '@/type'
 
@@ -17,6 +18,6 @@ Copilot.Interpolators = Interpolators
 Copilot.Player = Player
 Copilot.Syncher = Syncher
 Copilot.registerType = registerType
-Copilot.Animation = { Smoothener }
+Copilot.Animation = { Smoothener, getTimeFraction, interpolateProperty }
 
 export default Copilot

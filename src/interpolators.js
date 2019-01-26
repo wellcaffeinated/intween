@@ -25,7 +25,7 @@ const Interpolators = {
       Interpolators.Linear( val, to[key], t )
     )
   , String: ( from, to, t, opts = {} ) => Interpolators.Array( toCharCodes(from), toCharCodes(to), t ).join('')
-  , Step: ( from, to, t, opts = {} ) => (t > 0.5) ? to : from
+  , Step: ( from, to, t, { threshold = 0.5 } = {} ) => (t > threshold) ? to : from
 }
 
 export default Interpolators
