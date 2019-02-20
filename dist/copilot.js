@@ -946,6 +946,27 @@ function Smoothener(manager) {
 
 /***/ }),
 
+/***/ "./src/enum.js":
+/*!*********************!*\
+  !*** ./src/enum.js ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.HANDSOFF = void 0;
+// enums
+// frame timing
+var HANDSOFF = Symbol('Release control of property');
+exports.HANDSOFF = HANDSOFF;
+
+/***/ }),
+
 /***/ "./src/event-emitter.js":
 /*!******************************!*\
   !*** ./src/event-emitter.js ***!
@@ -1192,14 +1213,20 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+var pctReg = /^((\d{1,3})(\.\d*)?)%$/;
 var DEFAULT_FRAME_META = {
   time: 0
 };
 var META_PARSERS = {
   time: _time.timeParser,
-  duration: _time.timeParser // parse meta to standardized format
+  duration: function duration(v) {
+    if (pctReg.test(v)) {
+      return v;
+    }
 
-};
+    return (0, _time.timeParser)(v);
+  }
+}; // parse meta to standardized format
 
 function parseMeta(meta, defaults) {
   var ret = _objectSpread({}, defaults, meta); // clone
@@ -1220,13 +1247,19 @@ function createFrame(state, meta, defaultMetaOptions) {
   state = _objectSpread({}, state);
   meta = parseMeta(meta || state.$meta, _objectSpread({}, defaultMetaOptions, DEFAULT_FRAME_META));
   delete state.$meta;
+  var percentDuration = pctReg.exec(meta.duration);
 
-  if (!meta.duration) {
-    meta.duration = meta.time - meta.startTime;
-  }
+  if (percentDuration) {
+    meta.implicit = true;
+    meta.fractionalDuration = parseFloat(percentDuration[1]) / 100;
+  } else {
+    if (!meta.duration) {
+      meta.duration = meta.time - meta.startTime;
+    }
 
-  if (!meta.startTime) {
-    meta.startTime = meta.time - meta.duration;
+    if (!meta.startTime) {
+      meta.startTime = meta.time - meta.duration;
+    }
   }
 
   return {
@@ -1270,6 +1303,10 @@ var _smoothener = __webpack_require__(/*! @/animation/smoothener */ "./src/anima
 
 var _type = __webpack_require__(/*! @/type */ "./src/type.js");
 
+var ENUM = _interopRequireWildcard(__webpack_require__(/*! @/enum */ "./src/enum.js"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Copilot = function Copilot(schema, meta) {
@@ -1287,6 +1324,7 @@ Copilot.Animation = {
   getTimeFraction: _transition.getTimeFraction,
   interpolateProperty: _transition.interpolateProperty
 };
+Object.assign(Copilot, ENUM);
 var _default = Copilot;
 exports.default = _default;
 
@@ -1329,7 +1367,7 @@ function toCharCodes(str) {
 var Interpolators = {
   Linear: function Linear(from, to, t) {
     var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    return opts.modulo ? from + shortestModDist(from, to, opts.modulo) * t : from * (1 - t) + to * t;
+    return opts.modulo ? from + shortestModDist(from, to, opts.modulo) * t : _util.default.lerp(from, to, t);
   },
   Angle: function Angle(from, to, t) {
     var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
@@ -2139,6 +2177,18 @@ function getConflictingFrames(timeline) {
   }
 
   return false;
+}
+
+function getPrevEndTime(timeline, idx) {
+  for (var i = idx - 1; i >= 0; i--) {
+    var ep = timeline[i];
+
+    if (ep.type === 'end') {
+      return ep.time;
+    }
+  }
+
+  return 0;
 } // Create a timeline array from specified frames
 // ---------------------------------------
 
@@ -2155,7 +2205,16 @@ function createTimeline(schema) {
   };
 
   var defaultState = (0, _schema.createState)(schema);
-  var timeline = [];
+  var timeline = []; // omit frames that are implicitly defined first
+
+  var implicitFrames = frames.filter(function (f) {
+    return f.meta.implicit;
+  }).sort(function (a, b) {
+    return a.meta.time - b.meta.time;
+  });
+  frames = frames.filter(function (f) {
+    return !f.meta.implicit;
+  });
   frames.forEach(function (frame) {
     var idx;
     var start = {
@@ -2170,27 +2229,53 @@ function createTimeline(schema) {
     };
     start.end = end;
     end.start = start;
-    idx = _util.default.sortedIndex(timeline, start, getTime);
-    timeline.splice(idx, 0, start);
     idx = _util.default.sortedIndex(timeline, end, getTime);
     timeline.splice(idx, 0, end);
-  });
+    idx = _util.default.sortedIndex(timeline, start, getTime);
+    timeline.splice(idx, 0, start);
+  }); // TODO: is this necessary?
+
   timeline.sort(function (a, b) {
     if (a.time === b.time) {
       return a.type > b.type ? 1 : -1;
     }
 
     return 0;
-  });
-  var prevState = defaultState; // assign inherited states
+  }); // insert variable frames
 
+  implicitFrames.forEach(function (frame) {
+    var end = {
+      type: 'end',
+      frame: frame,
+      time: frame.meta.time
+    };
+
+    var idx = _util.default.sortedIndex(timeline, end, getTime);
+
+    var prevEndTime = getPrevEndTime(timeline, idx);
+
+    var startTime = _util.default.lerp(end.time, prevEndTime, frame.meta.fractionalDuration);
+
+    var start = {
+      type: 'start',
+      frame: frame,
+      time: startTime
+    };
+    start.end = end;
+    end.start = start; // add the end
+
+    timeline.splice(idx, 0, end);
+    timeline.splice(idx, 0, start);
+  }); // assign inherited states
+
+  var prevState = defaultState;
   timeline.forEach(function (m, idx) {
     // only go through ends
     if (m.type !== 'end') {
       return;
     }
 
-    var transition = (0, _transition.createTransitionFromFrame)(m.frame, prevState);
+    var transition = (0, _transition.createTransitionFromFrame)(m.start.time, m.time, m.frame, prevState);
     m.transition = transition;
     m.start.transition = transition;
     prevState = _objectSpread({}, prevState, transition.endState);
@@ -2306,9 +2391,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function createTransitionFromFrame(frame, previousState) {
-  var startTime = frame.meta.time - frame.meta.duration;
-  var endTime = frame.meta.time;
+function createTransitionFromFrame(startTime, endTime, frame, previousState) {
   var endState = frame.state;
 
   var startState = _util.default.pick(previousState, Object.keys(endState));
@@ -2552,7 +2635,15 @@ if (typeof window === 'undefined' && typeof process !== 'undefined') {
   util.now = function now() {
     return new Date().getTime();
   };
-} // clamp
+}
+
+util.castArray = function (thing) {
+  return Array.isArray(thing) ? thing : [thing];
+};
+
+util.lerp = function (from, to, t) {
+  return from * (1 - t) + to * t;
+}; // clamp
 
 
 util.clamp = function (min, max, v) {

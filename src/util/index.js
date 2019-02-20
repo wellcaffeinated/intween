@@ -28,6 +28,14 @@ if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
   }
 }
 
+util.castArray = function( thing ){
+  return Array.isArray(thing) ? thing : [thing]
+}
+
+util.lerp = function( from, to, t ){
+  return from * ( 1 - t ) + to * t
+}
+
 // clamp
 util.clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)

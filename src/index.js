@@ -7,6 +7,7 @@ import Syncher from '@/syncher'
 import { getTimeFraction, interpolateProperty } from '@/transition'
 import { Smoothener } from '@/animation/smoothener'
 import { registerType } from '@/type'
+import * as ENUM from '@/enum'
 
 const Copilot = function( schema, meta ){
   return new Manager( schema, meta )
@@ -19,5 +20,6 @@ Copilot.Player = Player
 Copilot.Syncher = Syncher
 Copilot.registerType = registerType
 Copilot.Animation = { Smoothener, getTimeFraction, interpolateProperty }
+Object.assign(Copilot, ENUM)
 
 export default Copilot

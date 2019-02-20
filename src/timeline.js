@@ -44,6 +44,18 @@ function getConflictingFrames( timeline ){
   return false
 }
 
+function getPrevEndTime( timeline, idx ){
+  for ( let i = idx - 1; i >= 0; i-- ){
+    let ep = timeline[ i ]
+
+    if ( ep.type === 'end' ){
+      return ep.time
+    }
+  }
+
+  return 0
+}
+
 // Create a timeline array from specified frames
 // ---------------------------------------
 export function createTimeline( schema, frames = [] ){
@@ -54,6 +66,11 @@ export function createTimeline( schema, frames = [] ){
   let defaultState = createState( schema )
   let timeline = []
 
+  // omit frames that are implicitly defined first
+  let implicitFrames = frames.filter( f => f.meta.implicit ).sort( (a, b) => a.meta.time - b.meta.time )
+
+  frames = frames.filter( f => !f.meta.implicit )
+
   frames.forEach( frame => {
     let idx
     let start = { type: 'start', frame, time: frame.meta.time - frame.meta.duration }
@@ -62,13 +79,14 @@ export function createTimeline( schema, frames = [] ){
     start.end = end
     end.start = start
 
-    idx = util.sortedIndex( timeline, start, getTime )
-    timeline.splice( idx, 0, start )
-
     idx = util.sortedIndex( timeline, end, getTime )
     timeline.splice( idx, 0, end )
+
+    idx = util.sortedIndex( timeline, start, getTime )
+    timeline.splice( idx, 0, start )
   })
 
+  // TODO: is this necessary?
   timeline.sort( (a, b) => {
     if ( a.time === b.time ){
       return a.type > b.type ? 1 : -1
@@ -77,14 +95,30 @@ export function createTimeline( schema, frames = [] ){
     return 0
   })
 
-  let prevState = defaultState
+  // insert variable frames
+  implicitFrames.forEach( frame => {
+    let end = { type: 'end', frame, time: frame.meta.time }
+    let idx = util.sortedIndex( timeline, end, getTime )
+    let prevEndTime = getPrevEndTime( timeline, idx )
+    let startTime = util.lerp( end.time, prevEndTime, frame.meta.fractionalDuration )
+    let start = { type: 'start', frame, time: startTime }
+
+    start.end = end
+    end.start = start
+
+    // add the end
+    timeline.splice( idx, 0, end )
+    timeline.splice( idx, 0, start )
+  })
 
   // assign inherited states
+  let prevState = defaultState
+
   timeline.forEach( (m, idx) => {
     // only go through ends
     if ( m.type !== 'end' ){ return }
 
-    let transition = createTransitionFromFrame( m.frame, prevState )
+    let transition = createTransitionFromFrame( m.start.time, m.time, m.frame, prevState )
 
     m.transition = transition
     m.start.transition = transition

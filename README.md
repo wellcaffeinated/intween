@@ -48,6 +48,14 @@ manager.frame({
   , y: 10
 })
 
+manager.frame({
+  x: 10
+}, {
+  time: '20s'
+  , duration: '88%' // takes up 88% of time between previous frame end and
+                    // this frame to transition
+})
+
 manager.to('the next one') // transition to named frame
 
 manager.get() // get the state

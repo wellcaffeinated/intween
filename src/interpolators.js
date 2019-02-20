@@ -17,7 +17,7 @@ function toCharCodes( str ){
 const Interpolators = {
   Linear: ( from, to, t, opts = {} ) => opts.modulo ?
     from + shortestModDist(from, to, opts.modulo) * t :
-    from * ( 1 - t ) + to * t
+    util.lerp( from, to, t )
   , Angle: ( from, to, t, opts = {} ) => from + shortestModDist(from, to, Pi2) * t
   , Array: ( from, to, t, opts = {} ) => to.map( (v1, idx) => Interpolators.Linear( from[idx], v1, t ) )
   , Object: ( from, to, t, opts = {} ) =>
