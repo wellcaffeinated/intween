@@ -124,6 +124,32 @@ export default class extends EventEmitter {
     return this
   }
 
+  // toggle freezing of meddle states
+  freeze( toggle = true, name = DEFAULT_MEDDLE ){
+    if ( name === true ){
+      toggle = name
+      name = false
+    }
+
+    if ( name ){
+      let m = this._meddles[ name ]
+
+      if ( m ){
+        m.freeze = toggle
+      }
+
+      return this
+    }
+
+    Object.keys(this._meddles).forEach( k => {
+      let m = this._meddles[ k ]
+
+      m.freeze = toggle
+    })
+
+    return this
+  }
+
   getFrame( id ){
     let frame = this.framesById[id]
 
