@@ -954,16 +954,8 @@ function Smoothener(manager) {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.HANDSOFF = void 0;
 // enums
-// frame timing
-var HANDSOFF = Symbol('Release control of property');
-exports.HANDSOFF = HANDSOFF;
+
 
 /***/ }),
 
@@ -1297,6 +1289,8 @@ var _player = _interopRequireDefault(__webpack_require__(/*! @/player */ "./src/
 
 var _syncher = _interopRequireDefault(__webpack_require__(/*! @/syncher */ "./src/syncher.js"));
 
+var _parsers = _interopRequireDefault(__webpack_require__(/*! @/parsers */ "./src/parsers/index.js"));
+
 var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
 
 var _smoothener = __webpack_require__(/*! @/animation/smoothener */ "./src/animation/smoothener.js");
@@ -1318,6 +1312,7 @@ Copilot.Easing = _easingFunctions.default;
 Copilot.Interpolators = _interpolators.default;
 Copilot.Player = _player.default;
 Copilot.Syncher = _syncher.default;
+Copilot.Parsers = _parsers.default;
 Copilot.registerType = _type.registerType;
 Copilot.Animation = {
   Smoothener: _smoothener.Smoothener,
@@ -1572,6 +1567,36 @@ function (_EventEmitter) {
 
       delete this._meddles[name];
       return this;
+    } // toggle freezing of meddle states
+
+  }, {
+    key: "freeze",
+    value: function freeze() {
+      var _this2 = this;
+
+      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_MEDDLE;
+
+      if (name === true) {
+        toggle = name;
+        name = false;
+      }
+
+      if (name) {
+        var m = this._meddles[name];
+
+        if (m) {
+          m.freeze = toggle;
+        }
+
+        return this;
+      }
+
+      Object.keys(this._meddles).forEach(function (k) {
+        var m = _this2._meddles[k];
+        m.freeze = toggle;
+      });
+      return this;
     }
   }, {
     key: "getFrame",
@@ -1598,11 +1623,11 @@ function (_EventEmitter) {
   }, {
     key: "_updateState",
     value: function _updateState() {
-      var _this2 = this;
+      var _this3 = this;
 
       var state = this.getStateAt(this.time);
       Object.keys(this._meddles).reduce(function (state, name) {
-        return _this2._assignMeddleState(state, name);
+        return _this3._assignMeddleState(state, name);
       }, state); // set state
 
       this._prevState = this._state;
@@ -1695,6 +1720,35 @@ function (_EventEmitter) {
 
   return _default;
 }(_eventEmitter.default);
+
+exports.default = _default;
+
+/***/ }),
+
+/***/ "./src/parsers/index.js":
+/*!******************************!*\
+  !*** ./src/parsers/index.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var timeParsers = _interopRequireWildcard(__webpack_require__(/*! ./time */ "./src/parsers/time.js"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var _default = _objectSpread({}, timeParsers);
 
 exports.default = _default;
 
