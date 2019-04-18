@@ -1250,7 +1250,7 @@ function createFrame(state, meta, defaultMetaOptions) {
     meta.implicit = true;
     meta.fractionalDuration = parseFloat(percentDuration[1]) / 100;
   } else {
-    if (meta.startTime) {
+    if (meta.startTime !== undefined) {
       meta.duration = meta.time - meta.startTime;
     } else {
       meta.startTime = meta.time - meta.duration;
