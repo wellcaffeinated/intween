@@ -4,7 +4,9 @@ const pctReg = /^((\d{1,3})(\.\d*)?)%$/
 const DEFAULT_FRAME_META = { time: 0 }
 const META_PARSERS = {
   time: timeParser
+  , startTime: timeParser
   , duration( v ){
+    if ( v === undefined ){ return undefined }
     if ( pctReg.test(v) ){ return v }
     return timeParser(v)
   }
@@ -37,11 +39,9 @@ export function createFrame( state, meta, defaultMetaOptions ){
     meta.implicit = true
     meta.fractionalDuration = parseFloat(percentDuration[1]) / 100
   } else {
-    if ( !meta.duration ){
+    if ( meta.startTime ){
       meta.duration = meta.time - meta.startTime
-    }
-
-    if ( !meta.startTime ){
+    } else {
       meta.startTime = meta.time - meta.duration
     }
   }

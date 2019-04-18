@@ -1211,7 +1211,12 @@ var DEFAULT_FRAME_META = {
 };
 var META_PARSERS = {
   time: _time.timeParser,
+  startTime: _time.timeParser,
   duration: function duration(v) {
+    if (v === undefined) {
+      return undefined;
+    }
+
     if (pctReg.test(v)) {
       return v;
     }
@@ -1245,11 +1250,9 @@ function createFrame(state, meta, defaultMetaOptions) {
     meta.implicit = true;
     meta.fractionalDuration = parseFloat(percentDuration[1]) / 100;
   } else {
-    if (!meta.duration) {
+    if (meta.startTime) {
       meta.duration = meta.time - meta.startTime;
-    }
-
-    if (!meta.startTime) {
+    } else {
       meta.startTime = meta.time - meta.duration;
     }
   }
@@ -1577,12 +1580,7 @@ function (_EventEmitter) {
       var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
       var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_MEDDLE;
 
-      if (name === true) {
-        toggle = name;
-        name = false;
-      }
-
-      if (name) {
+      if (name !== true) {
         var m = this._meddles[name];
 
         if (m) {

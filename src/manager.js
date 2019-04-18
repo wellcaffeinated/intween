@@ -126,12 +126,8 @@ export default class extends EventEmitter {
 
   // toggle freezing of meddle states
   freeze( toggle = true, name = DEFAULT_MEDDLE ){
-    if ( name === true ){
-      toggle = name
-      name = false
-    }
 
-    if ( name ){
+    if ( name !== true ){
       let m = this._meddles[ name ]
 
       if ( m ){
