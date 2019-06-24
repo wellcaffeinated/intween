@@ -1,0 +1,27 @@
+# Simple Demo
+
+<button id="play">Play/Pause</button>
+<p>Player time: <span id="time" style="font-family: monospace">0 ms</span></p>
+
+<label>Interactive</label>
+<input type="range" min="1" max="100" value="50" class="slider" id="slider">
+
+<label>Read-only (not meddled)</label>
+<input type="range" min="1" max="100" value="50" class="slider" id="slider-ro">
+
+<ClientOnly>
+  <demo/>
+</ClientOnly>
+
+<script>
+export default {
+  name: 'demo',
+  beforeMount(){
+    import('./simple.js')
+  }
+}
+</script>
+
+## Code
+
+<<< @/docs/demos/simple.js

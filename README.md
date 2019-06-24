@@ -85,3 +85,10 @@ let cleanup = Copilot.Syncher({
 })
 
 ```
+
+
+## Todo
+
+[ ] A way to quickly add "activate/deactivate" keyframes for booleans, say
+[ ] duration: 0 has bugs
+[ ] duration: 100% has bugs
