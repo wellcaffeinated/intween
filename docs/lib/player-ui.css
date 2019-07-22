@@ -1,0 +1,35 @@
+.player {
+  position: relative;
+  background: white;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+}
+
+.player button {
+  font-size: 1rem;
+  border-radius: 0px;
+  width: 8em;
+  height: 3em;
+  background: #333;
+  color: #eee;
+  border: none;
+  cursor: pointer;
+  box-shadow: 1px 1px 2px rgba(100, 100, 100, 0.7) inset;
+  outline: none;
+}
+
+.player .time {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6rem;
+  font-family: monospace;
+  line-height: 3rem;
+  text-align: center;
+}
+
+.player .scrubber {
+  height: 0.75rem;
+  width: calc(100% - 14rem);
+}
