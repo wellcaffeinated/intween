@@ -247,14 +247,6 @@ export default class extends EventEmitter {
     return this.seek( frame.meta.time )
   }
 
-  next(){
-    // transition like slideshow
-  }
-
-  back(){
-    // transition back like slideshow
-  }
-
   getTransitions( time ){
     time = time || this.time
     return getTransitionsAtTime( this.timeline, time )

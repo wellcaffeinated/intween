@@ -1238,7 +1238,7 @@ function parseMeta(meta, defaults) {
 
 function createFrame(state, meta, defaultMetaOptions) {
   if (!state) {
-    throw new Error('Can not create frame without state');
+    throw new Error('Can not create frame without state object');
   }
 
   state = _objectSpread({}, state);
@@ -1684,14 +1684,6 @@ function (_EventEmitter) {
     value: function to(frameId) {
       var frame = this.getFrame(frameId);
       return this.seek(frame.meta.time);
-    }
-  }, {
-    key: "next",
-    value: function next() {// transition like slideshow
-    }
-  }, {
-    key: "back",
-    value: function back() {// transition back like slideshow
     }
   }, {
     key: "getTransitions",
@@ -2231,11 +2223,12 @@ function getConflictingFrames(timeline) {
   return false;
 }
 
-function getPrevEndTime(timeline, idx) {
+function getPrevEndTime(timeline, idx, currTime) {
   for (var i = idx - 1; i >= 0; i--) {
-    var ep = timeline[i];
+    var ep = timeline[i]; // loop until previous end marker is found.
+    // if they have the same end time, ignore
 
-    if (ep.type === 'end') {
+    if (ep.type === 'end' && currTime !== ep.time) {
       return ep.time;
     }
   }
@@ -2248,6 +2241,13 @@ function getPrevEndTime(timeline, idx) {
 function createTimeline(schema) {
   var frames = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
+  // timeline is an array of
+  // marker = {
+  //   type: 'start' | 'end'
+  //   , time: Number
+  //   , frame: {...}
+  //   , start|end: <the other transiton>
+  // }
   if (!frames.length) {
     return [];
   }
@@ -2282,18 +2282,19 @@ function createTimeline(schema) {
     start.end = end;
     end.start = start;
     idx = _util.default.sortedIndex(timeline, end, getTime);
-    timeline.splice(idx, 0, end);
-    idx = _util.default.sortedIndex(timeline, start, getTime);
+    timeline.splice(idx, 0, end); // "start"s need to be after "end"s of equal time
+
+    idx = _util.default.sortedIndex(timeline, start, getTime, true);
     timeline.splice(idx, 0, start);
   }); // TODO: is this necessary?
-
-  timeline.sort(function (a, b) {
-    if (a.time === b.time) {
-      return a.type > b.type ? 1 : -1;
-    }
-
-    return 0;
-  }); // insert variable frames
+  // timeline.sort( (a, b) => {
+  //   if ( a.time === b.time ){
+  //     return a.type > b.type ? 1 : -1
+  //   }
+  //
+  //   return 0
+  // })
+  // insert frames with implicit timing
 
   implicitFrames.forEach(function (frame) {
     var end = {
@@ -2304,7 +2305,7 @@ function createTimeline(schema) {
 
     var idx = _util.default.sortedIndex(timeline, end, getTime);
 
-    var prevEndTime = getPrevEndTime(timeline, idx);
+    var prevEndTime = getPrevEndTime(timeline, idx, end.time);
 
     var startTime = _util.default.lerp(end.time, prevEndTime, frame.meta.fractionalDuration);
 
@@ -2316,7 +2317,9 @@ function createTimeline(schema) {
     start.end = end;
     end.start = start; // add the end
 
-    timeline.splice(idx, 0, end);
+    timeline.splice(idx, 0, end); // "start"s need to be after "end"s of equal time
+
+    idx = _util.default.sortedIndex(timeline, start, getTime, true);
     timeline.splice(idx, 0, start);
   }); // assign inherited states
 
@@ -2495,7 +2498,8 @@ function getInterpolatedState(schema, startState, endState, timeFraction, easing
 
 function getTimeFraction(startTime, endTime, time) {
   var duration = endTime - startTime;
-  return _util.default.clamp(0, 1, (time - startTime) / duration);
+  var frac = duration ? (time - startTime) / duration : 1;
+  return _util.default.clamp(0, 1, frac);
 }
 
 /***/ }),
@@ -2734,12 +2738,13 @@ util.mergeIntersecting = function (first, second) {
  * - array (Array): The array to inspect
  * - value (Mixed): The value to evaluate
  * - callback (Function): Function called per iteration
+ * - retHighest (Boolean): Specify returning the highest qualified index
  *
  * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
  **/
 
 
-util.sortedIndex = function (array, value, callback) {
+util.sortedIndex = function (array, value, callback, retHighest) {
   var low = 0;
   var high = array ? array.length : low; // explicitly reference `identity` for better inlining in Firefox
 
@@ -2747,10 +2752,10 @@ util.sortedIndex = function (array, value, callback) {
   value = callback(value);
 
   while (low < high) {
-    var mid = void 0;
-    mid = low + high >>> 1;
+    var mid = low + high >>> 1;
+    var computed = callback(array[mid]);
 
-    if (callback(array[mid]) < value) {
+    if (retHighest ? computed <= value : computed < value) {
       low = mid + 1;
     } else {
       high = mid;

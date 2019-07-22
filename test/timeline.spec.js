@@ -1,7 +1,12 @@
 /* global describe, it, before */
 
 import chai from 'chai'
-import { createTimeline } from '../src/timeline'
+import {
+  getTransitionsAtTime
+  , createTimeline
+  , reduceTransitions
+  , getStartState
+} from '../src/timeline'
 import { createFrame } from '../src/frame'
 import { createSchema } from '../src/schema'
 
@@ -24,8 +29,8 @@ describe('Timeline generation', () => {
     })
   })
 
-  describe('Given implicitly defined frame timing it should correctly parse it', () => {
-    it('should throw an error', () => {
+  describe('Given implicitly defined frame timing it', () => {
+    it('should correctly parse it', () => {
       let frames
       let schema
 
@@ -43,6 +48,25 @@ describe('Timeline generation', () => {
 
       expect( endpoints.map( e => e.time ) ).to.eql([ 4000, 5000, 7000, 9000 ])
       expect( startpoints.map( e => e.time ) ).to.eql([ 2000, 4000, 6000, 8000 ])
+    })
+
+    it('should give correct state at given time', () => {
+      let frames
+      let schema
+
+      schema = createSchema({ x: 0, y: 0 })
+      frames = [
+        createFrame( { y: 10 }, { duration: '100%', time: '10s' } )
+        , createFrame( { x: 1 }, { duration: '4s', time: '10s' } )
+      ]
+
+      let time = 4000
+      let timeline = createTimeline( schema, frames )
+      let transitions = getTransitionsAtTime( timeline, time )
+      let startState = getStartState( timeline, time, { x: 0, y: 0 } )
+
+      let state = reduceTransitions( schema, transitions, time, startState )
+      expect( state ).to.eql({ x: 0, y: 4 })
     })
   })
 })

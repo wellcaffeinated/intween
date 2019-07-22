@@ -68,12 +68,26 @@ function demo1(){
   })
 
   manager.add({
+    thing: 0
+  }, {
+    time: '7s'
+    , duration: '100%'
+  })
+
+  manager.add({
     y: Math.PI
   }, {
     id: 'up'
     , time: '10s'
-    , duration: '4s'
+    , duration: '100%'
     , easing: Copilot.Easing.Quadratic.InOut
+  })
+
+  manager.add({
+    thing: 2
+  }, {
+    time: '10s'
+    , duration: '2s'
   })
 
   manager.add({

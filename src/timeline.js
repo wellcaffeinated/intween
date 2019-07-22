@@ -44,11 +44,13 @@ function getConflictingFrames( timeline ){
   return false
 }
 
-function getPrevEndTime( timeline, idx ){
+function getPrevEndTime( timeline, idx, currTime ){
   for ( let i = idx - 1; i >= 0; i-- ){
     let ep = timeline[ i ]
 
-    if ( ep.type === 'end' ){
+    // loop until previous end marker is found.
+    // if they have the same end time, ignore
+    if ( ep.type === 'end' && currTime !== ep.time ){
       return ep.time
     }
   }
@@ -59,6 +61,14 @@ function getPrevEndTime( timeline, idx ){
 // Create a timeline array from specified frames
 // ---------------------------------------
 export function createTimeline( schema, frames = [] ){
+
+  // timeline is an array of
+  // marker = {
+  //   type: 'start' | 'end'
+  //   , time: Number
+  //   , frame: {...}
+  //   , start|end: <the other transiton>
+  // }
 
   if ( !frames.length ){ return [] }
 
@@ -82,24 +92,25 @@ export function createTimeline( schema, frames = [] ){
     idx = util.sortedIndex( timeline, end, getTime )
     timeline.splice( idx, 0, end )
 
-    idx = util.sortedIndex( timeline, start, getTime )
+    // "start"s need to be after "end"s of equal time
+    idx = util.sortedIndex( timeline, start, getTime, true )
     timeline.splice( idx, 0, start )
   })
 
   // TODO: is this necessary?
-  timeline.sort( (a, b) => {
-    if ( a.time === b.time ){
-      return a.type > b.type ? 1 : -1
-    }
+  // timeline.sort( (a, b) => {
+  //   if ( a.time === b.time ){
+  //     return a.type > b.type ? 1 : -1
+  //   }
+  //
+  //   return 0
+  // })
 
-    return 0
-  })
-
-  // insert variable frames
+  // insert frames with implicit timing
   implicitFrames.forEach( frame => {
     let end = { type: 'end', frame, time: frame.meta.time }
     let idx = util.sortedIndex( timeline, end, getTime )
-    let prevEndTime = getPrevEndTime( timeline, idx )
+    let prevEndTime = getPrevEndTime( timeline, idx, end.time )
     let startTime = util.lerp( end.time, prevEndTime, frame.meta.fractionalDuration )
     let start = { type: 'start', frame, time: startTime }
 
@@ -108,6 +119,8 @@ export function createTimeline( schema, frames = [] ){
 
     // add the end
     timeline.splice( idx, 0, end )
+    // "start"s need to be after "end"s of equal time
+    idx = util.sortedIndex( timeline, start, getTime, true )
     timeline.splice( idx, 0, start )
   })
 

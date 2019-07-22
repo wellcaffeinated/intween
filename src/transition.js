@@ -60,6 +60,7 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
 
 export function getTimeFraction( startTime, endTime, time ){
   let duration = endTime - startTime
+  let frac = duration ? (time - startTime) / duration : 1
 
-  return util.clamp(0, 1, (time - startTime) / duration)
+  return util.clamp(0, 1, frac)
 }

@@ -77,10 +77,11 @@ util.mergeIntersecting = function( first, second ){
  * - array (Array): The array to inspect
  * - value (Mixed): The value to evaluate
  * - callback (Function): Function called per iteration
+ * - retHighest (Boolean): Specify returning the highest qualified index
  *
  * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
  **/
-util.sortedIndex = function( array, value, callback ) {
+util.sortedIndex = function( array, value, callback, retHighest ) {
   let low = 0
   let high = array ? array.length : low
 
@@ -89,10 +90,10 @@ util.sortedIndex = function( array, value, callback ) {
   value = callback(value)
 
   while (low < high) {
-    let mid
+    let mid = (low + high) >>> 1
+    let computed = callback(array[mid])
 
-    mid = (low + high) >>> 1
-    if ( callback(array[mid]) < value ){
+    if ( retHighest ? (computed <= value) : (computed < value) ){
       low = mid + 1
     } else {
       high = mid

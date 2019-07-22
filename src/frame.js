@@ -25,7 +25,7 @@ function parseMeta( meta, defaults ){
 
 export function createFrame( state, meta, defaultMetaOptions ){
   if ( !state ){
-    throw new Error('Can not create frame without state')
+    throw new Error('Can not create frame without state object')
   }
 
   state = { ...state }
