@@ -1350,17 +1350,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Pi2 = Math.PI * 2;
 
 function shortestModDist(a0, a1, modulo) {
-  var moduloBy2 = 0.5 * modulo;
+  // let moduloBy2 = 0.5 * modulo
   var da = (a1 - a0) % modulo;
-  var cycles = (a1 - a0) / modulo | 0;
-  return (da - moduloBy2) % modulo + moduloBy2 + cycles;
-}
+  return (da - modulo) % modulo;
+} // function toCharCodes( str ){
+//   return str.split('').map( c => c.charCodeAt() )
+// }
 
-function toCharCodes(str) {
-  return str.split('').map(function (c) {
-    return c.charCodeAt();
-  });
-}
 
 var Interpolators = {
   Linear: function Linear(from, to, t) {
@@ -1374,7 +1370,7 @@ var Interpolators = {
   Array: function Array(from, to, t) {
     var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     return to.map(function (v1, idx) {
-      return Interpolators.Linear(from[idx], v1, t);
+      return Interpolators.Linear(from[idx] || 0, v1 || 0, t);
     });
   },
   Object: function Object(from, to, t) {
@@ -1385,7 +1381,14 @@ var Interpolators = {
   },
   String: function String(from, to, t) {
     var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-    return Interpolators.Array(toCharCodes(from), toCharCodes(to), t).join('');
+
+    if (t <= 0) {
+      return from;
+    }
+
+    var length = _util.default.lerp(0, to.length, t) | 0; // to integer
+
+    return to.substr(0, length);
   },
   Step: function Step(from, to, t) {
     var _ref = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {},
@@ -2707,8 +2710,8 @@ util.clamp = function (min, max, v) {
 };
 
 util.mapProperties = function (obj, fn) {
-  return Object.keys(obj).reduce(function (ret, val, key) {
-    ret[key] = fn(val, key);
+  return Object.keys(obj).reduce(function (ret, key) {
+    ret[key] = fn(obj[key], key);
     return ret;
   }, {});
 };

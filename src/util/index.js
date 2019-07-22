@@ -42,8 +42,8 @@ util.clamp = function( min, max, v ){
 }
 
 util.mapProperties = function( obj, fn ){
-  return Object.keys( obj ).reduce( (ret, val, key) => {
-    ret[key] = fn(val, key)
+  return Object.keys( obj ).reduce( (ret, key) => {
+    ret[key] = fn(obj[key], key)
     return ret
   }, {} )
 }
