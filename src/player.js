@@ -87,6 +87,7 @@ class Player extends EventEmitter {
     if ( time >= totalTime ){
       time = totalTime
       this.togglePause( true )
+      this.emit('end')
     }
 
     this.time = time
