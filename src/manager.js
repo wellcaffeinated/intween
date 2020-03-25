@@ -149,10 +149,6 @@ export default class extends EventEmitter {
   getFrame( id ){
     let frame = this.framesById[id]
 
-    if ( !frame ){
-      throw new Error(`No frame with id "${id}" exists to be inherited`)
-    }
-
     return frame
   }
 

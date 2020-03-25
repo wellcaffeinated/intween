@@ -28,7 +28,7 @@ class Player extends EventEmitter {
     }
 
     this.totalTime = timeParser( totalTime )
-    this.clockTime = util.now()
+    this._clockTime = util.now()
     this.time = 0
     this.playbackRate = playbackRate
     this.paused = true
@@ -84,8 +84,12 @@ class Player extends EventEmitter {
 
     time += dt * playbackRate
 
-    if ( time >= totalTime ){
+    if ( playbackRate > 0 && time >= totalTime ){
       time = totalTime
+      this.togglePause( true )
+      this.emit('end')
+    } else if ( playbackRate < 0 && time <= 0 ){
+      time = 0
       this.togglePause( true )
       this.emit('end')
     }

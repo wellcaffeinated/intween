@@ -1613,11 +1613,6 @@ function (_EventEmitter) {
     key: "getFrame",
     value: function getFrame(id) {
       var frame = this.framesById[id];
-
-      if (!frame) {
-        throw new Error("No frame with id \"".concat(id, "\" exists to be inherited"));
-      }
-
       return frame;
     }
   }, {
@@ -1901,7 +1896,7 @@ function (_EventEmitter) {
     }
 
     _this.totalTime = (0, _time.timeParser)(totalTime);
-    _this.clockTime = _util.default.now();
+    _this._clockTime = _util.default.now();
     _this.time = 0;
     _this.playbackRate = playbackRate;
     _this.paused = true;
@@ -1952,8 +1947,12 @@ function (_EventEmitter) {
 
       time += dt * playbackRate;
 
-      if (time >= totalTime) {
+      if (playbackRate > 0 && time >= totalTime) {
         time = totalTime;
+        this.togglePause(true);
+        this.emit('end');
+      } else if (playbackRate < 0 && time <= 0) {
+        time = 0;
         this.togglePause(true);
         this.emit('end');
       }
