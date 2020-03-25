@@ -2474,7 +2474,7 @@ function createTransitionFromFrame(startTime, endTime, frame, previousState) {
 
   var startState = _util.default.pick(previousState, Object.keys(endState));
 
-  var easing = frame.meta.easing || _easingFunctions.default.Linear.None;
+  var easing = frame.meta.easing;
   return {
     startTime: startTime,
     endTime: endTime,
@@ -2509,6 +2509,7 @@ function getInterpolatedState(schema, startState, endState, timeFraction, easing
       // not specified in schema. just set
       val = endState[prop];
     } else {
+      easing = easing || def.easing;
       var progress = easing(timeFraction);
       val = interpolateProperty(def.interpolator, nextState[prop], endState[prop], progress, def.interpolatorOpts);
     }

@@ -4,7 +4,7 @@ import Easing from 'easing-functions'
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
   let endState = frame.state
   let startState = util.pick( previousState, Object.keys(endState) )
-  let easing = frame.meta.easing || Easing.Linear.None
+  let easing = frame.meta.easing
 
   return {
     startTime
@@ -40,7 +40,7 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
       // not specified in schema. just set
       val = endState[ prop ]
     } else {
-
+      easing = easing || def.easing
       let progress = easing( timeFraction )
 
       val = interpolateProperty(
