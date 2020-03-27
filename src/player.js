@@ -20,34 +20,81 @@ function step(){
 step()
 
 class Player extends EventEmitter {
-  constructor( { totalTime, playbackRate = 1 } = {} ){
+  constructor( { totalTime = 0, playbackRate = 1, manager } = {} ){
     super()
-
-    if ( !totalTime ){
-      throw new Error('Player: "totalTime" not set')
-    }
 
     this.totalTime = timeParser( totalTime )
     this._clockTime = util.now()
-    this.time = 0
+    this._time = 0
     this.playbackRate = playbackRate
-    this.paused = true
+    this._paused = true
+
+    if ( manager ){
+      this.attach(manager)
+    }
 
     PlayerStack.push( this )
   }
 
   get progress(){
-    return (this.time / this.totalTime * 100).toFixed(2)
+    return this.totalTime > 0 ? this._time / this.totalTime * 100 : 0
+  }
+
+  set progress(p){
+    this.seek(Math.max(0, p) * this.totalTime / 100)
+  }
+
+  get time(){
+    return this._time
+  }
+
+  set time(t){
+    this.seek(t)
+  }
+
+  get paused(){
+    return this._paused
+  }
+
+  set paused(p){
+    this.togglePause(p)
+  }
+
+  destroy(){
+    this.off(true)
+    let idx = PlayerStack.indexOf(this)
+    PlayerStack.splice(idx, 1)
+    this.emit('destroy')
+  }
+
+  // attach a copilot manager
+  attach( manager ){
+    const updateTime = () => {
+      this.totalTime = manager.totalTime
+    }
+
+    this.on('update', () => {
+      manager.seek(this.time)
+    })
+
+    manager.on('update', updateTime)
+
+    this.on('destroy', () => {
+      manager.off('update', updateTime)
+    })
+
+    updateTime()
+    return this
   }
 
   togglePause( paused ){
     if ( paused === undefined ){
-      paused = !this.paused
+      paused = !this._paused
     }
 
-    this.paused = !!paused
+    this._paused = !!paused
 
-    if ( this.paused ){
+    if ( this._paused ){
       this.emit('pause')
     } else {
       this.emit('play')
@@ -58,8 +105,29 @@ class Player extends EventEmitter {
     return this
   }
 
+  pause(){
+    return this.togglePause(true)
+  }
+
+  play(){
+    return this.togglePause(false)
+  }
+
+  // Stops after it reaches time t
+  playTo(time){
+    if (this._time === time){
+      this.seek(time)
+      return this
+    }
+
+    this._playToTime = time
+    this._oldPlaybackRate = this.playbackRate
+    this.playbackRate = (time >= this._time) ? 1 : -1
+    return this.play()
+  }
+
   seek( time ){
-    this.time = time
+    this._time = time
 
     this.emit('update', time)
     this.emit('seek', time)
@@ -70,7 +138,7 @@ class Player extends EventEmitter {
     let clockTime = this._clockTime
     let playbackRate = this.playbackRate
     let dt = now - clockTime
-    let time = this.time
+    let time = this._time
     let totalTime = this.totalTime
 
     this._clockTime = now
@@ -78,11 +146,22 @@ class Player extends EventEmitter {
     this.emit('animate', now)
 
     // if it's paused, don't step
-    if ( this.paused ){
+    if ( this._paused ){
       return this
     }
 
     time += dt * playbackRate
+
+    // enable stopping at playToTime
+    if (
+      this._playToTime !== false &&
+      (playbackRate * time >= playbackRate * this._playToTime)
+    ){
+      this.togglePause(true)
+      time = this._playToTime
+      this.playbackRate = this._oldPlaybackRate
+      this._playToTime = false
+    }
 
     if ( playbackRate > 0 && time >= totalTime ){
       time = totalTime
@@ -94,9 +173,10 @@ class Player extends EventEmitter {
       this.emit('end')
     }
 
-    this.time = time
+    this._time = time
     this.emit('update', time)
     this.emit('playback', time)
+
     return this
   }
 }

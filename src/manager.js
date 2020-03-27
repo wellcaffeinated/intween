@@ -49,7 +49,7 @@ export default class extends EventEmitter {
   }
 
   get progress(){
-    return (this.time / this.totalTime * 100).toFixed(2)
+    return this.time / this.totalTime * 100
   }
 
   // add a frame

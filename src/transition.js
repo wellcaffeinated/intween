@@ -1,5 +1,4 @@
 import util from '@/util'
-import Easing from 'easing-functions'
 
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
   let endState = frame.state
