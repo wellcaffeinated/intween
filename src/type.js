@@ -31,7 +31,7 @@ export const NATIVE_TYPES = {
 const CUSTOM_TYPES = {}
 
 export function registerType( cfg ){
-  let { type, interpolator } = cfg
+  const { type, interpolator } = cfg
 
   if ( !type || !interpolator ){
     throw new Error('Custom types must have "type" and "interpolator" specified')
@@ -41,7 +41,7 @@ export function registerType( cfg ){
     throw new Error(`Custom type "${type}" is already registered`)
   }
 
-  CUSTOM_TYPES[ type ] = {
+  CUSTOM_TYPES[type] = {
     type
     , interpolator
     , default: cfg.default
@@ -49,7 +49,7 @@ export function registerType( cfg ){
 }
 
 export function getType( val ){
-  let type = typeof val
+  const type = typeof val
 
   if ( type === 'string' ){
     return val
@@ -109,5 +109,5 @@ export function isExplicit( type, val ){
 }
 
 export function getTypeCfg( type ){
-  return NATIVE_TYPES[ type ] || CUSTOM_TYPES[ type ]
+  return NATIVE_TYPES[type] || CUSTOM_TYPES[type]
 }

@@ -11,6 +11,7 @@ export default class EventEmitter {
     // ensure topics hash is initialized
     this._topics = this._topics || (this._topics = {})
   }
+
   /**
   * EventEmitter#on( topic, fn( data, event )[, scope, priority] ) -> this
   * EventEmitter#on( topicConfig[, scope, priority] ) -> this
@@ -25,24 +26,19 @@ export default class EventEmitter {
   * Subscribe callback(s) to a topic(s).
   **/
   on( topic, fn, scope, priority ){
-
-    let listeners
-    let orig
-    let idx
-
     // check if we're subscribing to multiple topics
     // with an object
     if ( typeof topic === 'object' ){
 
-      for ( let t in topic ){
-        this.on( t, topic[ t ], fn, scope )
+      for ( const t in topic ){
+        this.on( t, topic[t], fn, scope )
       }
 
       return this
     }
 
-    listeners = this._topics[ topic ] || (this._topics[ topic ] = [])
-    orig = fn
+    const listeners = this._topics[topic] || (this._topics[topic] = [])
+    const orig = fn
 
     if ( typeof scope === 'object' ){
 
@@ -58,7 +54,7 @@ export default class EventEmitter {
 
     fn._priority_ = priority === undefined ? defaultPriority : priority
 
-    idx = util.sortedIndex( listeners, fn, getPriority )
+    const idx = util.sortedIndex( listeners, fn, getPriority )
 
     listeners.splice( idx, 0, fn )
     return this
@@ -76,10 +72,6 @@ export default class EventEmitter {
   * Unsubscribe callback(s) from topic(s).
   **/
   off( topic, fn, scope ){
-
-    let listeners
-    let listn
-
     if ( topic === true ){
       // purge all listeners
       this._topics = {}
@@ -90,15 +82,15 @@ export default class EventEmitter {
     // with an object
     if ( typeof topic === 'object' ){
 
-      for ( let t in topic ){
+      for ( const t in topic ){
 
-        this.off( t, topic[ t ] )
+        this.off( t, topic[t] )
       }
 
       return this
     }
 
-    listeners = this._topics[ topic ]
+    const listeners = this._topics[topic]
 
     if (!listeners){
       return this
@@ -106,13 +98,12 @@ export default class EventEmitter {
 
     if ( fn === true ){
       // purge all listeners for topic
-      this._topics[ topic ] = []
+      this._topics[topic] = []
       return this
     }
 
     for ( let i = 0, l = listeners.length; i < l; i++ ){
-
-      listn = listeners[ i ]
+      const listn = listeners[i]
 
       if (
         (listn._bindfn_ === fn || listn === fn) &&
@@ -135,24 +126,21 @@ export default class EventEmitter {
   **/
   emit( topic, data ){
 
-    let listeners = this._topics[ topic ]
+    const listeners = this._topics[topic]
     let l = listeners && listeners.length
-    let handler
-    let e
 
     if ( !l ){
       return this
     }
 
-    e = {}
+    const e = {}
     // event data
     e.topic = topic
-    e.handler = handler
 
     // reverse iterate so priorities work out correctly
     while ( l-- ){
 
-      handler = listeners[ l ]
+      const handler = listeners[l]
       handler( data, e )
 
       // if _one_ flag is set, the unsubscribe
@@ -183,9 +171,9 @@ export default class EventEmitter {
     // with an object
     if ( typeof topic === 'object' ){
 
-      for ( let t in topic ){
+      for ( const t in topic ){
 
-        this.one( t, topic[ t ], fn, scope )
+        this.one( t, topic[t], fn, scope )
       }
 
       return this

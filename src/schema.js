@@ -4,14 +4,14 @@ import { isExplicit, getType, getTypeCfg } from '@/type'
 const DEFAULT_EASING = Easing.Linear.None
 
 export function createSchema( schemaDef ){
-  let schema = {}
-  let props = Object.keys( schemaDef )
+  const schema = {}
+  const props = Object.keys( schemaDef )
 
-  for ( let prop of props ){
-    let def = schemaDef[ prop ]
+  for ( const prop of props ){
+    const def = schemaDef[prop]
     let easing = DEFAULT_EASING
     let interpolator = null
-    let interpolatorOpts = def.interpolatorOpts || {}
+    const interpolatorOpts = def.interpolatorOpts || {}
     let type
     let cfg
     let defaultVal
@@ -49,7 +49,7 @@ export function createSchema( schemaDef ){
       defaultVal = isExplicit( type, def ) ? cfg.default : def
     }
 
-    schema[ prop ] = {
+    schema[prop] = {
       type
       , easing
       , default: defaultVal
@@ -63,11 +63,11 @@ export function createSchema( schemaDef ){
 }
 
 export function createState( schema ){
-  let state = {}
-  let props = Object.keys( schema )
+  const state = {}
+  const props = Object.keys( schema )
 
-  for ( let prop of props ){
-    state[ prop ] = schema[ prop ].default
+  for ( const prop of props ){
+    state[prop] = schema[prop].default
   }
 
   return state

@@ -1,9 +1,9 @@
 import util from '@/util'
 
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
-  let endState = frame.state
-  let startState = util.pick( previousState, Object.keys(endState) )
-  let easing = frame.meta.easing
+  const endState = frame.state
+  const startState = util.pick( previousState, Object.keys(endState) )
+  const easing = frame.meta.easing
 
   return {
     startTime
@@ -29,37 +29,37 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
     return { ...endState }
   }
 
-  let nextState = { ...startState }
+  const nextState = { ...startState }
 
-  for ( let prop in endState ){
-    let def = schema[prop]
+  for ( const prop in endState ){
+    const def = schema[prop]
     let val
 
     if ( !def ){
       // not specified in schema. just set
-      val = endState[ prop ]
+      val = endState[prop]
     } else {
       easing = easing || def.easing
-      let progress = easing( timeFraction )
+      const progress = easing( timeFraction )
 
       val = interpolateProperty(
         def.interpolator
-        , nextState[ prop ]
-        , endState[ prop ]
+        , nextState[prop]
+        , endState[prop]
         , progress
         , def.interpolatorOpts
       )
     }
 
-    nextState[ prop ] = val
+    nextState[prop] = val
   }
 
   return nextState
 }
 
 export function getTimeFraction( startTime, endTime, time ){
-  let duration = endTime - startTime
-  let frac = duration ? (time - startTime) / duration : 1
+  const duration = endTime - startTime
+  const frac = duration ? (time - startTime) / duration : 1
 
   return util.clamp(0, 1, frac)
 }

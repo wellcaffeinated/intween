@@ -25,7 +25,7 @@ export function timeParser( strOrNumber ){
   parsed = strOrNumber.match(timeDecReg)
 
   if ( parsed ){
-    let unit = ('' + parsed[2]).toLowerCase()
+    const unit = ('' + parsed[2]).toLowerCase()
 
     if ( !parsed[1] || unit === 's' ){
       return getTime( 0, 0, parsed[1] )

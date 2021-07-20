@@ -10,10 +10,10 @@ const PlayerStack = []
 
 function step(){
   window.requestAnimationFrame( step )
-  let now = util.now()
+  const now = util.now()
 
   for ( let l = PlayerStack.length, i = 0; i < l; i++ ){
-    PlayerStack[ i ].step( now )
+    PlayerStack[i].step( now )
   }
 }
 
@@ -62,7 +62,7 @@ class Player extends EventEmitter {
 
   destroy(){
     this.off(true)
-    let idx = PlayerStack.indexOf(this)
+    const idx = PlayerStack.indexOf(this)
     PlayerStack.splice(idx, 1)
     this.emit('destroy')
   }
@@ -135,11 +135,11 @@ class Player extends EventEmitter {
   }
 
   step( now ){
-    let clockTime = this._clockTime
-    let playbackRate = this.playbackRate
-    let dt = now - clockTime
+    const clockTime = this._clockTime
+    const playbackRate = this.playbackRate
+    const dt = now - clockTime
     let time = this._time
-    let totalTime = this.totalTime
+    const totalTime = this.totalTime
 
     this._clockTime = now
 

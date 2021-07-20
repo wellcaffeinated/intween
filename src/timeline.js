@@ -5,11 +5,11 @@ import { getInterpolatedState, createTransitionFromFrame, getTimeFraction } from
 // Check for conflicting overlaps
 // ---------------------------------------
 function getConflictingFrames( timeline ){
-  let markers = []
+  const markers = []
   let idx
 
   for ( let l = timeline.length, i = 0; i < l; i++ ){
-    let m = timeline[ i ]
+    const m = timeline[i]
 
     if ( m.type === 'start' ){
       markers.push( m )
@@ -20,12 +20,12 @@ function getConflictingFrames( timeline ){
     }
 
     for ( let l = markers.length, i = 0; i < l; i++ ){
-      let m = markers[ i ]
+      const m = markers[i]
 
       for ( let j = i + 1; j < l; j++ ){
-        let paths = util.getIntersectingPaths(
+        const paths = util.getIntersectingPaths(
           m.transition.endState
-          , markers[ j ].transition.endState
+          , markers[j].transition.endState
         )
 
         if ( paths.length ){
@@ -33,7 +33,7 @@ function getConflictingFrames( timeline ){
             paths
             , frames: [
               m.frame
-              , markers[ j ].frame
+              , markers[j].frame
             ]
           }
         }
@@ -46,7 +46,7 @@ function getConflictingFrames( timeline ){
 
 function getPrevEndTime( timeline, idx, currTime ){
   for ( let i = idx - 1; i >= 0; i-- ){
-    let ep = timeline[ i ]
+    const ep = timeline[i]
 
     // loop until previous end marker is found.
     // if they have the same end time, ignore
@@ -73,18 +73,18 @@ export function createTimeline( schema, frames = [] ){
   if ( !frames.length ){ return [] }
 
   const getTime = v => v.time
-  let defaultState = createState( schema )
-  let timeline = []
+  const defaultState = createState( schema )
+  const timeline = []
 
   // omit frames that are implicitly defined first
-  let implicitFrames = frames.filter( f => f.meta.implicit ).sort( (a, b) => a.meta.time - b.meta.time )
+  const implicitFrames = frames.filter( f => f.meta.implicit ).sort( (a, b) => a.meta.time - b.meta.time )
 
   frames = frames.filter( f => !f.meta.implicit )
 
   frames.forEach( frame => {
     let idx
-    let start = { type: 'start', frame, time: frame.meta.time - frame.meta.duration }
-    let end = { type: 'end', frame, time: frame.meta.time }
+    const start = { type: 'start', frame, time: frame.meta.time - frame.meta.duration }
+    const end = { type: 'end', frame, time: frame.meta.time }
 
     start.end = end
     end.start = start
@@ -108,11 +108,11 @@ export function createTimeline( schema, frames = [] ){
 
   // insert frames with implicit timing
   implicitFrames.forEach( frame => {
-    let end = { type: 'end', frame, time: frame.meta.time }
+    const end = { type: 'end', frame, time: frame.meta.time }
     let idx = util.sortedIndex( timeline, end, getTime )
-    let prevEndTime = getPrevEndTime( timeline, idx, end.time )
-    let startTime = util.lerp( end.time, prevEndTime, frame.meta.fractionalDuration )
-    let start = { type: 'start', frame, time: startTime }
+    const prevEndTime = getPrevEndTime( timeline, idx, end.time )
+    const startTime = util.lerp( end.time, prevEndTime, frame.meta.fractionalDuration )
+    const start = { type: 'start', frame, time: startTime }
 
     start.end = end
     end.start = start
@@ -131,7 +131,7 @@ export function createTimeline( schema, frames = [] ){
     // only go through ends
     if ( m.type !== 'end' ){ return }
 
-    let transition = createTransitionFromFrame( m.start.time, m.time, m.frame, prevState )
+    const transition = createTransitionFromFrame( m.start.time, m.time, m.frame, prevState )
 
     m.transition = transition
     m.start.transition = transition
@@ -145,13 +145,13 @@ export function createTimeline( schema, frames = [] ){
   timeline.forEach( m => {
     if ( m.type !== 'end' ){ return }
 
-    let transitions = getTransitionsAtTime( timeline, m.time )
+    const transitions = getTransitionsAtTime( timeline, m.time )
 
     prevState = reduceTransitions( schema, transitions, m.time, prevState )
     m.state = prevState
   })
 
-  let conflicts = getConflictingFrames( timeline )
+  const conflicts = getConflictingFrames( timeline )
 
   if ( conflicts ){
     throw new Error('The following overlapping frames modify the same state paths:\n' +
@@ -167,11 +167,11 @@ export function createTimeline( schema, frames = [] ){
 // at specified time from timeline
 // ---------------------------------------
 export function getTransitionsAtTime( timeline, time ){
-  let markers = []
+  const markers = []
   let idx
 
   for ( let l = timeline.length, i = 0; i < l; i++ ){
-    let m = timeline[ i ]
+    const m = timeline[i]
 
     if ( m.time >= time ){
       break
@@ -196,7 +196,7 @@ export function getStartState( timeline, time, defaultState ){
   let state = defaultState
 
   for ( let l = timeline.length, i = 0; i < l; i++ ){
-    let m = timeline[ i ]
+    const m = timeline[i]
 
     if ( m.time > time ){
       return state
@@ -214,7 +214,7 @@ export function getStartState( timeline, time, defaultState ){
 // ---------------------------------------
 export function reduceTransitions( schema, transitions = [], time = 0, initialState = {} ){
   return transitions.reduce( (state, tr) => {
-    let progress = getTimeFraction( tr.startTime, tr.endTime, time )
+    const progress = getTimeFraction( tr.startTime, tr.endTime, time )
 
     return Object.assign(
       state

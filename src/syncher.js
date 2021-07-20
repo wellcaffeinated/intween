@@ -25,10 +25,10 @@ export default function Syncher( {
     if ( stop ){ return }
     window.requestAnimationFrame( update )
 
-    let now = util.now()
-    let syncTime = getTime() || 0
-    let isPlayingVal = !!isPlaying()
-    let playbackRate = +getPlaybackRate()
+    const now = util.now()
+    const syncTime = getTime() || 0
+    const isPlayingVal = !!isPlaying()
+    const playbackRate = +getPlaybackRate()
     let time
 
     if ( !isPlayingVal || !timeStarted ){
@@ -36,7 +36,7 @@ export default function Syncher( {
       time = syncTime
     } else {
       // extrapolate
-      let dt = (now - lastClockTime) * playbackRate
+      const dt = (now - lastClockTime) * playbackRate
 
       time = lastTime + dt
 

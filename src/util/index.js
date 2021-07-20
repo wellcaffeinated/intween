@@ -90,8 +90,8 @@ util.sortedIndex = function( array, value, callback, retHighest ) {
   value = callback(value)
 
   while (low < high) {
-    let mid = (low + high) >>> 1
-    let computed = callback(array[mid])
+    const mid = (low + high) >>> 1
+    const computed = callback(array[mid])
 
     if ( retHighest ? (computed <= value) : (computed < value) ){
       low = mid + 1

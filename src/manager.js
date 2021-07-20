@@ -55,7 +55,7 @@ export default class extends EventEmitter {
   // add a frame
   add( state, meta ){
 
-    let frame = createFrame(state, meta, {
+    const frame = createFrame(state, meta, {
       duration: this.options.defaultTransitionDuration
     })
 
@@ -65,7 +65,7 @@ export default class extends EventEmitter {
 
     // add to id list
     if ( frame.meta.id ){
-      this.framesById[ frame.meta.id ] = frame
+      this.framesById[frame.meta.id] = frame
     }
 
     this.frames.push( frame )
@@ -92,10 +92,10 @@ export default class extends EventEmitter {
     relaxDelay = relaxDelay !== undefined ? relaxDelay : this.options.meddleRelaxDelay
     relaxDuration = relaxDuration !== undefined ? relaxDuration : this.options.meddleRelaxDuration
 
-    let meddle = this._meddles[ name ]
+    let meddle = this._meddles[name]
 
     if ( !meddle ){
-      meddle = this._meddles[ name ] = { state: {} }
+      meddle = this._meddles[name] = { state: {} }
     }
 
     meddle.state = { ...meddle.state, ...meddleState }
@@ -128,7 +128,7 @@ export default class extends EventEmitter {
   freeze( toggle = true, name = DEFAULT_MEDDLE ){
 
     if ( name !== true ){
-      let m = this._meddles[ name ]
+      const m = this._meddles[name]
 
       if ( m ){
         m.freeze = toggle
@@ -138,7 +138,7 @@ export default class extends EventEmitter {
     }
 
     Object.keys(this._meddles).forEach( k => {
-      let m = this._meddles[ k ]
+      const m = this._meddles[k]
 
       m.freeze = toggle
     })
@@ -147,7 +147,7 @@ export default class extends EventEmitter {
   }
 
   getFrame( id ){
-    let frame = this.framesById[id]
+    const frame = this.framesById[id]
 
     return frame
   }
@@ -162,7 +162,7 @@ export default class extends EventEmitter {
   }
 
   _updateState(){
-    let state = this.getStateAt( this.time )
+    const state = this.getStateAt( this.time )
 
     Object.keys( this._meddles ).reduce( (state, name) =>
       this._assignMeddleState( state, name )
@@ -174,7 +174,7 @@ export default class extends EventEmitter {
   }
 
   _assignMeddleState( state, name ){
-    let meddle = this._meddles[name || DEFAULT_MEDDLE]
+    const meddle = this._meddles[name || DEFAULT_MEDDLE]
 
     // check meddling
     if ( !meddle.active ){
@@ -204,13 +204,13 @@ export default class extends EventEmitter {
       this.unmeddle(name)
     }
 
-    let timeFraction = getTimeFraction(
+    const timeFraction = getTimeFraction(
       meddle.startTime + meddle.relaxDelay
       , meddle.endTime
       , this.time
     )
 
-    let meddleTransitionState = getInterpolatedState(
+    const meddleTransitionState = getInterpolatedState(
       this._schema
       , meddle.state
       , util.mergeIntersecting( meddle.relaxState, state )
@@ -225,20 +225,20 @@ export default class extends EventEmitter {
 
   getStateAt( time ){
     if ( time >= this.totalTime ){
-      let m = this.timeline[this.timeline.length - 1]
-      let t = m.transition
+      const m = this.timeline[this.timeline.length - 1]
+      const t = m.transition
 
       return { ...m.state, ...t.relaxState }
     }
 
-    let transitions = getTransitionsAtTime( this.timeline, time )
-    let startState = getStartState( this.timeline, time, this._defaultState )
+    const transitions = getTransitionsAtTime( this.timeline, time )
+    const startState = getStartState( this.timeline, time, this._defaultState )
 
     return reduceTransitions( this._schema, transitions, time, startState )
   }
 
   to( frameId ){
-    let frame = this.getFrame( frameId )
+    const frame = this.getFrame( frameId )
 
     return this.seek( frame.meta.time )
   }

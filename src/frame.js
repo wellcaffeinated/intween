@@ -14,9 +14,9 @@ const META_PARSERS = {
 
 // parse meta to standardized format
 function parseMeta( meta, defaults ){
-  let ret = { ...defaults, ...meta } // clone
+  const ret = { ...defaults, ...meta } // clone
 
-  for ( let key in META_PARSERS ){
+  for ( const key in META_PARSERS ){
     ret[key] = META_PARSERS[key]( ret[key] )
   }
 
@@ -33,7 +33,7 @@ export function createFrame( state, meta, defaultMetaOptions ){
 
   delete state.$meta
 
-  let percentDuration = pctReg.exec(meta.duration)
+  const percentDuration = pctReg.exec(meta.duration)
 
   if ( percentDuration ){
     meta.implicit = true

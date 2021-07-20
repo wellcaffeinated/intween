@@ -22,14 +22,14 @@ export function Smoothener(
   let startTime = 0
   let endTime = -1
   let lastTime
-  let smoothener = {
+  const smoothener = {
     duration
     , easing
     , get state(){ return state }
   }
 
   smoothener.setState = function( newState ){
-    let now = util.now()
+    const now = util.now()
 
     startTime = lastTime || now
     endTime = startTime + smoothener.duration
@@ -39,7 +39,7 @@ export function Smoothener(
   }
 
   smoothener.update = function(){
-    let now = util.now()
+    const now = util.now()
 
     if ( now > endTime ){
       lastTime = now
@@ -53,7 +53,7 @@ export function Smoothener(
 
     lastTime = now
 
-    let timeFraction = getTimeFraction(
+    const timeFraction = getTimeFraction(
       startTime
       , endTime
       , now

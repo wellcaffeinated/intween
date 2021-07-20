@@ -4,7 +4,7 @@ const Pi2 = Math.PI * 2
 
 function shortestModDist( a0, a1, modulo ) {
   // let moduloBy2 = 0.5 * modulo
-  let da = (a1 - a0) % modulo
+  const da = (a1 - a0) % modulo
 
   return (da - modulo) % modulo
 }
@@ -26,7 +26,7 @@ const Interpolators = {
   , String: ( from, to, t, opts = {} ) => {
     if ( t <= 0 ){ return from }
 
-    let length = util.lerp( 0, to.length, t ) | 0 // to integer
+    const length = util.lerp( 0, to.length, t ) | 0 // to integer
 
     return to.substr(0, length)
   }
