@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const path = require('path');
 const pkg = require('./package.json');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 function capitalize(str){
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -37,9 +38,14 @@ const config = {
       '@': path.join(__dirname, 'src')
     }
   },
+  optimization: {
+    minimizer: [new TerserPlugin({ extractComments: false })],
+  },
   plugins: [
     new ESLintPlugin(),
-    new webpack.BannerPlugin(`${libraryName} version ${pkg.version}\n`)
+    new webpack.BannerPlugin({
+      banner: `${libraryName} version ${pkg.version}`
+    })
   ],
 };
 

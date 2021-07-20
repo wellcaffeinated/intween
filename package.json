@@ -1,6 +1,6 @@
 {
   "name": "copilot",
-  "version": "0.0.1",
+  "version": "0.5.0",
   "description": "Make interactive videos easily",
   "main": "dist/copilot.js",
   "scripts": {
@@ -48,6 +48,7 @@
     "jsdom": "13.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^5.2.0",
+    "terser-webpack-plugin": "^5.1.4",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "vuepress": "^1.0.2",
     "webpack": "^5.45.1",

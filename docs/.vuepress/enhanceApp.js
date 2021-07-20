@@ -1,4 +1,5 @@
 import Copilot from '../../dist/copilot.js'
+window.Copilot = Copilot
 
 export default ({
   Vue, // the version of Vue being used in the VuePress app
