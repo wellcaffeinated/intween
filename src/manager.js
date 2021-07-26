@@ -1,5 +1,5 @@
-import util from '@/util'
-import Easing from 'easing-functions'
+import * as util from '@/util'
+import { linear } from '@/easing'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { createFrame } from '@/frame'
@@ -106,7 +106,7 @@ export default class extends EventEmitter {
     meddle.freeze = freeze
     meddle.relaxDelay = relaxDelay
     meddle.relaxDuration = relaxDuration
-    meddle.easing = easing || Easing.Linear.None
+    meddle.easing = easing || linear
 
     this._updateState()
     return this

@@ -1,4 +1,4 @@
-import util from '@/util'
+import * as util from '@/util'
 import Easing from 'easing-functions'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 

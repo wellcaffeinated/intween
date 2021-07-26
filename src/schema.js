@@ -1,7 +1,7 @@
-import Easing from 'easing-functions'
+import { linear } from '@/easing'
 import { isExplicit, getType, getTypeCfg } from '@/type'
 
-const DEFAULT_EASING = Easing.Linear.None
+const DEFAULT_EASING = linear
 
 export function createSchema( schemaDef ){
   const schema = {}

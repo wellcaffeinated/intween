@@ -2,7 +2,7 @@
 //
 // ---------------------------------------
 
-import util from '@/util'
+import * as util from '@/util'
 import { timeParser } from '@/parsers/time'
 import EventEmitter from '@/event-emitter'
 

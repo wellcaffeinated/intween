@@ -37,7 +37,6 @@
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-plugin-module-resolver": "^4.1.0",
     "chai": "^4.1.2",
-    "easing-functions": "^1.0.1",
     "eslint": "^7.31.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.14.0",

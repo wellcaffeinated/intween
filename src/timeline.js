@@ -1,4 +1,4 @@
-import util from '@/util'
+import * as util from '@/util'
 import { createState } from '@/schema'
 import { getInterpolatedState, createTransitionFromFrame, getTimeFraction } from '@/transition'
 

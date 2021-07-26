@@ -1,5 +1,5 @@
 import Easing from 'easing-functions'
-import util from '@/util'
+import * as util from '@/util'
 import Manager from '@/manager'
 import Interpolators from '@/interpolators'
 import Player from '@/player'

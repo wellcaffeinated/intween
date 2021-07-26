@@ -1,8 +1,8 @@
-import util from '@/util'
+import { pick, clamp } from '@/util'
 
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
   const endState = frame.state
-  const startState = util.pick( previousState, Object.keys(endState) )
+  const startState = pick( previousState, Object.keys(endState) )
   const easing = frame.meta.easing
 
   return {
@@ -61,5 +61,5 @@ export function getTimeFraction( startTime, endTime, time ){
   const duration = endTime - startTime
   const frac = duration ? (time - startTime) / duration : 1
 
-  return util.clamp(0, 1, frac)
+  return clamp(0, 1, frac)
 }

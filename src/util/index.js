@@ -1,54 +1,55 @@
-const util = {}
-const identity = a => a
+export const identity = a => a
 
 // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
-if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
-  util.now = function now() {
-    var time = process.hrtime()
+export const now = (() => {
+  if (typeof (window) === 'undefined' && typeof (process) !== 'undefined') {
+    return function now() {
+      var time = process.hrtime()
 
-    // Convert [seconds, nanoseconds] to milliseconds.
-    return time[0] * 1000 + time[1] / 1000000
+      // Convert [seconds, nanoseconds] to milliseconds.
+      return time[0] * 1000 + time[1] / 1000000
+    }
+  } else if (typeof (window) !== 'undefined' &&
+      window.performance !== undefined &&
+      window.performance.now !== undefined ) {
+    // In a browser, use window.performance.now if it is available.
+    // This must be bound, because directly assigning this function
+    // leads to an invocation exception in Chrome.
+    return window.performance.now.bind(window.performance)
+  } else if (Date.now !== undefined) {
+    // Use Date.now if it is available.
+    return Date.now
+  } else {
+    // Otherwise, use 'new Date().getTime()'.
+    return function now() {
+      return new Date().getTime()
+    }
   }
-} else if (typeof (window) !== 'undefined' &&
-    window.performance !== undefined &&
-    window.performance.now !== undefined ) {
-  // In a browser, use window.performance.now if it is available.
-  // This must be bound, because directly assigning this function
-  // leads to an invocation exception in Chrome.
-  util.now = window.performance.now.bind(window.performance)
-} else if (Date.now !== undefined) {
-  // Use Date.now if it is available.
-  util.now = Date.now
-} else {
-  // Otherwise, use 'new Date().getTime()'.
-  util.now = function now() {
-    return new Date().getTime()
-  }
-}
+})()
 
-util.castArray = function( thing ){
+export const castArray = function( thing ){
   return Array.isArray(thing) ? thing : [thing]
 }
 
-util.lerp = function( from, to, t ){
+export const lerp = function( from, to, t ){
   return from * ( 1 - t ) + to * t
 }
 
 // clamp
-util.clamp = function( min, max, v ){
+export const clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)
 }
 
-util.mapProperties = function( obj, fn ){
+export const mapProperties = function( obj, fn ){
   return Object.keys( obj ).reduce( (ret, key) => {
     ret[key] = fn(obj[key], key)
     return ret
   }, {} )
 }
 
-util.pick = function( obj, keys = [] ){
+export const pick = function( obj, keys = [] ){
   if ( !keys ){
     // all
     return { ...obj }
@@ -62,10 +63,10 @@ util.pick = function( obj, keys = [] ){
 // Only take properties that are present in
 // first object
 // ---------------------------------------
-util.mergeIntersecting = function( first, second ){
+export const mergeIntersecting = function( first, second ){
   return {
     ...first
-    , ...util.pick(
+    , ...pick(
       second
       , Object.keys(first)
     )
@@ -81,7 +82,7 @@ util.mergeIntersecting = function( first, second ){
  *
  * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
  **/
-util.sortedIndex = function( array, value, callback, retHighest ) {
+export const sortedIndex = function( array, value, callback, retHighest ) {
   let low = 0
   let high = array ? array.length : low
 
@@ -103,10 +104,9 @@ util.sortedIndex = function( array, value, callback, retHighest ) {
   return low
 }
 
-util.getIntersectingPaths = function ( o1, o2 ){
+export const getIntersectingPaths = function ( o1, o2 ){
   return Object.keys(o1).filter(
     Object.prototype.hasOwnProperty.bind( o2 )
   )
 }
 
-export default util

@@ -1,4 +1,4 @@
-import util from '@/util'
+import { sortedIndex } from '@/util'
 
 const defaultPriority = 1
 
@@ -54,7 +54,7 @@ export default class EventEmitter {
 
     fn._priority_ = priority === undefined ? defaultPriority : priority
 
-    const idx = util.sortedIndex( listeners, fn, getPriority )
+    const idx = sortedIndex( listeners, fn, getPriority )
 
     listeners.splice( idx, 0, fn )
     return this

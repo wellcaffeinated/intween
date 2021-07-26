@@ -1,4 +1,4 @@
-import Interpolators from '@/interpolators'
+import * as Interpolators from '@/interpolators'
 
 export const NATIVE_TYPES = {
   'number': {
