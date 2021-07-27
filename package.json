@@ -1,6 +1,6 @@
 {
   "name": "copilot",
-  "version": "0.5.0",
+  "version": "0.1.0",
   "description": "Make interactive videos easily",
   "main": "dist/copilot.js",
   "scripts": {

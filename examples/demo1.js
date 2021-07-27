@@ -64,7 +64,7 @@ function demo1(){
     id: 'spin'
     , time: '6s'
     , duration: 6000
-    , easing: Copilot.Easing.Quadratic.In
+    , easing: Copilot.Easing.quadIn
   })
 
   manager.add({
@@ -80,7 +80,7 @@ function demo1(){
     id: 'up'
     , time: '10s'
     , duration: '100%'
-    , easing: Copilot.Easing.Quadratic.InOut
+    , easing: Copilot.Easing.quadInOut
   })
 
   manager.add({
@@ -96,7 +96,7 @@ function demo1(){
     id: 'origin'
     , time: '10s'
     , duration: '4s'
-    , easing: Copilot.Easing.Quadratic.Out
+    , easing: Copilot.Easing.quadOut
   })
 
   // console.log(manager.timeline)
@@ -128,7 +128,7 @@ function demo1(){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      manager.meddle( state, { easing: Copilot.Easing.Elastic.Out, relaxDuration: 2000, relaxDelay: 0, transitionDuration: 100 } )
+      manager.meddle( state, { easing: Copilot.Easing.elasticOut, relaxDuration: 2000, relaxDelay: 0, transitionDuration: 100 } )
     })
 
   let smoother = Copilot.Animation.Smoothener( manager, { duration: 100 } )

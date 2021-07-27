@@ -4,27 +4,27 @@ export const NATIVE_TYPES = {
   'number': {
     type: 'number'
     , default: 0
-    , interpolator: Interpolators.Linear
+    , interpolator: Interpolators.linear
   }
   , 'string': {
     type: 'string'
     , default: ''
-    , interpolator: Interpolators.String
+    , interpolator: Interpolators.string
   }
   , 'boolean': {
     type: 'boolean'
     , default: false
-    , interpolator: Interpolators.Step
+    , interpolator: Interpolators.toggle
   }
   , 'array': {
     type: 'array'
     , default: []
-    , interpolator: Interpolators.Array
+    , interpolator: Interpolators.array
   }
   , 'object': {
     type: 'object'
     , default: {}
-    , interpolator: Interpolators.Object
+    , interpolator: Interpolators.object
   }
 }
 

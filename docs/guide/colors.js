@@ -1,3 +1,4 @@
+import chroma from '../lib/chroma'
 import { createPlayer } from '../lib/player-ui'
 
 // this function is used to interpolate between two chroma objects
@@ -33,7 +34,7 @@ manager.add({
   // starts at last frame...
   , duration: '100%'
   // ease between them
-  , easing: Copilot.Easing.Elastic.Out
+  , easing: Copilot.Easing.makeStep(5)
 })
 
 // let's use a slider... but this could be anything

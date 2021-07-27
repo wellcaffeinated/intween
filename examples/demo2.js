@@ -11,7 +11,7 @@
       "wt.soundcloud.com" : "wt.soundcloud.com/player/",
       "w.soundcloud.com"  : "w.soundcloud.com/player/"
     }
-    const songUrl = 'https://soundcloud.com/itsmisterangles/haunting-me-kubbis-reprise'
+    const songUrl = 'https://soundcloud.com/jakechudnow/for-you'
     const widgetUrl = "http://w.soundcloud.com/player/?url=" + songUrl;
     const iframe = byId('demo-2-sc')
     iframe.src = widgetUrl
@@ -157,7 +157,7 @@
 
       manager.meddle({
         [`object-${i}`]: e.object.position.clone()
-      }, { easing: Copilot.Easing.Elastic.Out })
+      }, { easing: Copilot.Easing.elasticOut })
     })
 
     let userMeddle = false
@@ -178,7 +178,7 @@
         cameraPhi: s.phi
         , cameraTheta: s.theta
         , cameraR: s.radius
-      }, { easing: Copilot.Easing.Elastic.Out })
+      }, { easing: Copilot.Easing.elasticOut })
     })
 
     manager.add({
@@ -199,7 +199,7 @@
       }, {
         time: (Math.random() * 60 + 11) * 1000
         , duration: '10s'
-        , easing: Copilot.Easing.Bounce.Out
+        , easing: Copilot.Easing.bounceOut
       })
     }
 

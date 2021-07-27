@@ -1,5 +1,5 @@
 import * as util from '@/util'
-import Easing from 'easing-functions'
+import { cubicOut } from '@/easing'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 
 // Helper to smooth state changes
@@ -13,7 +13,7 @@ export function Smoothener(
   , {
     duration = 80
     , keys = null
-    , easing = Easing.Cubic.Out
+    , easing = cubicOut
   } = {}
 ){
   let state = manager.state

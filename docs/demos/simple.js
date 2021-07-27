@@ -21,7 +21,7 @@ manager.add({
 }, {
   time: '5s',
   // use quadratic in-out easing function
-  easing: Copilot.Easing.Quadratic.InOut
+  easing: Copilot.Easing.quadInOut
 })
 
 // slowly decrease to zero linearly
@@ -38,7 +38,7 @@ manager.add({
 }, {
   time: '10s',
   // spring animation to 70 at 10s
-  easing: Copilot.Easing.Elastic.Out
+  easing: Copilot.Easing.elasticOut
 })
 
 // Setup a player
@@ -110,7 +110,7 @@ slider.addEventListener('mouseup', e => {
   let options = {
     relaxDelay: 500,
     relaxDuration: 700,
-    easing: Copilot.Easing.Quadratic.Out
+    easing: Copilot.Easing.quadOut
   }
   // user grabs slider...
   // indirectly set the slider value through copilot

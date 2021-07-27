@@ -9,13 +9,12 @@ const manager = Copilot({
   , step: {
     type: Number
     , default: 1
-    , interpolator: Copilot.Interpolators.Step
-    , interpolatorOpts: { threshold: 0.25 } // switches 1/4 of the way through
+    , interpolator: Copilot.Interpolators.makeToggle(0.25) // switches 1/4 of the way through
   }
   , angle: {
     type: Number
     , default: 0
-    , interpolator: Copilot.Interpolators.Angle
+    , interpolator: Copilot.Interpolators.angle
   }
   // By default boolean values will switch half way between. This can be changed
   // by specifying interpolatorOpts like "step" above

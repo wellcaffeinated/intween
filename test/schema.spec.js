@@ -17,7 +17,7 @@ describe('Schema generation', () => {
       let frames
       let schema
 
-      schema = createSchema({ arr: [1,2,3] })
+      schema = createSchema({ arr: [1, 2, 3] })
       frames = [
         createFrame( { arr: [3, 4, 5] }, { startTime: 2000, time: 4000 } )
       ]
@@ -53,8 +53,8 @@ describe('Schema generation', () => {
           let ang1 = Math.atan2( from.y, from.x )
           let r2 = radius( to.x, to.y )
           let ang2 = Math.atan2( tp.y, tp.x )
-          let r = Interpolators.Linear( r1, r2, t )
-          let ang = Interpolators.Linear( ang1, ang2, t )
+          let r = Interpolators.linear( r1, r2, t )
+          let ang = Interpolators.linear( ang1, ang2, t )
           let x = r * Math.cos( ang )
           let y = r * Math.sin( ang )
           return { x, y }
@@ -63,7 +63,7 @@ describe('Schema generation', () => {
 
       schema = createSchema( schema )
       frames = [
-        createFrame( { special: {x: 2, y: 100} }, { startTime: 2000, time: 4000 } )
+        createFrame( { special: { x: 2, y: 100 } }, { startTime: 2000, time: 4000 } )
       ]
     })
   })

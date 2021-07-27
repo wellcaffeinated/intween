@@ -28,7 +28,7 @@ lerp( 0, 4, 0.75 ) // => 3
 
 ::: warning
 When defining an interpolator, don't worry about [easing](https://stackoverflow.com/questions/8316882/what-is-an-easing-function). Easing is separate from interpolation and the
-included easing library can be used on arbitrary data.
+included easing functions can be used on arbitrary data.
 
 In short: define your interpolator without easing in mind.
 :::
