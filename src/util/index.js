@@ -1,3 +1,4 @@
+export * from './callable'
 export const identity = a => a
 
 // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
@@ -40,6 +41,20 @@ export const lerp = function( from, to, t ){
 // clamp
 export const clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)
+}
+
+export const filterObjectValues = function( obj, fn ){
+  return Object.keys(obj).reduce((ret, key) => {
+    const value = obj[key]
+    if (fn(value, key)){
+      ret[key] = value
+    }
+    return ret
+  }, {})
+}
+
+export const sanitizedObject = function( obj ){
+  return filterObjectValues(obj, v => v !== undefined)
 }
 
 export const mapProperties = function( obj, fn ){
@@ -110,3 +125,8 @@ export const getIntersectingPaths = function ( o1, o2 ){
   )
 }
 
+export const pull = function (arr, o){
+  const idx = arr.indexOf(o)
+  arr.splice(idx, 1)
+  return arr
+}

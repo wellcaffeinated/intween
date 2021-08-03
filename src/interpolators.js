@@ -26,5 +26,5 @@ export const string = (from, to, t) => {
   return to.substr(0, length)
 }
 
-export const makeToggle = threshold => (from, to, t) => (t > threshold) ? to : from
-export const toggle = makeToggle(0.5)
+export const makeToggle = threshold => (from, to, t) => (t >= threshold) ? to : from
+export const toggle = makeToggle(1)

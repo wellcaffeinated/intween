@@ -1,4 +1,4 @@
-import Copilot from '../../dist/copilot.js'
+import * as Copilot from '../../dist/copilot.js'
 window.Copilot = Copilot
 
 export default ({

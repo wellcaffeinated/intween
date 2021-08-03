@@ -1,9 +1,12 @@
 import { timeParser } from '@/parsers/time'
+import { sanitizedObject } from '@/util'
 
 const pctReg = /^((\d{1,3})(\.\d*)?)%$/
-const DEFAULT_FRAME_META = { time: 0 }
 const META_PARSERS = {
-  time: timeParser
+  time(v){
+    if (v === undefined) { return undefined }
+    return timeParser(v)
+  }
   , startTime: timeParser
   , duration( v ){
     if ( v === undefined ){ return undefined }
@@ -14,7 +17,7 @@ const META_PARSERS = {
 
 // parse meta to standardized format
 function parseMeta( meta, defaults ){
-  const ret = { ...defaults, ...meta } // clone
+  const ret = { ...defaults, ...sanitizedObject(meta) } // clone
 
   for ( const key in META_PARSERS ){
     ret[key] = META_PARSERS[key]( ret[key] )
@@ -29,7 +32,7 @@ export function createFrame( state, meta, defaultMetaOptions ){
   }
 
   state = { ...state }
-  meta = parseMeta( meta || state.$meta, { ...defaultMetaOptions, ...DEFAULT_FRAME_META } )
+  meta = parseMeta( meta || state.$meta, defaultMetaOptions )
 
   delete state.$meta
 
@@ -38,12 +41,14 @@ export function createFrame( state, meta, defaultMetaOptions ){
   if ( percentDuration ){
     meta.implicit = true
     meta.fractionalDuration = parseFloat(percentDuration[1]) / 100
-  } else {
+  } else if (meta.time !== undefined) {
     if ( meta.startTime !== undefined ){
       meta.duration = meta.time - meta.startTime
     } else {
       meta.startTime = meta.time - meta.duration
     }
+  } else {
+    meta.time = meta.startTime + meta.duration
   }
 
   return {

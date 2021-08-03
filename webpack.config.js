@@ -18,7 +18,6 @@ const config = {
     filename: outputFile,
     library: {
       name: libraryName,
-      export: 'default',
       type: 'umd',
     }
   },

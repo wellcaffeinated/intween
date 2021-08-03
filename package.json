@@ -53,5 +53,8 @@
     "webpack": "^5.45.1",
     "webpack-cli": "^4.7.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "core-js-pure": "^3.16.0",
+    "zen-observable": "^0.8.15"
+  }
 }
