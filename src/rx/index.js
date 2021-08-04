@@ -4,6 +4,7 @@ import { Subject } from './subject'
 
 export { default as Observable } from 'core-js-pure/features/observable'
 export * from './subject'
+export { fromAnimationFrame } from './raf'
 
 export function pipeFromArray(fns) {
   if (fns.length === 0) {

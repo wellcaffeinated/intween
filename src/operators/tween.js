@@ -1,30 +1,22 @@
-import { Callable } from '@/util'
-import { map } from '@/rx'
 import { createSchema, createState } from '@/schema'
 import { createFrame } from '@/frame'
-import { timeParser } from '@/parsers/time'
 import {
   getTransitionsAtTime
   , createTimeline
   , reduceTransitions
   , getStartState
 } from '@/timeline'
-
-export class TweenOperator extends Callable {
-  at(t) {
-    return t
-  }
-
-  __call__(source) {
-    return map(t => this.at(t))(source)
-  }
-}
+import { TweenOperator } from './tween-operator'
 
 const DEFAULT_OPTIONS = {
   tweenDuration: '100%'
 }
 
 export class Tween extends TweenOperator {
+  static create(schema, options) {
+    return new Tween(schema, options)
+  }
+
   constructor(schema, options) {
     super()
 
@@ -47,10 +39,10 @@ export class Tween extends TweenOperator {
   to(time, state, duration) {
     const argLen = arguments.length
     const meta = {}
-    if (argLen === 1){
+    if (argLen === 1) {
       state = time
       meta.startTime = this.duration
-    } else if (typeof time === 'object'){
+    } else if (typeof time === 'object') {
       meta.duration = state
       meta.startTime = this.duration
       state = time
@@ -89,12 +81,10 @@ export class Tween extends TweenOperator {
   }
 
   at(time) {
-    time = timeParser(time)
     if (time >= this.duration) {
       const m = this.timeline[this.timeline.length - 1]
-      const t = m.transition
 
-      return { ...m.state, ...t.relaxState }
+      return { ...m.state }
     }
 
     const transitions = getTransitionsAtTime(this.timeline, time)
@@ -109,6 +99,6 @@ export class Tween extends TweenOperator {
   }
 }
 
-export default function(schema, options){
-  return new Tween(schema, options)
+export default (schema, options) => {
+  return Tween.create(schema, options)
 }

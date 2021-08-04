@@ -1,0 +1,112 @@
+import * as util from '@/util'
+import { linear } from '@/easing'
+import { getTimeFraction, getInterpolatedState } from '@/transition'
+import { timeParser } from '@/parsers/time'
+import { TweenOperator } from './tween-operator'
+
+const DEFAULT_OPTIONS = {
+  relaxDuration: 500
+  , relaxDelay: 1000
+}
+
+export class Meddle extends TweenOperator {
+  static create(tween, options){
+    return new Meddle(tween, options)
+  }
+
+  constructor(tween, options) {
+    super()
+
+    this._tween = tween
+    this.options = Object.assign({}, DEFAULT_OPTIONS, options)
+    // reset
+    this.clear()
+  }
+
+  // toggle user meddling
+  set(meddleState, meddleOpts = {}) {
+    let { relaxDuration, relaxDelay, freeze, easing } = meddleOpts
+
+    relaxDelay = timeParser(relaxDelay !== undefined ? relaxDelay : this.options.relaxDelay)
+    relaxDuration = timeParser(relaxDuration !== undefined ? relaxDuration : this.options.relaxDuration)
+
+    this.state = { ...this.state, ...meddleState }
+
+    this.started = false
+    this.startTime = this.lastTime
+    this.relaxState = null
+    this.active = true
+    this.frozen = freeze
+    this.relaxDelay = relaxDelay
+    this.relaxDuration = relaxDuration
+    this.easing = easing || linear
+
+    return this
+  }
+
+  // force meddling to reset
+  clear() {
+    this.state = {}
+    this.started = false
+    this.active = false
+    this.frozen = false
+    this.startTime = false
+    this.lastTime = false
+    return this
+  }
+
+  // toggle freezing of meddle states
+  freeze(toggle = true) {
+    this.frozen = toggle
+    return this
+  }
+
+  at(time) {
+    // check meddling
+    if (!this.active || this.frozen) {
+      return Object.assign({}, this.state)
+    }
+
+    this.lastTime = time
+
+    if (!this.started) {
+      this.startTime = time
+      this.started = true
+      this.endTime = this.startTime + this.relaxDelay + this.relaxDuration
+      this.relaxState = util.pick(
+        this._tween.at(this.endTime)
+        , Object.keys(this.state)
+      )
+    }
+
+    if (time >= this.endTime || time < this.startTime) {
+      // meddling is over
+      this.clear()
+    }
+
+    if (time > this.totalTime) {
+      // this will force a reset when the timeline is re-entered
+      this.clear()
+    }
+
+    const timeFraction = getTimeFraction(
+      this.startTime + this.relaxDelay
+      , this.endTime
+      , time
+    )
+
+    const meddleTransitionState = getInterpolatedState(
+      this._tween._schema
+      , this.state
+      , this.relaxState
+      , timeFraction
+      , this.easing
+    )
+
+    return meddleTransitionState
+  }
+}
+
+export default (tween, options) => {
+  return Meddle.create(tween, options)
+}

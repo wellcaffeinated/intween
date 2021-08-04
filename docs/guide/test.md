@@ -1,7 +1,7 @@
 # blah
 
 <input type="checkbox" :checked="state.toggle" readonly>
-<input type="range" min="0" max="10" :value="state.x" step="0.0001">
+<input type="range" min="0" max="10" :value="state.x" step="0.0001" @input="updateRange">
 
 <script>
 import { createPlayer } from '../lib/player-ui'
@@ -62,26 +62,26 @@ export default {
       x: 4
     })
 
+    const meddle = this.meddle = Copilot.Meddle(tween)
+
     const $player = new PlayerObservable(tween.duration)
 
     const subscription = $player.pipe(
-      tween
-      // Copilot.spreadAssign(
-      //   pipe(
-      //     Tween(1, 2)
-      //     , map(x => ({ x }))
-      //   )
-      //   , pipe(
-      //     Tween(5, 4)
-      //     , map(y => ({ y }))
-      //   )
-      // )
+      Copilot.spreadAssign(
+        tween
+        , meddle
+      )
     ).subscribe(state => {
       this.state = state
     }, console.error)
 
     // for more information about creating a "player", see the player tutorial
     const player = createPlayer( this.$el, $player )
+  }
+  , methods: {
+    updateRange(e){
+      this.meddle.set({ x: e.target.value })
+    }
   }
 }
 
