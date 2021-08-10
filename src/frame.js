@@ -1,18 +1,20 @@
-import { timeParser } from '@/parsers/time'
+import { parseEasing } from '@/parsers/easing'
+import { parseTime } from '@/parsers/time'
 import { sanitizedObject } from '@/util'
 
 const pctReg = /^((\d{1,3})(\.\d*)?)%$/
 const META_PARSERS = {
   time(v){
     if (v === undefined) { return undefined }
-    return timeParser(v)
+    return parseTime(v)
   }
-  , startTime: timeParser
+  , startTime: parseTime
   , duration( v ){
     if ( v === undefined ){ return undefined }
     if ( pctReg.test(v) ){ return v }
-    return timeParser(v)
+    return parseTime(v)
   }
+  , easing: parseEasing
 }
 
 // parse meta to standardized format

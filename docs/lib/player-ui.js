@@ -48,6 +48,7 @@ export function createPlayer( parentEl, player ){
 
   // hook up the play/pause button
   playBtn.addEventListener('click', e => {
+    e.stopImmediatePropagation()
     player.togglePause()
   })
 

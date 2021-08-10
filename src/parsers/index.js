@@ -1,5 +1,2 @@
-import * as timeParsers from './time'
-
-export default {
-  ...timeParsers
-}
+export * from './time'
+export * from './easing'

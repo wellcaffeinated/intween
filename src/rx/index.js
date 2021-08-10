@@ -1,36 +1,15 @@
 import { pipe } from './pipe'
 import { Observable } from './observable'
+import { Subject } from './subject'
 
-export { animationFrames } from './raf'
 export * from './pipe'
-export { Emitter } from './emitter'
+export * from './raf'
+export * from './observable'
+export * from './subject'
+export * from './emitter'
 export { default as Player } from './player'
 
-export { Observable } from './observable'
-
-export const Subject = ((window) => {
-  try {
-    const { Subject } = require('rxjs')
-    return Subject
-  } catch (e) {
-    if (window.rxjs && window.rxjs.Subject) {
-      return window.rxjs.Subject
-    }
-    return require('./subject').Subject
-  }
-})(self)
-
-export const from = ((window) => {
-  try {
-    const { from } = require('rxjs')
-    return from
-  } catch (e) {
-    if (window.rxjs && window.rxjs.Subject) {
-      return window.rxjs.from
-    }
-    return Observable.from
-  }
-})(self)
+export const from = Observable.from
 
 export const map = fn => source => new Observable(sink =>
   source.subscribe({

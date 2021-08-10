@@ -36,7 +36,7 @@ export class Tween extends TweenOperator {
   }
 
   // add a frame
-  to(time, state, duration) {
+  to(time, state, duration, opts = {}) {
     const argLen = arguments.length
     const meta = {}
     if (argLen === 1) {
@@ -48,8 +48,14 @@ export class Tween extends TweenOperator {
       state = time
     } else {
       meta.time = time
-      meta.duration = duration
+      if (typeof duration === 'object'){
+        opts = duration
+      } else {
+        meta.duration = duration
+      }
     }
+
+    Object.assign(meta, opts)
 
     const frame = createFrame(state, meta, {
       duration: this.options.tweenDuration

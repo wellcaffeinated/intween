@@ -1,18 +1,32 @@
-import 'core-js/features/symbol/observable'
+import 'core-js-pure/features/symbol/observable'
+import Obs from 'core-js-pure/features/observable'
 import { pipeFromArray } from './pipe'
+import { identity } from '@/util'
 
-export const Observable = ((window) => {
-  try {
-    const { Observable } = require('rxjs')
-    return Observable
-  } catch (e) {
-    if (window.rxjs && window.rxjs.Observable) {
-      return window.rxjs.Observable
-    }
-    const Obs = require('core-js-pure/features/observable')
-    Obs.prototype.pipe = function (...ops) {
-      return pipeFromArray(ops)(this)
-    }
-    return Obs
+export class Observable extends Obs {
+  constructor(subscriber){
+    super(subscriber || identity)
   }
-})(self)
+
+  pipe(...ops) {
+    return pipeFromArray(ops)(this)
+  }
+
+  // needed to interop with rxjs
+  lift(operator) {
+    return new Observable((sink) => {
+      return operator.call(sink, this)
+    })
+  }
+}
+Object.assign(Observable.prototype, {
+  pipe(...ops) {
+    return pipeFromArray(ops)(this)
+  }
+  // needed to interop with rxjs
+  , lift(operator) {
+    return new Observable((sink) => {
+      return operator.call(sink, this)
+    })
+  }
+})

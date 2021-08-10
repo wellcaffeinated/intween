@@ -3,7 +3,7 @@ import { linear } from '@/easing'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { createFrame } from '@/frame'
-import { timeParser } from '@/parsers/time'
+import { parseTime } from '@/parsers/time'
 import {
   getTransitionsAtTime
   , createTimeline
@@ -153,7 +153,7 @@ export default class extends EventEmitter {
   }
 
   seek( time ){
-    time = timeParser( time )
+    time = parseTime( time )
     this.time = Math.min(time, this.totalTime)
 
     this._updateState()

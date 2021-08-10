@@ -6,35 +6,21 @@
 <div :style="ballStyles"></div>
 
 <script>
-// import { fromEvent, Observable, from } from 'rxjs'
-// import { tap, map, mergeWith } from 'rxjs/operators'
+import { fromEvent, Observable, from, pipe } from 'rxjs'
+import { tap, map, mergeWith } from 'rxjs/operators'
 import { createPlayer } from '../lib/player-ui'
 
-const { pipe, pipeFromArray, map, from, Observable } = Copilot
+// const { pipe, pipeFromArray, map, from, Observable } = Copilot
 
-const fromEvent = (el, event) => new Observable(sink => {
-  const cb = e => sink.next(e)
-  el.addEventListener(event, cb)
-  return {
-    unsubscribe: () => {
-      el.removeEventListener(event, cb)
-    }
-  }
-})
-
-class PlayerObservable extends Copilot.Observable {
-  constructor(totalTime){
-    super(observer => {
-      this.observer = observer
-      observer.next(0)
-    })
-    this.totalTime = totalTime
-  }
-  seek(time){
-    if (!this.observer){ return }
-    this.observer.next(time)
-  }
-}
+// const fromEvent = (el, event) => new Observable(sink => {
+//   const cb = e => sink.next(e)
+//   el.addEventListener(event, cb)
+//   return {
+//     unsubscribe: () => {
+//       el.removeEventListener(event, cb)
+//     }
+//   }
+// })
 
 class TweenOperator extends Copilot.Util.Callable {
   constructor(s, e) {
@@ -72,18 +58,17 @@ export default {
       x: 500,
       range: 1,
       toggle: true
-    }, '3s')
+    }, '3s', { easing: 'quadInOut' })
     .to('4s', {
       x: 300,
       range: 4
-    })
+    }, { easing: Copilot.Easing.makeElasticOut(0.7, 0.5) })
 
-    const meddle = this.meddle = Copilot.Meddle(tween)
+    const meddle = this.meddle = Copilot.Meddle(tween, { easing: 'quadInOut' })
 
-    const $player = Copilot.Player(tween.duration)
-    console.log($player.lift)
+    const player = Copilot.Player(tween.duration)
 
-    const subscription = $player.pipe(
+    const subscription = player.pipe(
       Copilot.spreadAssign(
         tween
         , pipe(
@@ -99,7 +84,7 @@ export default {
       map(e => ({ x: e.pageX, y: e.pageY }))
       , Copilot.Smoothen({
         duration: 1000,
-        easing: Copilot.Easing.quadInOut
+        easing: Copilot.Easing.quintInOut
       }, this.state, () => this.state)
     ).subscribe((state) => {
       // console.log(state)
@@ -108,10 +93,11 @@ export default {
 
     this.$on('hook:beforeDestroy', () => {
       sub.unsubscribe()
+      player.destroy()
     })
 
     // for more information about creating a "player", see the player tutorial
-    const player = createPlayer( this.$el, $player )
+    createPlayer( this.$el, player )
   }
   , computed: {
     ballStyles(){

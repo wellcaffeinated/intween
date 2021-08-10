@@ -1,4 +1,5 @@
-import { cubicOut, linear } from '@/easing'
+import { linear } from '@/easing'
+import { parseEasing } from '@/parsers/easing'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { Observable, animationFrames } from '@/rx'
@@ -6,7 +7,7 @@ import { Observable, animationFrames } from '@/rx'
 // Helper to smooth state changes
 // ---------------------------------------
 export default function Smoothen(
-  { duration = 1000, easing = cubicOut } = {},
+  { duration = 1000, easing = 'cubicOut' } = {},
   schemaDef = null,
   getState
 ){
@@ -15,6 +16,8 @@ export default function Smoothen(
     let schema
     let time = 0
     let currentState
+
+    easing = parseEasing(easing)
 
     if (!getState){
       getState = () => currentState

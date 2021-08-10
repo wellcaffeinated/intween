@@ -1,14 +1,15 @@
 import * as util from '@/util'
 import { map, merge } from '@/rx'
-import { linear } from '@/easing'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
-import { timeParser } from '@/parsers/time'
+import { parseTime } from '@/parsers/time'
+import { parseEasing } from '@/parsers/easing'
 import { TweenOperator } from './tween-operator'
 import { Subject } from '../rx'
 
 const DEFAULT_OPTIONS = {
   relaxDuration: 500
   , relaxDelay: 1000
+  , easing: 'linear'
 }
 
 export class Meddle extends TweenOperator {
@@ -31,8 +32,8 @@ export class Meddle extends TweenOperator {
   set(meddleState, meddleOpts = {}) {
     let { relaxDuration, relaxDelay, freeze, easing } = meddleOpts
 
-    relaxDelay = timeParser(relaxDelay !== undefined ? relaxDelay : this.options.relaxDelay)
-    relaxDuration = timeParser(relaxDuration !== undefined ? relaxDuration : this.options.relaxDuration)
+    relaxDelay = parseTime(relaxDelay !== undefined ? relaxDelay : this.options.relaxDelay)
+    relaxDuration = parseTime(relaxDuration !== undefined ? relaxDuration : this.options.relaxDuration)
 
     this.state = { ...this.state, ...meddleState }
 
@@ -40,10 +41,13 @@ export class Meddle extends TweenOperator {
     this.startTime = false
     this.relaxState = null
     this.active = true
-    this.frozen = freeze
     this.relaxDelay = relaxDelay
     this.relaxDuration = relaxDuration
-    this.easing = easing || linear
+    this.easing = parseEasing(easing || this.options.easing)
+
+    if (freeze !== undefined){
+      this.freeze(freeze)
+    }
 
     this._subject.next(this.lastTime)
     return this

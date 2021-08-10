@@ -1,13 +1,8 @@
 import { Observable } from '@/rx/observable'
-import { identity } from '@/util'
 
 export class Subject extends Observable {
   closed = false
   observers = []
-
-  constructor() {
-    super(identity)
-  }
 
   unsubscribe() {
     this.isStopped = this.closed = true

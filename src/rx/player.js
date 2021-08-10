@@ -2,7 +2,7 @@
 //
 // ---------------------------------------
 
-import { timeParser } from '@/parsers/time'
+import { parseTime } from '@/parsers/time'
 import { animationFrames } from './raf'
 import { Emitter } from './emitter'
 
@@ -22,7 +22,7 @@ class Player extends Emitter {
       }
     })
 
-    this.totalTime = timeParser(totalTime)
+    this.totalTime = parseTime(totalTime)
     this._clockTime = 0
     this._time = 0
     this.playbackRate = 1

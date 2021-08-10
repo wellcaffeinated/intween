@@ -11,7 +11,7 @@ function getTime( h, m, s ){
 }
 
 // returns parsed time in ms
-export function timeParser( strOrNumber ){
+export function parseTime( strOrNumber ){
   if ( typeof strOrNumber !== 'string' ){
     return strOrNumber
   }

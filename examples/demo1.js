@@ -42,10 +42,10 @@ function demo1(){
   function rotate(x, y){
     x /= rad
     y /= rad
-    el.style.transform = 'translateZ(-100px) rotateY('+x+'deg) rotateX('+-y+'deg)'
+    el.style.transform = `translateZ(-100px) rotateY(${x}deg) rotateX(${-y}deg)`
   }
 
-  var manager = Copilot({
+  const tween = Copilot.Tween({
     x: {
       type: 0
       // , interpolator: Copilot.Interpolators.Angle
@@ -58,46 +58,28 @@ function demo1(){
     defaultTransitionDuration: '3s'
   })
 
-  manager.add({
+  tween.to('6s', {
     x: 1.2 * Math.PI
-  }, {
-    id: 'spin'
-    , time: '6s'
-    , duration: 6000
-    , easing: Copilot.Easing.quadIn
-  })
+  }, 6000)
 
-  manager.add({
+  tween.to({
     thing: 0
   }, {
     time: '7s'
     , duration: '100%'
   })
 
-  manager.add({
+  tween.to('10s', {
     y: Math.PI
-  }, {
-    id: 'up'
-    , time: '10s'
-    , duration: '100%'
-    , easing: Copilot.Easing.quadInOut
   })
 
-  manager.add({
+  tween.to('10s', {
     thing: 2
-  }, {
-    time: '10s'
-    , duration: '2s'
-  })
+  }, '2s')
 
-  manager.add({
+  tween.to('10s', {
     x: 0
-  }, {
-    id: 'origin'
-    , time: '10s'
-    , duration: '4s'
-    , easing: Copilot.Easing.quadOut
-  })
+  }, '4s')
 
   // console.log(manager.timeline)
 
@@ -106,6 +88,13 @@ function demo1(){
   // console.log('schema', manager._schema)
   // user interaction
 
+  let lastState = {}
+  const meddle = Copilot.Meddle(tween, {
+    easing: Copilot.Easing.elasticOut
+    , relaxDuration: 2000
+    , relaxDelay: 0
+  })
+
   var offsetX = 0
   var offsetY = 0
   var ht = new Hammer.Manager(byId('demo-1-scene'), {})
@@ -113,53 +102,36 @@ function demo1(){
   ht.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
   ht
     .on('press', function(e){
-      var state = manager.state
-      offsetX = state.x
-      offsetY = state.y
-      manager.meddle( { x: offsetX, y: offsetY }, { freeze: true, transitionDuration: 100 } )
+      offsetX = lastState.x
+      offsetY = lastState.y
+      meddle.set(lastState).freeze()
     })
     .on('pan', function(e) {
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      manager.meddle( state, { freeze: true, transitionDuration: 100 } )
+      meddle.set(state).freeze()
     })
     .on('panend', function(e){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      manager.meddle( state, { easing: Copilot.Easing.elasticOut, relaxDuration: 2000, relaxDelay: 0, transitionDuration: 100 } )
+      meddle.set( state ).freeze(false)
     })
 
-  let smoother = Copilot.Animation.Smoothener( manager, { duration: 100 } )
-
-  manager.on('update', () => {
-    var state = manager.state
-    smoother.setState( state )
-  })
-
-  let player = Copilot.Player({ totalTime: manager.totalTime })
-  player.on('update', ( time ) => {
-    manager.seek( time )
-  })
-
-  player.on('animate', ( now ) => {
-    let state = smoother.update()
-
+  const player = Copilot.Player(tween.duration)
+  player.pipe(
+    Copilot.spreadAssign(
+      tween,
+      rxjs.pipe(
+        meddle,
+        // rxjs.tap(console.log)
+      )
+    )
+  ).subscribe(state => {
+    lastState = state
     rotate(state.x, state.y)
-
-    // if ( manager.time < 2000 ){
-    //   Plotly.extendTraces('graph', {
-    //     y: [[state.x]]
-    //   }, [0])
-    // }
   })
-
-  // Plotly.plot('graph', [{
-  //   y: []
-  //   , mode: 'lines'
-  //   , line: {color: '#80CAF6'}
-  // }])
 
   initControls('demo-1-play', 'demo-1-progress', player)
 }

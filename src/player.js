@@ -3,7 +3,7 @@
 // ---------------------------------------
 
 import * as util from '@/util'
-import { timeParser } from '@/parsers/time'
+import { parseTime } from '@/parsers/time'
 import EventEmitter from '@/event-emitter'
 
 const PlayerStack = []
@@ -23,7 +23,7 @@ class Player extends EventEmitter {
   constructor( { totalTime = 0, playbackRate = 1, manager } = {} ){
     super()
 
-    this.totalTime = timeParser( totalTime )
+    this.totalTime = parseTime( totalTime )
     this._clockTime = util.now()
     this._time = 0
     this.playbackRate = playbackRate
