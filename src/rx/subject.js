@@ -1,4 +1,4 @@
-import Observable from 'core-js-pure/features/observable'
+import { Observable } from '@/rx/observable'
 import { identity } from '@/util'
 
 export class Subject extends Observable {

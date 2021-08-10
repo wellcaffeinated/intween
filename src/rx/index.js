@@ -1,28 +1,36 @@
-import { identity } from '@/util'
-import Observable from 'core-js-pure/features/observable'
-import { Subject } from './subject'
+import { pipe } from './pipe'
+import { Observable } from './observable'
 
-export { default as Observable } from 'core-js-pure/features/observable'
-export * from './subject'
-export { fromAnimationFrame } from './raf'
+export { animationFrames } from './raf'
+export * from './pipe'
+export { Emitter } from './emitter'
+export { default as Player } from './player'
 
-export function pipeFromArray(fns) {
-  if (fns.length === 0) {
-    return identity;
+export { Observable } from './observable'
+
+export const Subject = ((window) => {
+  try {
+    const { Subject } = require('rxjs')
+    return Subject
+  } catch (e) {
+    if (window.rxjs && window.rxjs.Subject) {
+      return window.rxjs.Subject
+    }
+    return require('./subject').Subject
   }
+})(self)
 
-  if (fns.length === 1) {
-    return fns[0];
+export const from = ((window) => {
+  try {
+    const { from } = require('rxjs')
+    return from
+  } catch (e) {
+    if (window.rxjs && window.rxjs.Subject) {
+      return window.rxjs.from
+    }
+    return Observable.from
   }
-
-  return function piped(input) {
-    return fns.reduce((prev, fn) => fn(prev), input);
-  };
-}
-
-export function pipe(...ops) {
-  return pipeFromArray(ops)
-}
+})(self)
 
 export const map = fn => source => new Observable(sink =>
   source.subscribe({
@@ -44,12 +52,12 @@ export const map = fn => source => new Observable(sink =>
 export function merge(...sources) {
   return new Observable(observer => {
     if (sources.length === 0) {
-      return Observable.from([])
+      return from([])
     }
 
     let count = sources.length;
 
-    const subscriptions = sources.map(source => Observable.from(source).subscribe({
+    const subscriptions = sources.map(source => from(source).subscribe({
       next(v) {
         observer.next(v);
       }
@@ -72,7 +80,7 @@ export function merge(...sources) {
 export function combineLatest(...sources) {
   return new Observable(observer => {
     if (sources.length === 0){
-      return Observable.from([])
+      return from([])
     }
 
     let count = sources.length;
@@ -80,7 +88,7 @@ export function combineLatest(...sources) {
     let seenAll = false;
     const values = sources.map(() => undefined);
 
-    const subscriptions = sources.map((source, index) => Observable.from(source).subscribe({
+    const subscriptions = sources.map((source, index) => from(source).subscribe({
       next(v) {
         values[index] = v;
 
@@ -114,7 +122,7 @@ export function combineLatest(...sources) {
 export function zip(...sources) {
   return new Observable(observer => {
     if (sources.length === 0) {
-      return Observable.from([])
+      return from([])
     }
 
     const queues = sources.map(() => []);
@@ -123,7 +131,7 @@ export function zip(...sources) {
       return queues.some((q, i) => q.length === 0 && subscriptions[i].closed);
     }
 
-    const subscriptions = sources.map((source, index) => Observable.from(source).subscribe({
+    const subscriptions = sources.map((source, index) => from(source).subscribe({
       next(v) {
         queues[index].push(v);
         if (queues.every(q => q.length > 0)) {

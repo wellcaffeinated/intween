@@ -1,9 +1,7 @@
 import './player-ui.css'
 
-export function createPlayer( parentEl, manager ){
+export function createPlayer( parentEl, player ){
   // Setup a player
-  const player = Copilot.Player({ totalTime: manager.totalTime })
-
   const el = document.createElement('div')
   el.className = 'player'
   // element to display the time
@@ -20,7 +18,7 @@ export function createPlayer( parentEl, manager ){
   scrubber.type = 'range'
   scrubber.className = 'scrubber'
   scrubber.min = 0
-  scrubber.max = manager.totalTime
+  scrubber.max = player.totalTime
   scrubber.value = 0
   el.appendChild(scrubber)
 
@@ -32,7 +30,7 @@ export function createPlayer( parentEl, manager ){
   player.on('update', ( time ) => {
     // this triggers when the player's time changes
     // so we seek the manager to that time
-    manager.seek( time )
+    // manager.seek( time )
 
     // show the time
     timeDisplay.innerHTML = time.toFixed(2) + 'ms'

@@ -47,6 +47,7 @@
     "jsdom": "13.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^5.2.0",
+    "rxjs": "^7.3.0",
     "terser-webpack-plugin": "^5.1.4",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "vuepress": "^1.0.2",

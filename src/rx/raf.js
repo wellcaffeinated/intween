@@ -1,4 +1,4 @@
-import { Observable } from '@/rx'
+import { Observable } from '@/rx/observable'
 import { now } from '@/util'
 
 const tickStack = []
@@ -8,17 +8,19 @@ function step() {
   const t = now()
 
   for (let l = tickStack.length, i = 0; i < l; i++) {
-    tickStack[i].next(t)
+    tickStack[i](t)
   }
 }
 
 step()
 
-export function fromAnimationFrame() {
+export function animationFrames() {
   return new Observable(observer => {
-    tickStack.push(observer)
+    const to = now()
+    const cb = (t) => observer.next(t - to)
+    tickStack.push(cb)
     return () => {
-      const i = tickStack.indexOf(observer)
+      const i = tickStack.indexOf(cb)
       tickStack.splice(i, 1)
     }
   })

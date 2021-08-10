@@ -1,8 +1,10 @@
 import * as util from '@/util'
+import { map, merge } from '@/rx'
 import { linear } from '@/easing'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { timeParser } from '@/parsers/time'
 import { TweenOperator } from './tween-operator'
+import { Subject } from '../rx'
 
 const DEFAULT_OPTIONS = {
   relaxDuration: 500
@@ -17,8 +19,10 @@ export class Meddle extends TweenOperator {
   constructor(tween, options) {
     super()
 
+    this._subject = new Subject()
     this._tween = tween
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
+    this.lastTime = 0
     // reset
     this.clear()
   }
@@ -33,7 +37,7 @@ export class Meddle extends TweenOperator {
     this.state = { ...this.state, ...meddleState }
 
     this.started = false
-    this.startTime = this.lastTime
+    this.startTime = false
     this.relaxState = null
     this.active = true
     this.frozen = freeze
@@ -41,6 +45,7 @@ export class Meddle extends TweenOperator {
     this.relaxDuration = relaxDuration
     this.easing = easing || linear
 
+    this._subject.next(this.lastTime)
     return this
   }
 
@@ -51,7 +56,7 @@ export class Meddle extends TweenOperator {
     this.active = false
     this.frozen = false
     this.startTime = false
-    this.lastTime = false
+    this.lastTime = 0
     return this
   }
 
@@ -62,12 +67,12 @@ export class Meddle extends TweenOperator {
   }
 
   at(time) {
+    this.lastTime = time
+
     // check meddling
     if (!this.active || this.frozen) {
       return Object.assign({}, this.state)
     }
-
-    this.lastTime = time
 
     if (!this.started) {
       this.startTime = time
@@ -77,6 +82,10 @@ export class Meddle extends TweenOperator {
         this._tween.at(this.endTime)
         , Object.keys(this.state)
       )
+    }
+
+    if (this.startTime === time){
+      return Object.assign({}, this.state)
     }
 
     if (time >= this.endTime || time < this.startTime) {
@@ -104,6 +113,10 @@ export class Meddle extends TweenOperator {
     )
 
     return meddleTransitionState
+  }
+
+  __call__(source) {
+    return map(t => this.at(t))(merge(this._subject, source))
   }
 }
 
