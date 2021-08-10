@@ -17,9 +17,7 @@ class Player extends Emitter {
       const cb = time => sink.next(time)
       this.on('update', cb)
       this.emit('update', 0)
-      return {
-        unsubscribe: () => this.off('update', cb)
-      }
+      return () => this.off('update', cb)
     })
 
     this.totalTime = parseTime(totalTime)

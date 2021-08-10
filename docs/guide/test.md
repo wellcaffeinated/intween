@@ -12,36 +12,6 @@ import { createPlayer } from '../lib/player-ui'
 
 // const { pipe, pipeFromArray, map, from, Observable } = Copilot
 
-// const fromEvent = (el, event) => new Observable(sink => {
-//   const cb = e => sink.next(e)
-//   el.addEventListener(event, cb)
-//   return {
-//     unsubscribe: () => {
-//       el.removeEventListener(event, cb)
-//     }
-//   }
-// })
-
-class TweenOperator extends Copilot.Util.Callable {
-  constructor(s, e) {
-    super()
-    this.s = s
-    this.e = e
-  }
-
-  at(t){
-    return Copilot.Util.lerp(this.s, this.e, t)
-  }
-
-  __call__(source){
-    return map(t => this.at(t))(source)
-  }
-}
-
-function Tween(s, e){
-  return new TweenOperator(s, e)
-}
-
 export default {
   name: 'Test',
   data: () => ({
@@ -93,6 +63,7 @@ export default {
 
     this.$on('hook:beforeDestroy', () => {
       sub.unsubscribe()
+      subscription.unsubscribe()
       player.destroy()
     })
 
