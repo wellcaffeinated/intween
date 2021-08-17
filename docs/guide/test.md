@@ -18,7 +18,7 @@ export default {
     state: {}
   }),
   mounted(){
-    const tween = Copilot.Tween({
+    const tween = new Copilot.Tween({
       x: 300,
       y: 300,
       range: 0,
@@ -34,9 +34,9 @@ export default {
       range: 4
     }, { easing: Copilot.Easing.makeElasticOut(0.7, 0.5) })
 
-    const meddle = this.meddle = Copilot.Meddle(tween, { easing: 'quadInOut' })
+    const meddle = this.meddle = new Copilot.Meddle(tween, { easing: 'quadInOut' })
 
-    const player = Copilot.Player(tween.duration)
+    const player = new Copilot.Player(tween.duration)
 
     const subscription = player.pipe(
       Copilot.spreadAssign(
@@ -55,7 +55,7 @@ export default {
       , Copilot.Smoothen({
         duration: 1000,
         easing: Copilot.Easing.quintInOut
-      }, this.state, () => this.state)
+      }, () => this.state)
     ).subscribe((state) => {
       // console.log(state)
       meddle.set(state)

@@ -8,7 +8,8 @@ function step() {
   const t = now()
 
   for (let l = tickStack.length, i = 0; i < l; i++) {
-    tickStack[i](t)
+    const fn = tickStack[i]
+    fn && fn(t)
   }
 }
 

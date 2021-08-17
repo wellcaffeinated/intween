@@ -16,8 +16,6 @@ const manager = Copilot({
     , default: 0
     , interpolator: Copilot.Interpolators.angle
   }
-  // By default boolean values will switch half way between. This can be changed
-  // by specifying interpolatorOpts like "step" above
   , toggle: false
   , array: {
     type: Array

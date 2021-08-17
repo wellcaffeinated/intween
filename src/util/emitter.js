@@ -14,6 +14,16 @@ export class Emitter extends Observable {
     this._topics = this._topics || (this._topics = {})
   }
 
+  fromEvent(topic, priority){
+    return new Observable(sink => {
+      const callback = v => sink.next(v)
+      this.on(topic, callback, priority)
+      return () => {
+        this.off(topic, callback)
+      }
+    })
+  }
+
   /**
   * EventEmitter#on( topic, fn( data, event )[, scope, priority] ) -> this
   * EventEmitter#on( topicConfig[, scope, priority] ) -> this

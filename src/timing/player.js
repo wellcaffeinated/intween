@@ -3,10 +3,10 @@
 // ---------------------------------------
 
 import { parseTime } from '@/parsers/time'
-import { animationFrames } from './raf'
-import { Emitter } from './emitter'
+import { animationFrames } from './animation-frames'
+import { Emitter } from '../util/emitter'
 
-class Player extends Emitter {
+export class Player extends Emitter {
 
   static create(totalTime){
     return new Player(totalTime)
@@ -16,7 +16,7 @@ class Player extends Emitter {
     super(sink => {
       const cb = time => sink.next(time)
       this.on('update', cb)
-      this.emit('update', 0)
+      this.emit('update', this._time)
       return () => this.off('update', cb)
     })
 
@@ -71,7 +71,7 @@ class Player extends Emitter {
       this.emit('play')
     }
 
-    this.emit('togglePause')
+    this.emit('togglePause', this._paused)
 
     return this
   }
@@ -147,8 +147,4 @@ class Player extends Emitter {
 
     return this
   }
-}
-
-export default function (config) {
-  return Player.create(config)
 }

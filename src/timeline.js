@@ -1,4 +1,4 @@
-import * as util from '@/util'
+import { getIntersectingPaths, lerp, sortedIndex } from '@/util'
 import { createState } from '@/schema'
 import { getInterpolatedState, createTransitionFromFrame, getTimeFraction } from '@/transition'
 
@@ -23,7 +23,7 @@ function getConflictingFrames( timeline ){
       const m = markers[i]
 
       for ( let j = i + 1; j < l; j++ ){
-        const paths = util.getIntersectingPaths(
+        const paths = getIntersectingPaths(
           m.transition.endState
           , markers[j].transition.endState
         )
@@ -89,11 +89,11 @@ export function createTimeline( schema, frames = [] ){
     start.end = end
     end.start = start
 
-    idx = util.sortedIndex( timeline, end, getTime )
+    idx = sortedIndex( timeline, end, getTime )
     timeline.splice( idx, 0, end )
 
     // "start"s need to be after "end"s of equal time
-    idx = util.sortedIndex( timeline, start, getTime, true )
+    idx = sortedIndex( timeline, start, getTime, true )
     timeline.splice( idx, 0, start )
   })
 
@@ -109,9 +109,9 @@ export function createTimeline( schema, frames = [] ){
   // insert frames with implicit timing
   implicitFrames.forEach( frame => {
     const end = { type: 'end', frame, time: frame.meta.time }
-    let idx = util.sortedIndex( timeline, end, getTime )
+    let idx = sortedIndex( timeline, end, getTime )
     const prevEndTime = getPrevEndTime( timeline, idx, end.time )
-    const startTime = util.lerp( end.time, prevEndTime, frame.meta.fractionalDuration )
+    const startTime = lerp( end.time, prevEndTime, frame.meta.fractionalDuration )
     const start = { type: 'start', frame, time: startTime }
 
     start.end = end
@@ -120,7 +120,7 @@ export function createTimeline( schema, frames = [] ){
     // add the end
     timeline.splice( idx, 0, end )
     // "start"s need to be after "end"s of equal time
-    idx = util.sortedIndex( timeline, start, getTime, true )
+    idx = sortedIndex( timeline, start, getTime, true )
     timeline.splice( idx, 0, start )
   })
 

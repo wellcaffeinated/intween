@@ -1,4 +1,5 @@
 import { lerp, mapProperties } from '@/util'
+import { makeToggle } from './factories'
 
 const Pi2 = Math.PI * 2
 
@@ -26,5 +27,4 @@ export const string = (from, to, t) => {
   return to.substr(0, length)
 }
 
-export const makeToggle = threshold => (from, to, t) => (t >= threshold) ? to : from
 export const toggle = makeToggle(1)

@@ -94,7 +94,7 @@
     } );
 
     controls = new THREE.TrackballControls( camera, renderer.domElement );
-    controls.rotateSpeed = 1.0;
+    controls.rotateSpeed = 10.0;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
     controls.noZoom = false;
@@ -131,7 +131,7 @@
       , default: new THREE.Vector3()
       , interpolator: (from, to, t) => {
         let v = new THREE.Vector3()
-        if (!from){ console.log(from, to)}
+        if (!from){ console.log(from, to) }
         v.copy( from )
         return v.lerp( to, t )
       }
@@ -149,15 +149,16 @@
       }
     })
 
-    const manager = Copilot( schema )
+    const tween = new Copilot.Tween( schema )
+    const meddle = new Copilot.Meddle(tween, { relaxDuration: 1000, easing: Copilot.Easing.bounceOut } )
     // console.log(manager._schema)
 
     dragControls.addEventListener('drag', (e) => {
       let i = objects.indexOf( e.object )
 
-      manager.meddle({
+      meddle.set({
         [`object-${i}`]: e.object.position.clone()
-      }, { easing: Copilot.Easing.elasticOut })
+      })
     })
 
     let userMeddle = false
@@ -174,19 +175,15 @@
 
       s.setFromVector3( e.target.object.position )
 
-      manager.meddle({
+      meddle.set({
         cameraPhi: s.phi
         , cameraTheta: s.theta
         , cameraR: s.radius
-      }, { easing: Copilot.Easing.elasticOut })
+      })
     })
 
-    manager.add({
+    tween.to('04:54', {
       cameraTheta: 10 * 2 * Math.PI
-    }, {
-      id: 'camera'
-      , time: '04:54'
-      , duration: '04:54'
     })
 
     for ( let i = 0, l = objects.length; i < l; i++ ){
@@ -194,51 +191,51 @@
       let y = Math.random() * 600 - 300
       let z = Math.random() * 800 - 400
 
-      manager.add({
+      tween.to((Math.random() * 60 + 11) * 1000, {
         [`object-${i}`]: new THREE.Vector3(x, y, z)
-      }, {
-        time: (Math.random() * 60 + 11) * 1000
-        , duration: '10s'
-        , easing: Copilot.Easing.bounceOut
+      }, '10s', {
+        easing: Copilot.Easing.bounceOut
       })
     }
 
-    let smoother = Copilot.Animation.Smoothener( manager, { duration: 100 } )
+    const adapter = new Copilot.Subject()
 
-    // console.log(manager.timeline)
-    function animate() {
-      requestAnimationFrame( animate )
-      let state = smoother.update()
-      s.radius = state.cameraR
-      s.phi = state.cameraPhi
-      s.theta = state.cameraTheta
+    const widget = getSoundcloud()
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
+      let time = e.currentPosition
+      adapter.next(time)
+    })
+
+    Copilot.combineLatest(
+      adapter.pipe(
+        Copilot.spreadAssign(
+          tween,
+          meddle
+        )
+        , Copilot.animationThrottle()
+      )
+      , Copilot.animationFrames()
+    ).pipe(Copilot.map(v => v[0])).subscribe(state => {
+      // console.log(state)
+      // s.radius = state.cameraR
+      // s.phi = state.cameraPhi
+      // s.theta = state.cameraTheta
 
       // console.log(state['object-2'])
 
       // console.log(time, state.cameraTheta)
-      camera.position.setFromSpherical( s )
+      // camera.position.setFromSpherical(s)
       controls.update()
 
-      objects.forEach( (obj, i) => {
-        obj.position.copy( state[`object-${i}`] )
+      objects.forEach((obj, i) => {
+        obj.position.copy(state[`object-${i}`])
       })
-      // stats.update()
+
       render()
-    }
-
-    animate()
-
-    manager.on('update', () => {
-      let state = manager.state
-      smoother.setState( state )
     })
 
-    const widget = getSoundcloud()
 
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
-      let time = e.currentPosition
-      manager.seek(time)
-    })
+    adapter.next(0)
   }
 
   demo2()

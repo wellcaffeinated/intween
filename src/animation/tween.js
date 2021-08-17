@@ -104,7 +104,3 @@ export class Tween extends TweenOperator {
     return getTransitionsAtTime(this.timeline, time)
   }
 }
-
-export default (schema, options) => {
-  return Tween.create(schema, options)
-}

@@ -3,13 +3,8 @@ import { Observable } from './observable'
 import { Subject } from './subject'
 
 export * from './pipe'
-export * from './raf'
 export * from './observable'
 export * from './subject'
-export * from './emitter'
-export { default as Player } from './player'
-
-export const from = Observable.from
 
 export const map = fn => source => new Observable(sink =>
   source.subscribe({
@@ -31,12 +26,12 @@ export const map = fn => source => new Observable(sink =>
 export function merge(...sources) {
   return new Observable(observer => {
     if (sources.length === 0) {
-      return from([])
+      return Observable.from([])
     }
 
     let count = sources.length;
 
-    const subscriptions = sources.map(source => from(source).subscribe({
+    const subscriptions = sources.map(source => Observable.from(source).subscribe({
       next(v) {
         observer.next(v);
       }
@@ -59,7 +54,7 @@ export function merge(...sources) {
 export function combineLatest(...sources) {
   return new Observable(observer => {
     if (sources.length === 0){
-      return from([])
+      return Observable.from([])
     }
 
     let count = sources.length;
@@ -67,7 +62,7 @@ export function combineLatest(...sources) {
     let seenAll = false;
     const values = sources.map(() => undefined);
 
-    const subscriptions = sources.map((source, index) => from(source).subscribe({
+    const subscriptions = sources.map((source, index) => Observable.from(source).subscribe({
       next(v) {
         values[index] = v;
 
@@ -101,7 +96,7 @@ export function combineLatest(...sources) {
 export function zip(...sources) {
   return new Observable(observer => {
     if (sources.length === 0) {
-      return from([])
+      return Observable.from([])
     }
 
     const queues = sources.map(() => []);
@@ -110,7 +105,7 @@ export function zip(...sources) {
       return queues.some((q, i) => q.length === 0 && subscriptions[i].closed);
     }
 
-    const subscriptions = sources.map((source, index) => from(source).subscribe({
+    const subscriptions = sources.map((source, index) => Observable.from(source).subscribe({
       next(v) {
         queues[index].push(v);
         if (queues.every(q => q.length > 0)) {

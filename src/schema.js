@@ -1,7 +1,8 @@
-import { linear } from '@/easing'
+import { parseEasing } from '@/parsers/easing'
+import { parseInterpolator } from '@/parsers/interpolator'
 import { isExplicit, getType, getTypeCfg } from '@/type'
 
-const DEFAULT_EASING = linear
+const DEFAULT_EASING = 'linear'
 
 export function createSchema( schemaDef ){
   const schema = {}
@@ -9,9 +10,8 @@ export function createSchema( schemaDef ){
 
   for ( const prop of props ){
     const def = schemaDef[prop]
-    let easing = DEFAULT_EASING
-    let interpolator = null
-    const interpolatorOpts = def.interpolatorOpts || {}
+    let easing
+    let interpolator
     let type
     let cfg
     let defaultVal
@@ -29,8 +29,8 @@ export function createSchema( schemaDef ){
         defaultVal = def.type
       }
 
-      easing = def.easing || DEFAULT_EASING
-      interpolator = def.interpolator || cfg.interpolator
+      easing = parseEasing(def.easing || DEFAULT_EASING)
+      interpolator = parseInterpolator(def.interpolator || cfg.interpolator)
 
     } else {
       if ( typeof def === 'string' ){
@@ -44,8 +44,8 @@ export function createSchema( schemaDef ){
         throw new Error(`Unrecognized type ${type}`)
       }
 
-      easing = def.easing || DEFAULT_EASING
-      interpolator = cfg.interpolator
+      easing = parseEasing(def.easing || DEFAULT_EASING)
+      interpolator = parseInterpolator(cfg.interpolator)
       defaultVal = isExplicit( type, def ) ? cfg.default : def
     }
 
@@ -54,7 +54,6 @@ export function createSchema( schemaDef ){
       , easing
       , default: defaultVal
       , interpolator: interpolator
-      , interpolatorOpts
       , def
     }
   }

@@ -21,7 +21,6 @@ function initControls( btnId, progressId, player ){
       player.togglePause( true )
     }).on('press pan', (e) => {
       let pos = (e.center.x - progress.parentNode.offsetLeft) / progress.parentNode.offsetWidth
-
       player.seek( pos * player.totalTime )
     })
     .on('pressup panend', e => {
@@ -45,17 +44,17 @@ function demo1(){
     el.style.transform = `translateZ(-100px) rotateY(${x}deg) rotateX(${-y}deg)`
   }
 
-  const tween = Copilot.Tween({
+  const tween = new Copilot.Tween({
     x: {
       type: 0
-      // , interpolator: Copilot.Interpolators.Angle
+      , interpolator: 'angle'
     }
     , y: {
       type: 0
-      // , interpolator: Copilot.Interpolators.Angle
+      , interpolator: 'angle'
     }
   }, {
-    defaultTransitionDuration: '3s'
+    transitionDuration: '3s'
   })
 
   tween.to('6s', {
@@ -89,45 +88,68 @@ function demo1(){
   // user interaction
 
   let lastState = {}
-  const meddle = Copilot.Meddle(tween, {
-    easing: Copilot.Easing.elasticOut
+  const meddle = new Copilot.Meddle(tween, {
+    easing: 'backInOut'
     , relaxDuration: 2000
     , relaxDelay: 0
   })
 
-  var offsetX = 0
-  var offsetY = 0
-  var ht = new Hammer.Manager(byId('demo-1-scene'), {})
+  let offsetX = 0
+  let offsetY = 0
+
+  const interaction = new Copilot.Subject()
+  interaction
+    .pipe(
+      rxjs.throttleTime(100)
+      , Copilot.Smoothen(() => lastState)
+    )
+    .subscribe(state => meddle.set(state))
+
+  const ht = new Hammer.Manager(byId('demo-1-scene'), {})
   ht.add( new Hammer.Press({ time: 0 }) )
   ht.add( new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 0 }) )
   ht
     .on('press', function(e){
       offsetX = lastState.x
       offsetY = lastState.y
-      meddle.set(lastState).freeze()
+      interaction.next(lastState)
+      meddle.freeze()
     })
     .on('pan', function(e) {
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      meddle.set(state).freeze()
+      interaction.next(state)
+      meddle.freeze()
     })
-    .on('panend', function(e){
+    .on('panend pressup', function(e){
       var state = {}
       state.x = offsetX + e.deltaX * rad
       state.y = offsetY + e.deltaY * rad
-      meddle.set( state ).freeze(false)
+      interaction.next(state)
+      meddle.freeze(false)
     })
 
-  const player = Copilot.Player(tween.duration)
+  const player = new Copilot.Player(tween.duration)
   player.pipe(
-    Copilot.spreadAssign(
+    source => player.fromEvent('togglePause').pipe(
+      rxjs.map(v =>
+        v ?
+          source :
+          rxjs.pipe(
+            rxjs.throttleTime(100, { leading: true, trailing: true })
+            , Copilot.animationSync()
+          )(source)
+      )
+      , rxjs.switchAll()
+    )
+    , Copilot.spreadAssign(
       tween,
       rxjs.pipe(
-        meddle,
-        // rxjs.tap(console.log)
+        meddle
       )
     )
+    , Copilot.animationThrottle()
   ).subscribe(state => {
     lastState = state
     rotate(state.x, state.y)

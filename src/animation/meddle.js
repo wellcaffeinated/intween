@@ -1,4 +1,4 @@
-import * as util from '@/util'
+import { pick } from '@/util'
 import { map, merge } from '@/rx'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { parseTime } from '@/parsers/time'
@@ -82,7 +82,7 @@ export class Meddle extends TweenOperator {
       this.startTime = time
       this.started = true
       this.endTime = this.startTime + this.relaxDelay + this.relaxDuration
-      this.relaxState = util.pick(
+      this.relaxState = pick(
         this._tween.at(this.endTime)
         , Object.keys(this.state)
       )
@@ -122,8 +122,4 @@ export class Meddle extends TweenOperator {
   __call__(source) {
     return map(t => this.at(t))(merge(this._subject, source))
   }
-}
-
-export default (tween, options) => {
-  return Meddle.create(tween, options)
 }

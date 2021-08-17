@@ -1,4 +1,4 @@
-import * as Easing from '@/easing'
+import * as Easing from '@/easing/core'
 
 export function parseEasing(easing){
   if (easing === undefined || easing === null){ return false }

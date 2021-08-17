@@ -2,22 +2,29 @@ import { linear } from '@/easing'
 import { parseEasing } from '@/parsers/easing'
 import { createSchema, createState } from '@/schema'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
-import { Observable, animationFrames } from '@/rx'
+import { Observable } from '@/rx'
+import { animationFrames } from '@/timing/animation-frames'
 
+const defaultConfig = { duration: 1000, easing: 'cubicOut' }
 // Helper to smooth state changes
 // ---------------------------------------
-export default function Smoothen(
-  { duration = 1000, easing = 'cubicOut' } = {},
-  schemaDef = null,
-  getState
+export function Smoothen(
+  config = defaultConfig,
+  getState,
+  schemaDef = null
 ){
+  if (config instanceof Function){
+    getState = config
+    config = defaultConfig
+  }
+
   return source => new Observable(sink => {
     const _targets = []
     let schema
     let time = 0
     let currentState
 
-    easing = parseEasing(easing)
+    const easing = parseEasing(config.easing)
 
     if (!getState){
       getState = () => currentState
@@ -65,7 +72,7 @@ export default function Smoothen(
 
     const set = targetState => {
       if (!schema) {
-        schema = createSchema(schemaDef || targetState)
+        schema = createSchema(schemaDef || getState() || targetState)
         currentState = createState(schema)
         if (!schemaDef){ return }
       }
@@ -75,7 +82,7 @@ export default function Smoothen(
 
       _targets.push({
         startTime: time
-        , endTime: time + duration
+        , endTime: time + config.duration
         , startState
         , targetState
       })

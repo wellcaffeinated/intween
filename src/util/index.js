@@ -1,4 +1,5 @@
 export * from './callable'
+export * from './emitter'
 export const identity = a => a
 
 // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js

@@ -7,7 +7,7 @@ export function createPlayer( parentEl, player ){
   // element to display the time
   const timeDisplay = document.createElement('div')
   timeDisplay.className = 'time'
-  timeDisplay.innerHTML = '0ms'
+  timeDisplay.innerHTML = '0s'
   el.appendChild(timeDisplay)
 
   const playBtn = document.createElement('button')
@@ -33,7 +33,7 @@ export function createPlayer( parentEl, player ){
     // manager.seek( time )
 
     // show the time
-    timeDisplay.innerHTML = time.toFixed(2) + 'ms'
+    timeDisplay.innerHTML = (time / 1000).toFixed(2) + 's'
     scrubber.value = time
   })
 

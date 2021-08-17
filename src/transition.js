@@ -15,8 +15,8 @@ export function createTransitionFromFrame( startTime, endTime, frame, previousSt
   }
 }
 
-export function interpolateProperty( fn, from, to, progress, opts = {} ){
-  return fn( from, to, progress, opts )
+export function interpolateProperty( fn, from, to, progress ){
+  return fn( from, to, progress )
 }
 
 export function getInterpolatedState( schema, startState, endState, timeFraction, easing ){
@@ -47,7 +47,6 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
         , nextState[prop]
         , endState[prop]
         , progress
-        , def.interpolatorOpts
       )
     }
 
