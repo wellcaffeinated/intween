@@ -144,34 +144,57 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
     _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
     _this.lastTime = 0; // reset
 
+    _this.defaults();
+
     _this.clear();
 
     return _this;
-  } // toggle user meddling
+  } // toggle freezing of meddle states
 
 
   _createClass(Meddle, [{
+    key: "freeze",
+    value: function freeze() {
+      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      this.frozen = toggle;
+      return this;
+    }
+  }, {
+    key: "relaxDelay",
+    value: function relaxDelay(time) {
+      this._relaxDelay = (0, _time.parseTime)(time === undefined ? this.options.relaxDelay : time);
+      return this;
+    }
+  }, {
+    key: "relaxDuration",
+    value: function relaxDuration(time) {
+      this._relaxDuration = (0, _time.parseTime)(time === undefined ? this.options.relaxDuration : time);
+      return this;
+    }
+  }, {
+    key: "easing",
+    value: function easing(e) {
+      this._easing = (0, _easing.parseEasing)(e === undefined ? this.options.easing : e);
+      return this;
+    } // Use the default timing/easing set at construction
+
+  }, {
+    key: "defaults",
+    value: function defaults() {
+      this.relaxDelay();
+      this.relaxDuration();
+      this.easing();
+      return this;
+    } // toggle user meddling
+
+  }, {
     key: "set",
     value: function set(meddleState) {
-      var meddleOpts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var relaxDuration = meddleOpts.relaxDuration,
-          relaxDelay = meddleOpts.relaxDelay,
-          freeze = meddleOpts.freeze,
-          easing = meddleOpts.easing;
-      relaxDelay = (0, _time.parseTime)(relaxDelay !== undefined ? relaxDelay : this.options.relaxDelay);
-      relaxDuration = (0, _time.parseTime)(relaxDuration !== undefined ? relaxDuration : this.options.relaxDuration);
       this.state = _objectSpread(_objectSpread({}, this.state), meddleState);
       this.started = false;
       this.startTime = false;
       this.relaxState = null;
       this.active = true;
-      this.relaxDelay = relaxDelay;
-      this.relaxDuration = relaxDuration;
-      this.easing = (0, _easing.parseEasing)(easing || this.options.easing);
-
-      if (freeze !== undefined) {
-        this.freeze(freeze);
-      }
 
       this._subject.next(this.lastTime);
 
@@ -188,14 +211,6 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
       this.startTime = false;
       this.lastTime = 0;
       return this;
-    } // toggle freezing of meddle states
-
-  }, {
-    key: "freeze",
-    value: function freeze() {
-      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-      this.frozen = toggle;
-      return this;
     }
   }, {
     key: "at",
@@ -209,7 +224,7 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
       if (!this.started) {
         this.startTime = time;
         this.started = true;
-        this.endTime = this.startTime + this.relaxDelay + this.relaxDuration;
+        this.endTime = this.startTime + this._relaxDelay + this._relaxDuration;
         this.relaxState = (0, _util.pick)(this._tween.at(this.endTime), Object.keys(this.state));
       }
 
@@ -227,8 +242,8 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
         this.clear();
       }
 
-      var timeFraction = (0, _transition.getTimeFraction)(this.startTime + this.relaxDelay, this.endTime, time);
-      var meddleTransitionState = (0, _transition.getInterpolatedState)(this._tween._schema, this.state, this.relaxState, timeFraction, this.easing);
+      var timeFraction = (0, _transition.getTimeFraction)(this.startTime + this._relaxDelay, this.endTime, time);
+      var meddleTransitionState = (0, _transition.getInterpolatedState)(this._tween._schema, this.state, this.relaxState, timeFraction, this._easing);
       return meddleTransitionState;
     }
   }, {

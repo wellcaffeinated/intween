@@ -54,7 +54,7 @@ export default {
       map(e => ({ x: e.pageX, y: e.pageY }))
       , Copilot.Smoothen({
         duration: 1000,
-        easing: Copilot.Easing.quintInOut
+        easing: 'quintInOut'
       }, () => this.state)
     ).subscribe((state) => {
       // console.log(state)

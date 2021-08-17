@@ -25,29 +25,59 @@ export class Meddle extends TweenOperator {
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this.lastTime = 0
     // reset
+    this.defaults()
     this.clear()
   }
 
+  // toggle freezing of meddle states
+  freeze(toggle = true) {
+    this.frozen = toggle
+    return this
+  }
+
+  relaxDelay(time){
+    this._relaxDelay = parseTime(
+      time === undefined ?
+        this.options.relaxDelay :
+        time
+    )
+    return this
+  }
+
+  relaxDuration(time) {
+    this._relaxDuration = parseTime(
+      time === undefined ?
+        this.options.relaxDuration :
+        time
+    )
+    return this
+  }
+
+  easing(e){
+    this._easing = parseEasing(
+      e === undefined ?
+        this.options.easing :
+        e
+    )
+    return this
+  }
+
+  // Use the default timing/easing set at construction
+  defaults(){
+    this.relaxDelay()
+    this.relaxDuration()
+    this.easing()
+    return this
+  }
+
   // toggle user meddling
-  set(meddleState, meddleOpts = {}) {
-    let { relaxDuration, relaxDelay, freeze, easing } = meddleOpts
-
-    relaxDelay = parseTime(relaxDelay !== undefined ? relaxDelay : this.options.relaxDelay)
-    relaxDuration = parseTime(relaxDuration !== undefined ? relaxDuration : this.options.relaxDuration)
-
+  set(meddleState) {
     this.state = { ...this.state, ...meddleState }
 
     this.started = false
     this.startTime = false
     this.relaxState = null
     this.active = true
-    this.relaxDelay = relaxDelay
-    this.relaxDuration = relaxDuration
-    this.easing = parseEasing(easing || this.options.easing)
-
-    if (freeze !== undefined){
-      this.freeze(freeze)
-    }
 
     this._subject.next(this.lastTime)
     return this
@@ -64,12 +94,6 @@ export class Meddle extends TweenOperator {
     return this
   }
 
-  // toggle freezing of meddle states
-  freeze(toggle = true) {
-    this.frozen = toggle
-    return this
-  }
-
   at(time) {
     this.lastTime = time
 
@@ -81,7 +105,7 @@ export class Meddle extends TweenOperator {
     if (!this.started) {
       this.startTime = time
       this.started = true
-      this.endTime = this.startTime + this.relaxDelay + this.relaxDuration
+      this.endTime = this.startTime + this._relaxDelay + this._relaxDuration
       this.relaxState = pick(
         this._tween.at(this.endTime)
         , Object.keys(this.state)
@@ -103,7 +127,7 @@ export class Meddle extends TweenOperator {
     }
 
     const timeFraction = getTimeFraction(
-      this.startTime + this.relaxDelay
+      this.startTime + this._relaxDelay
       , this.endTime
       , time
     )
@@ -113,7 +137,7 @@ export class Meddle extends TweenOperator {
       , this.state
       , this.relaxState
       , timeFraction
-      , this.easing
+      , this._easing
     )
 
     return meddleTransitionState
