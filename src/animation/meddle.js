@@ -1,10 +1,9 @@
 import { pick } from '@/util'
-import { map, merge } from '@/rx'
+import { map, merge, Subject } from '@/rx'
 import { getTimeFraction, getInterpolatedState } from '@/transition'
 import { parseTime } from '@/parsers/time'
 import { parseEasing } from '@/parsers/easing'
 import { TweenOperator } from './tween-operator'
-import { Subject } from '../rx'
 
 const DEFAULT_OPTIONS = {
   relaxDuration: 500

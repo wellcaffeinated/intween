@@ -131,3 +131,12 @@ export const pull = function (arr, o){
   arr.splice(idx, 1)
   return arr
 }
+
+export function shortestModDist(a0, a1, modulo) {
+  const da = a1 - a0
+  const frac = da / modulo
+  const cycles = Math.floor(frac)
+  const d = frac - cycles
+  const fix = d > 0.5 ? -1 : d < -0.5 ? 1 : 0
+  return (d + fix + cycles) * modulo
+}

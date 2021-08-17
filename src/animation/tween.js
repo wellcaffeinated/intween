@@ -43,8 +43,12 @@ export class Tween extends TweenOperator {
       state = time
       meta.startTime = this.duration
     } else if (typeof time === 'object') {
-      meta.duration = state
       meta.startTime = this.duration
+      if (typeof state === 'object') {
+        opts = state
+      } else {
+        meta.duration = state
+      }
       state = time
     } else {
       meta.time = time

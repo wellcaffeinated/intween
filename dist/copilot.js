@@ -94,8 +94,6 @@ var _easing = __webpack_require__(/*! @/parsers/easing */ "./src/parsers/easing.
 
 var _tweenOperator = __webpack_require__(/*! ./tween-operator */ "./src/animation/tween-operator.js");
 
-var _rx2 = __webpack_require__(/*! ../rx */ "./src/rx/index.js");
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -139,7 +137,7 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
     _classCallCheck(this, Meddle);
 
     _this = _super.call(this);
-    _this._subject = new _rx2.Subject();
+    _this._subject = new _rx.Subject();
     _this._tween = tween;
     _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
     _this.lastTime = 0; // reset
@@ -599,8 +597,14 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
         state = time;
         meta.startTime = this.duration;
       } else if (_typeof(time) === 'object') {
-        meta.duration = state;
         meta.startTime = this.duration;
+
+        if (_typeof(state) === 'object') {
+          opts = state;
+        } else {
+          meta.duration = state;
+        }
+
         state = time;
       } else {
         meta.time = time;
@@ -1302,7 +1306,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.toggle = exports.string = exports.object = exports.array = exports.angle = exports.makeCyclic = exports.linear = void 0;
+exports.toggle = exports.string = exports.object = exports.array = exports.angle = exports.linear = void 0;
 
 var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
 
@@ -1310,28 +1314,14 @@ var _factories = __webpack_require__(/*! ./factories */ "./src/interpolators/fac
 
 var Pi2 = Math.PI * 2;
 
-function shortestModDist(a0, a1, modulo) {
-  // let moduloBy2 = 0.5 * modulo
-  var da = (a1 - a0) % modulo;
-  return (da - modulo) % modulo;
-}
-
 var linear = function linear(from, to, t) {
   return (0, _util.lerp)(from, to, t);
 };
 
 exports.linear = linear;
 
-var makeCyclic = function makeCyclic(len) {
-  return function (from, to, t) {
-    return from + shortestModDist(from, to, len) * t;
-  };
-};
-
-exports.makeCyclic = makeCyclic;
-
 var angle = function angle(from, to, t) {
-  return from + shortestModDist(from, to, Pi2) * t;
+  return from + (0, _util.shortestModDist)(from, to, Pi2) * t;
 };
 
 exports.angle = angle;
@@ -1372,7 +1362,7 @@ exports.toggle = toggle;
 /*!****************************************!*\
   !*** ./src/interpolators/factories.js ***!
   \****************************************/
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -1380,7 +1370,9 @@ exports.toggle = toggle;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.makeToggle = void 0;
+exports.makeCyclic = exports.makeToggle = void 0;
+
+var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
 
 var makeToggle = function makeToggle(threshold) {
   return function (from, to, t) {
@@ -1389,6 +1381,14 @@ var makeToggle = function makeToggle(threshold) {
 };
 
 exports.makeToggle = makeToggle;
+
+var makeCyclic = function makeCyclic(len) {
+  return function (from, to, t) {
+    return from + (0, _util.shortestModDist)(from, to, len) * t;
+  };
+};
+
+exports.makeCyclic = makeCyclic;
 
 /***/ }),
 
@@ -3643,8 +3643,10 @@ var _exportNames = {
   mergeIntersecting: true,
   sortedIndex: true,
   getIntersectingPaths: true,
-  pull: true
+  pull: true,
+  shortestModDist: true
 };
+exports.shortestModDist = shortestModDist;
 exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.clamp = exports.lerp = exports.castArray = exports.now = exports.identity = void 0;
 
 var _callable = __webpack_require__(/*! ./callable */ "./src/util/callable.js");
@@ -3836,6 +3838,15 @@ var pull = function pull(arr, o) {
 };
 
 exports.pull = pull;
+
+function shortestModDist(a0, a1, modulo) {
+  var da = a1 - a0;
+  var frac = da / modulo;
+  var cycles = Math.floor(frac);
+  var d = frac - cycles;
+  var fix = d > 0.5 ? -1 : d < -0.5 ? 1 : 0;
+  return (d + fix + cycles) * modulo;
+}
 
 /***/ }),
 

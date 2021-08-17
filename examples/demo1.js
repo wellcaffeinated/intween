@@ -36,11 +36,8 @@ function initControls( btnId, progressId, player ){
 
 function demo1(){
   var el = byId('demo-1-cube')
-  const rad = Math.PI / 180
 
   function rotate(x, y){
-    x /= rad
-    y /= rad
     el.style.transform = `translateZ(-100px) rotateY(${x}deg) rotateX(${-y}deg)`
   }
 
@@ -54,38 +51,27 @@ function demo1(){
       , interpolator: 'angle'
     }
   }, {
-    transitionDuration: '3s'
+    tweenDuration: '3s'
   })
 
   tween.to('6s', {
-    x: 1.2 * Math.PI
-  }, 6000)
+    x: 1.2 * 180
+  }, '100%')
 
   tween.to({
-    thing: 0
+    x: 0
   }, {
-    time: '7s'
-    , duration: '100%'
+    time: '8s'
+    , duration: '50%'
   })
 
   tween.to('10s', {
-    y: Math.PI
+    y: 180
   })
-
-  tween.to('10s', {
-    thing: 2
-  }, '2s')
 
   tween.to('10s', {
     x: 0
-  }, '4s')
-
-  // console.log(manager.timeline)
-
-  // manager.loop()
-
-  // console.log('schema', manager._schema)
-  // user interaction
+  }, '2s')
 
   let lastState = {}
   const meddle = new Copilot.Meddle(tween, {
@@ -117,15 +103,15 @@ function demo1(){
     })
     .on('pan', function(e) {
       var state = {}
-      state.x = offsetX + e.deltaX * rad
-      state.y = offsetY + e.deltaY * rad
+      state.x = offsetX + e.deltaX
+      state.y = offsetY + e.deltaY
       interaction.next(state)
       meddle.freeze()
     })
     .on('panend pressup', function(e){
       var state = {}
-      state.x = offsetX + e.deltaX * rad
-      state.y = offsetY + e.deltaY * rad
+      state.x = offsetX + e.deltaX
+      state.y = offsetY + e.deltaY
       interaction.next(state)
       meddle.freeze(false)
     })
