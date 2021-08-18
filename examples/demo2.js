@@ -182,7 +182,7 @@
       })
     })
 
-    tween.to('04:54', {
+    tween.by('04:54', {
       cameraTheta: 10 * 2 * Math.PI
     })
 
@@ -191,11 +191,9 @@
       let y = Math.random() * 600 - 300
       let z = Math.random() * 800 - 400
 
-      tween.to((Math.random() * 60 + 11) * 1000, {
+      tween.by((Math.random() * 60 + 11) * 1000, '10s', {
         [`object-${i}`]: new THREE.Vector3(x, y, z)
-      }, '10s', {
-        easing: Copilot.Easing.bounceOut
-      })
+      }, 'bounceOut')
     }
 
     const adapter = new Copilot.Subject()

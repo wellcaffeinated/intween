@@ -519,6 +519,8 @@ var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
 var _frame = __webpack_require__(/*! @/frame */ "./src/frame.js");
 
+var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
+
 var _timeline = __webpack_require__(/*! @/timeline */ "./src/timeline.js");
 
 var _tweenOperator = __webpack_require__(/*! ./tween-operator */ "./src/animation/tween-operator.js");
@@ -552,7 +554,8 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 var DEFAULT_OPTIONS = {
-  tweenDuration: '100%'
+  tweenDuration: '100%',
+  easing: 'linear'
 };
 
 var Tween = /*#__PURE__*/function (_TweenOperator) {
@@ -584,39 +587,63 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
       var _this$timeline;
 
       return ((_this$timeline = this.timeline[this.timeline.length - 1]) === null || _this$timeline === void 0 ? void 0 : _this$timeline.time) || 0;
+    }
+  }, {
+    key: "by",
+    value: function by(endTime, duration, state, easing) {
+      var meta = {
+        endTime: endTime
+      };
+
+      if (_typeof(duration) === 'object') {
+        easing = state;
+        state = duration;
+      } else {
+        meta.duration = duration;
+      }
+
+      if (easing) {
+        meta.easing = easing;
+      }
+
+      return this.to(state, meta);
+    }
+  }, {
+    key: "in",
+    value: function _in(dt, duration, state, easing) {
+      var meta = {
+        endTime: this.duration + (0, _time.parseTime)(dt)
+      };
+
+      if (_typeof(duration) === 'object') {
+        easing = state;
+        state = duration;
+      } else {
+        meta.duration = duration;
+      }
+
+      if (easing) {
+        meta.easing = easing;
+      }
+
+      return this.to(state, meta);
     } // add a frame
 
   }, {
     key: "to",
-    value: function to(time, state, duration) {
-      var opts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-      var argLen = arguments.length;
+    value: function to(state, opts) {
       var meta = {};
 
-      if (argLen === 1) {
-        state = time;
-        meta.startTime = this.duration;
-      } else if (_typeof(time) === 'object') {
-        meta.startTime = this.duration;
-
-        if (_typeof(state) === 'object') {
-          opts = state;
-        } else {
-          meta.duration = state;
-        }
-
-        state = time;
-      } else {
-        meta.time = time;
-
-        if (_typeof(duration) === 'object') {
-          opts = duration;
-        } else {
-          meta.duration = duration;
-        }
+      if (typeof opts === 'string') {
+        meta.easing = opts;
+      } else if (opts) {
+        Object.assign(meta, opts);
       }
 
-      Object.assign(meta, opts);
+      if (meta.startTime === undefined && (meta.endTime === undefined || meta.duration === undefined)) {
+        meta.startTime = this.duration;
+      }
+
       var frame = (0, _frame.createFrame)(state, meta, {
         duration: this.options.tweenDuration
       });
@@ -1113,7 +1140,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var pctReg = /^((\d{1,3})(\.\d*)?)%$/;
 var META_PARSERS = {
-  time: function time(v) {
+  endTime: function endTime(v) {
     if (v === undefined) {
       return undefined;
     }
@@ -1159,14 +1186,14 @@ function createFrame(state, meta, defaultMetaOptions) {
   if (percentDuration) {
     meta.implicit = true;
     meta.fractionalDuration = parseFloat(percentDuration[1]) / 100;
-  } else if (meta.time !== undefined) {
+  } else if (meta.endTime !== undefined) {
     if (meta.startTime !== undefined) {
-      meta.duration = meta.time - meta.startTime;
+      meta.duration = meta.endTime - meta.startTime;
     } else {
-      meta.startTime = meta.time - meta.duration;
+      meta.startTime = meta.endTime - meta.duration;
     }
   } else {
-    meta.time = meta.startTime + meta.duration;
+    meta.endTime = meta.startTime + meta.duration;
   }
 
   return {
@@ -1306,7 +1333,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.toggle = exports.string = exports.object = exports.array = exports.angle = exports.linear = void 0;
+exports.toggle = exports.string = exports.object = exports.array = exports.degrees = exports.radians = exports.linear = void 0;
 
 var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
 
@@ -1320,11 +1347,17 @@ var linear = function linear(from, to, t) {
 
 exports.linear = linear;
 
-var angle = function angle(from, to, t) {
+var radians = function radians(from, to, t) {
   return from + (0, _util.shortestModDist)(from, to, Pi2) * t;
 };
 
-exports.angle = angle;
+exports.radians = radians;
+
+var degrees = function degrees(from, to, t) {
+  return from + (0, _util.shortestModDist)(from, to, 360) * t;
+};
+
+exports.degrees = degrees;
 
 var array = function array(from, to, t) {
   return to.map(function (v1, idx) {
@@ -1468,7 +1501,7 @@ function parseEasing(easing) {
     }
   }
 
-  throw new Error('Unrecognized easing name');
+  throw new Error("Unrecognized easing name \"".concat(easing, "\""));
 }
 
 /***/ }),
@@ -1562,7 +1595,7 @@ function parseInterpolator(interp) {
     }
   }
 
-  throw new Error('Unrecognized interpolator name');
+  throw new Error("Unrecognized interpolator name \"".concat(interp, "\""));
 }
 
 /***/ }),
@@ -2394,7 +2427,7 @@ function createTimeline(schema) {
   var implicitFrames = frames.filter(function (f) {
     return f.meta.implicit;
   }).sort(function (a, b) {
-    return a.meta.time - b.meta.time;
+    return a.meta.endTime - b.meta.endTime;
   });
   frames = frames.filter(function (f) {
     return !f.meta.implicit;
@@ -2404,12 +2437,12 @@ function createTimeline(schema) {
     var start = {
       type: 'start',
       frame: frame,
-      time: frame.meta.time - frame.meta.duration
+      time: frame.meta.endTime - frame.meta.duration
     };
     var end = {
       type: 'end',
       frame: frame,
-      time: frame.meta.time
+      time: frame.meta.endTime
     };
     start.end = end;
     end.start = start;
@@ -2432,7 +2465,7 @@ function createTimeline(schema) {
     var end = {
       type: 'end',
       frame: frame,
-      time: frame.meta.time
+      time: frame.meta.endTime
     };
     var idx = (0, _util.sortedIndex)(timeline, end, getTime);
     var prevEndTime = getPrevEndTime(timeline, idx, end.time);

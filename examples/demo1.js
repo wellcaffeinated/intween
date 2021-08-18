@@ -44,34 +44,34 @@ function demo1(){
   const tween = new Copilot.Tween({
     x: {
       type: 0
-      , interpolator: 'angle'
+      , interpolator: 'degrees'
     }
     , y: {
       type: 0
-      , interpolator: 'angle'
+      , interpolator: 'degrees'
     }
   }, {
     tweenDuration: '3s'
   })
 
-  tween.to('6s', {
+  tween.by('6s', '100%', {
     x: 1.2 * 180
-  }, '100%')
+  }, 'quadInOut')
 
   tween.to({
     x: 0
   }, {
-    time: '8s'
+    endTime: '8s'
     , duration: '50%'
   })
 
-  tween.to('10s', {
+  tween.by('10s', {
     y: 180
-  })
+  }, 'quintOut')
 
-  tween.to('10s', {
-    x: 0
-  }, '2s')
+  tween.in('1s', '2s', {
+    x: 180
+  }, 'backInOut')
 
   let lastState = {}
   const meddle = new Copilot.Meddle(tween, {

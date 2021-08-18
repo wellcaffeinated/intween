@@ -10,5 +10,5 @@ export function parseEasing(easing){
     }
   }
 
-  throw new Error('Unrecognized easing name')
+  throw new Error(`Unrecognized easing name "${easing}"`)
 }

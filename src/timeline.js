@@ -77,14 +77,14 @@ export function createTimeline( schema, frames = [] ){
   const timeline = []
 
   // omit frames that are implicitly defined first
-  const implicitFrames = frames.filter( f => f.meta.implicit ).sort( (a, b) => a.meta.time - b.meta.time )
+  const implicitFrames = frames.filter( f => f.meta.implicit ).sort( (a, b) => a.meta.endTime - b.meta.endTime )
 
   frames = frames.filter( f => !f.meta.implicit )
 
   frames.forEach( frame => {
     let idx
-    const start = { type: 'start', frame, time: frame.meta.time - frame.meta.duration }
-    const end = { type: 'end', frame, time: frame.meta.time }
+    const start = { type: 'start', frame, time: frame.meta.endTime - frame.meta.duration }
+    const end = { type: 'end', frame, time: frame.meta.endTime }
 
     start.end = end
     end.start = start
@@ -108,7 +108,7 @@ export function createTimeline( schema, frames = [] ){
 
   // insert frames with implicit timing
   implicitFrames.forEach( frame => {
-    const end = { type: 'end', frame, time: frame.meta.time }
+    const end = { type: 'end', frame, time: frame.meta.endTime }
     let idx = sortedIndex( timeline, end, getTime )
     const prevEndTime = getPrevEndTime( timeline, idx, end.time )
     const startTime = lerp( end.time, prevEndTime, frame.meta.fractionalDuration )

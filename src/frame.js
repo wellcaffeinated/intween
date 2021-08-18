@@ -4,7 +4,7 @@ import { sanitizedObject } from '@/util'
 
 const pctReg = /^((\d{1,3})(\.\d*)?)%$/
 const META_PARSERS = {
-  time(v){
+  endTime(v){
     if (v === undefined) { return undefined }
     return parseTime(v)
   }
@@ -43,14 +43,14 @@ export function createFrame( state, meta, defaultMetaOptions ){
   if ( percentDuration ){
     meta.implicit = true
     meta.fractionalDuration = parseFloat(percentDuration[1]) / 100
-  } else if (meta.time !== undefined) {
+  } else if (meta.endTime !== undefined) {
     if ( meta.startTime !== undefined ){
-      meta.duration = meta.time - meta.startTime
+      meta.duration = meta.endTime - meta.startTime
     } else {
-      meta.startTime = meta.time - meta.duration
+      meta.startTime = meta.endTime - meta.duration
     }
   } else {
-    meta.time = meta.startTime + meta.duration
+    meta.endTime = meta.startTime + meta.duration
   }
 
   return {

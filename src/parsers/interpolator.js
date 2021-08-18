@@ -10,5 +10,5 @@ export function parseInterpolator(interp) {
     }
   }
 
-  throw new Error('Unrecognized interpolator name')
+  throw new Error(`Unrecognized interpolator name "${interp}"`)
 }

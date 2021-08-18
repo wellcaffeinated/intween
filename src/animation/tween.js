@@ -1,5 +1,6 @@
 import { createSchema, createState } from '@/schema'
 import { createFrame } from '@/frame'
+import { parseTime } from '@/parsers/time'
 import {
   getTransitionsAtTime
   , createTimeline
@@ -10,6 +11,7 @@ import { TweenOperator } from './tween-operator'
 
 const DEFAULT_OPTIONS = {
   tweenDuration: '100%'
+  , easing: 'linear'
 }
 
 export class Tween extends TweenOperator {
@@ -35,31 +37,62 @@ export class Tween extends TweenOperator {
     return this.timeline[this.timeline.length - 1]?.time || 0
   }
 
-  // add a frame
-  to(time, state, duration, opts = {}) {
-    const argLen = arguments.length
-    const meta = {}
-    if (argLen === 1) {
-      state = time
-      meta.startTime = this.duration
-    } else if (typeof time === 'object') {
-      meta.startTime = this.duration
-      if (typeof state === 'object') {
-        opts = state
-      } else {
-        meta.duration = state
-      }
-      state = time
-    } else {
-      meta.time = time
-      if (typeof duration === 'object'){
-        opts = duration
-      } else {
-        meta.duration = duration
-      }
+  by(endTime, duration, state, easing){
+    const meta = {
+      endTime
     }
 
-    Object.assign(meta, opts)
+    if (typeof duration === 'object'){
+      easing = state
+      state = duration
+    } else {
+      meta.duration = duration
+    }
+
+    if (easing) {
+      meta.easing = easing
+    }
+
+    return this.to(state, meta)
+  }
+
+  in(dt, duration, state, easing){
+    const meta = {
+      endTime: this.duration + parseTime(dt)
+    }
+
+    if (typeof duration === 'object') {
+      easing = state
+      state = duration
+    } else {
+      meta.duration = duration
+    }
+
+    if (easing) {
+      meta.easing = easing
+    }
+
+    return this.to(state, meta)
+  }
+
+  // add a frame
+  to(state, opts) {
+    const meta = {}
+    if (typeof opts === 'string'){
+      meta.easing = opts
+    } else if (opts) {
+      Object.assign(meta, opts)
+    }
+
+    if (
+      meta.startTime === undefined &&
+      (
+        meta.endTime === undefined ||
+        meta.duration === undefined
+      )
+    ) {
+      meta.startTime = this.duration
+    }
 
     const frame = createFrame(state, meta, {
       duration: this.options.tweenDuration
