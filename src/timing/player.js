@@ -25,6 +25,7 @@ export class Player extends Emitter {
     this._time = 0
     this.playbackRate = 1
     this._paused = true
+    this._loop = false
     this._sub = animationFrames().subscribe(t => this.step(t))
   }
 
@@ -84,6 +85,11 @@ export class Player extends Emitter {
     return this.togglePause(false)
   }
 
+  loop(toggle = true){
+    this._loop = toggle
+    return this
+  }
+
   // Stops after it reaches time t
   playTo(time) {
     if (this._time === time) {
@@ -132,18 +138,29 @@ export class Player extends Emitter {
       this._playToTime = false
     }
 
+    this._time = time
+
     if (playbackRate > 0 && time >= totalTime) {
       time = totalTime
-      this.togglePause(true)
-      this.emit('end')
+      if (this._loop){
+        this.emit('end')
+        this.seek(0)
+      } else {
+        this.togglePause(true)
+        this.emit('end')
+      }
     } else if (playbackRate < 0 && time <= 0) {
       time = 0
-      this.togglePause(true)
-      this.emit('end')
+      if (this._loop){
+        this.emit('end')
+        this.seek(totalTime)
+      } else {
+        this.togglePause(true)
+        this.emit('end')
+      }
+    } else {
+      this.emit('update', time)
     }
-
-    this._time = time
-    this.emit('update', time)
 
     return this
   }
