@@ -10,7 +10,7 @@ import { fromEvent, Observable, from, pipe } from 'rxjs'
 import { tap, map, mergeWith } from 'rxjs/operators'
 import { createPlayer } from '../lib/player-ui'
 
-// const { pipe, pipeFromArray, map, from, Observable } = Copilot
+// const { pipe, pipeFromArray, map, from, Observable } = InTween
 
 export default {
   name: 'Test',
@@ -18,7 +18,7 @@ export default {
     state: {}
   }),
   mounted(){
-    const tween = new Copilot.Tween({
+    const tween = new InTween.Tween({
       x: 300,
       y: 300,
       range: 0,
@@ -32,14 +32,14 @@ export default {
     .to('4s', {
       x: 300,
       range: 4
-    }, { easing: Copilot.Easing.makeElasticOut(0.7, 0.5) })
+    }, { easing: InTween.Easing.makeElasticOut(0.7, 0.5) })
 
-    const meddle = this.meddle = new Copilot.Meddle(tween, { easing: 'quadInOut' })
+    const meddle = this.meddle = new InTween.Meddle(tween, { easing: 'quadInOut' })
 
-    const player = new Copilot.Player(tween.duration)
+    const player = new InTween.Player(tween.duration)
 
     const subscription = player.pipe(
-      Copilot.spreadAssign(
+      InTween.spreadAssign(
         tween
         , pipe(
           meddle
@@ -52,7 +52,7 @@ export default {
 
     const sub = fromEvent(window, 'click').pipe(
       map(e => ({ x: e.pageX, y: e.pageY }))
-      , Copilot.Smoothen({
+      , InTween.Smoothen({
         duration: 1000,
         easing: 'quintInOut'
       }, () => this.state)

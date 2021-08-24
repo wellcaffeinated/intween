@@ -1,6 +1,6 @@
 import { createPlayer } from '../lib/player-ui'
 import chroma from '../lib/chroma'
-const { Tween, Easing, Player, Interpolators, registerType } = Copilot
+const { Tween, Easing, Player, Interpolators, registerType } = InTween
 
 // this function is used to interpolate between two chroma objects
 function interpolateChroma(from, to, t) {

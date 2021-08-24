@@ -1,5 +1,5 @@
 import { createPlayer } from '../lib/player-ui'
-const { Tween, Interpolators, Player } = Copilot
+const { Tween, Interpolators, Player } = InTween
 
 // setup our instance
 const tween = new Tween({

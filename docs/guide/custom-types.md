@@ -1,6 +1,6 @@
 # Mutating arbitrary data types with interpolators
 
-In order to use arbitrary data in Copilot, it's as simple
+In order to use arbitrary data in InTween, it's as simple
 as specifying the interpolator function that transforms between
 a start and end value.
 
@@ -36,14 +36,14 @@ In short: define your interpolator without easing in mind.
 ## Defining a custom interpolator
 
 To define a custom interpolator, you can specify it inside the schema definition
-when setting up your Copilot instance.
+when setting up your InTween instance.
 
 ```js
 function myCustomInterpolator( from, to, t ){
   // return in between value
 }
 
-let manager = Copilot({
+let manager = InTween({
   value: {
     type: Object
     , default: myDefaultValue
@@ -59,7 +59,7 @@ If you intend to use many properties with the same interpolator, it
 is easier to define a global type that uses that interpolator by default.
 
 ```js
-Copilot.registerType({
+InTween.registerType({
   type: 'my-type'
   , default: myTypeDefault
   , interpolator: myCustomInterpolator
@@ -69,7 +69,7 @@ Copilot.registerType({
 Now, we don't need to worry about the interpolator again!
 
 ```js
-let manager = Copilot({
+let manager = InTween({
   value: {
     type: 'my-type'
     // , default: localDefault

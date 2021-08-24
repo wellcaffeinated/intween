@@ -1,16 +1,16 @@
-# Copilot
+# InTween
 
 # ideas
 
 Should have 'auto' duration setting to make duration since last frame
 
 ```javascript
-const manager = Copilot({
+const manager = InTween({
   x: Number
   , y: Number
   , pos: {
     type: [ Number, Number ]
-    , interpolator: Copilot.Interpolators.Circular
+    , interpolator: InTween.Interpolators.Circular
   }
   , angle: {
     type: Number
@@ -19,7 +19,7 @@ const manager = Copilot({
   , toggle: Boolean
   , binaryValue: {
     type: Number // 0 or 1
-    , interpolator: Copilot.Interpolators.Immediate
+    , interpolator: InTween.Interpolators.Immediate
   }
   , selectBox: [ 'One', 'Two', 'Three' ] // infers that this is a property that stores one of the following values
 }, {
@@ -74,7 +74,7 @@ manager.prev()
 manager.export() // DEVELOPMENT tool. console.copy the current state for easier authoring
 
 // Syncher helper for jittery audio players (eg: howler)
-let cleanup = Copilot.Syncher({
+let cleanup = InTween.Syncher({
   getPlaybackRate: () => howl.rate()
   , isPlaying: () => howl.playing()
   , getTime: () => howl.seek() * 1000

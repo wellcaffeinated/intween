@@ -126,7 +126,7 @@
   function demo2(){
     init()
 
-    Copilot.registerType({
+    InTween.registerType({
       type: 'vector'
       , default: new THREE.Vector3()
       , interpolator: (from, to, t) => {
@@ -149,8 +149,8 @@
       }
     })
 
-    const tween = new Copilot.Tween( schema )
-    const meddle = new Copilot.Meddle(tween, { relaxDuration: 1000, easing: Copilot.Easing.bounceOut } )
+    const tween = new InTween.Tween( schema )
+    const meddle = new InTween.Meddle(tween, { relaxDuration: 1000, easing: InTween.Easing.bounceOut } )
     // console.log(manager._schema)
 
     dragControls.addEventListener('drag', (e) => {
@@ -196,7 +196,7 @@
       }, 'bounceOut')
     }
 
-    const adapter = new Copilot.Subject()
+    const adapter = new InTween.Subject()
 
     const widget = getSoundcloud()
     widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
@@ -204,16 +204,16 @@
       adapter.next(time)
     })
 
-    Copilot.combineLatest(
+    InTween.combineLatest(
       adapter.pipe(
-        Copilot.spreadAssign(
+        InTween.spreadAssign(
           tween,
           meddle
         )
-        , Copilot.animationThrottle()
+        , InTween.animationThrottle()
       )
-      , Copilot.animationFrames()
-    ).pipe(Copilot.map(v => v[0])).subscribe(state => {
+      , InTween.animationFrames()
+    ).pipe(InTween.map(v => v[0])).subscribe(state => {
       // console.log(state)
       // s.radius = state.cameraR
       // s.phi = state.cameraPhi

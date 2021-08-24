@@ -1,5 +1,5 @@
 // setup our instance
-const { Tween, Meddle, spreadAssign, Player } = Copilot
+const { Tween, Meddle, spreadAssign, Player } = InTween
 
 const tween = new Tween({
   // simple numeric value. Starts with default 50

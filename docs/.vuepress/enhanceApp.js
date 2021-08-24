@@ -1,5 +1,5 @@
-import * as Copilot from '../../dist/copilot.js'
-window.Copilot = Copilot
+import * as InTween from '../../dist/intween.js'
+window.InTween = InTween
 
 export default ({
   Vue, // the version of Vue being used in the VuePress app

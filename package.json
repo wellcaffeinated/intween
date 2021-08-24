@@ -1,8 +1,8 @@
 {
-  "name": "copilot",
-  "version": "0.1.0",
-  "description": "Make interactive videos easily",
-  "main": "dist/copilot.js",
+  "name": "intween",
+  "version": "1.0.0-beta",
+  "description": "The Interactive Tweening Library",
+  "main": "dist/intween.js",
   "scripts": {
     "build": "webpack --mode=production && npm run test",
     "dev": "webpack --progress --watch --mode=development",

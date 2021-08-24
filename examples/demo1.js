@@ -41,7 +41,7 @@ function demo1(){
     el.style.transform = `translateZ(-100px) rotateY(${x}deg) rotateX(${-y}deg)`
   }
 
-  const tween = new Copilot.Tween({
+  const tween = new InTween.Tween({
     x: {
       type: 0
       , interpolator: 'degrees'
@@ -74,7 +74,7 @@ function demo1(){
   }, 'backInOut')
 
   let lastState = {}
-  const meddle = new Copilot.Meddle(tween, {
+  const meddle = new InTween.Meddle(tween, {
     easing: 'backInOut'
     , relaxDuration: 2000
     , relaxDelay: 0
@@ -83,11 +83,11 @@ function demo1(){
   let offsetX = 0
   let offsetY = 0
 
-  const interaction = new Copilot.Subject()
+  const interaction = new InTween.Subject()
   interaction
     .pipe(
       rxjs.throttleTime(100)
-      , Copilot.Smoothen(() => lastState)
+      , InTween.Smoothen(() => lastState)
     )
     .subscribe(state => meddle.set(state))
 
@@ -116,7 +116,7 @@ function demo1(){
       meddle.freeze(false)
     })
 
-  const player = new Copilot.Player(tween.duration)
+  const player = new InTween.Player(tween.duration)
   player.pipe(
     source => player.fromEvent('togglePause').pipe(
       rxjs.map(v =>
@@ -124,18 +124,18 @@ function demo1(){
           source :
           rxjs.pipe(
             rxjs.throttleTime(100, { leading: true, trailing: true })
-            , Copilot.animationSync()
+            , InTween.animationSync()
           )(source)
       )
       , rxjs.switchAll()
     )
-    , Copilot.spreadAssign(
+    , InTween.spreadAssign(
       tween,
       rxjs.pipe(
         meddle
       )
     )
-    , Copilot.animationThrottle()
+    , InTween.animationThrottle()
   ).subscribe(state => {
     lastState = state
     rotate(state.x, state.y)
