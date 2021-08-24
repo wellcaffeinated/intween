@@ -58,6 +58,8 @@ function demo1(){
     x: 1.2 * 180
   }, 'quadInOut')
 
+  tween.by('7s', 0, { x: 123 })
+
   tween.to({
     x: 0
   }, {
@@ -65,12 +67,16 @@ function demo1(){
     , duration: '50%'
   })
 
-  tween.by('10s', {
+  tween.in('1s', '0%', {
+    x: 180
+  })
+
+  tween.by('13s', {
     y: 180
   }, 'quintOut')
 
   tween.in('1s', '2s', {
-    x: 180
+    x: 540
   }, 'backInOut')
 
   let lastState = {}

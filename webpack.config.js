@@ -9,7 +9,7 @@ function capitalize(str){
 }
 
 const fileName = pkg.name;
-const libraryName = capitalize(pkg.name);
+const libraryName = 'InTween';
 const outputFile = fileName + '.js';
 
 const config = {

@@ -92,8 +92,8 @@ export function createTimeline( schema, frames = [] ){
     idx = sortedIndex( timeline, end, getTime )
     timeline.splice( idx, 0, end )
 
-    // "start"s need to be after "end"s of equal time
-    idx = sortedIndex( timeline, start, getTime, true )
+    // "start"s need to be after "end"s of equal time... but not after its own end
+    idx = Math.min(idx, sortedIndex( timeline, start, getTime, true ))
     timeline.splice( idx, 0, start )
   })
 
@@ -120,7 +120,7 @@ export function createTimeline( schema, frames = [] ){
     // add the end
     timeline.splice( idx, 0, end )
     // "start"s need to be after "end"s of equal time
-    idx = sortedIndex( timeline, start, getTime, true )
+    idx = Math.min(idx, sortedIndex( timeline, start, getTime, true ))
     timeline.splice( idx, 0, start )
   })
 
@@ -173,13 +173,15 @@ export function getTransitionsAtTime( timeline, time ){
   for ( let l = timeline.length, i = 0; i < l; i++ ){
     const m = timeline[i]
 
-    if ( m.time >= time ){
+    if ( m.time > time ){
       break
     }
 
     if ( m.type === 'start' ){
       markers.push( m )
     } else {
+      // if we're at the exact time of the end track it
+      if (m.time === time){ break }
       // stop tracking its partner
       idx = markers.indexOf( m.start )
       markers.splice( idx, 1 )

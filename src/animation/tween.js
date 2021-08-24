@@ -86,10 +86,7 @@ export class Tween extends TweenOperator {
 
     if (
       meta.startTime === undefined &&
-      (
-        meta.endTime === undefined ||
-        meta.duration === undefined
-      )
+      meta.endTime === undefined
     ) {
       meta.startTime = this.duration
     }

@@ -1,13 +1,13 @@
-/*! Copilot version 0.1.0 */
+/*! InTween version 1.0.0-beta */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["Copilot"] = factory();
+		exports["InTween"] = factory();
 	else
-		root["Copilot"] = factory();
+		root["InTween"] = factory();
 })(self, function() {
 return /******/ (function() { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
@@ -640,7 +640,7 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
         Object.assign(meta, opts);
       }
 
-      if (meta.startTime === undefined && (meta.endTime === undefined || meta.duration === undefined)) {
+      if (meta.startTime === undefined && meta.endTime === undefined) {
         meta.startTime = this.duration;
       }
 
@@ -2447,9 +2447,9 @@ function createTimeline(schema) {
     start.end = end;
     end.start = start;
     idx = (0, _util.sortedIndex)(timeline, end, getTime);
-    timeline.splice(idx, 0, end); // "start"s need to be after "end"s of equal time
+    timeline.splice(idx, 0, end); // "start"s need to be after "end"s of equal time... but not after its own end
 
-    idx = (0, _util.sortedIndex)(timeline, start, getTime, true);
+    idx = Math.min(idx, (0, _util.sortedIndex)(timeline, start, getTime, true));
     timeline.splice(idx, 0, start);
   }); // TODO: is this necessary?
   // timeline.sort( (a, b) => {
@@ -2480,7 +2480,7 @@ function createTimeline(schema) {
 
     timeline.splice(idx, 0, end); // "start"s need to be after "end"s of equal time
 
-    idx = (0, _util.sortedIndex)(timeline, start, getTime, true);
+    idx = Math.min(idx, (0, _util.sortedIndex)(timeline, start, getTime, true));
     timeline.splice(idx, 0, start);
   }); // assign inherited states
 
@@ -2526,14 +2526,19 @@ function getTransitionsAtTime(timeline, time) {
   for (var l = timeline.length, i = 0; i < l; i++) {
     var m = timeline[i];
 
-    if (m.time >= time) {
+    if (m.time > time) {
       break;
     }
 
     if (m.type === 'start') {
       markers.push(m);
     } else {
-      // stop tracking its partner
+      // if we're at the exact time of the end track it
+      if (m.time === time) {
+        break;
+      } // stop tracking its partner
+
+
       idx = markers.indexOf(m.start);
       markers.splice(idx, 1);
     }
@@ -6990,4 +6995,4 @@ defineWellKnownSymbol('observable');
 /******/ })()
 ;
 });
-//# sourceMappingURL=copilot.js.map
+//# sourceMappingURL=intween.js.map
