@@ -68,7 +68,11 @@ function demo1(){
   })
 
   tween.in('1s', '0%', {
-    x: 180
+    x: 50
+  })
+
+  tween.by('9s', '0%', {
+    y: 30
   })
 
   tween.by('13s', {

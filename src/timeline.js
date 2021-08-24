@@ -179,9 +179,7 @@ export function getTransitionsAtTime( timeline, time ){
 
     if ( m.type === 'start' ){
       markers.push( m )
-    } else {
-      // if we're at the exact time of the end track it
-      if (m.time === time){ break }
+    } else if (m.time !== time) { // if we're at the exact time of the end, track it
       // stop tracking its partner
       idx = markers.indexOf( m.start )
       markers.splice( idx, 1 )
