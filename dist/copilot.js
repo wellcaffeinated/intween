@@ -3172,7 +3172,7 @@ function getInterpolatedState(schema, startState, endState, timeFraction, easing
     } else {
       easing = easing || def.easing;
       var progress = easing(timeFraction);
-      val = interpolateProperty(def.interpolator, nextState[prop], endState[prop], progress);
+      val = interpolateProperty(def.interpolator, startState[prop], endState[prop], progress);
     }
 
     nextState[prop] = val;

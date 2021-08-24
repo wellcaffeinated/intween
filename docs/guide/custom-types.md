@@ -108,7 +108,6 @@ To mutate colors, I suggest using [chroma.js][chroma]
 export default {
   name: 'demo',
   beforeMount(){
-    require('../lib/chroma')
     import('./colors.js')
   }
 }

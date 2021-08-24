@@ -44,7 +44,7 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
 
       val = interpolateProperty(
         def.interpolator
-        , nextState[prop]
+        , startState[prop]
         , endState[prop]
         , progress
       )

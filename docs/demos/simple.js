@@ -43,37 +43,6 @@ const timeDisplay = document.getElementById('time')
 const slider = document.getElementById('slider')
 // another slider that we won't hook up through user input
 const readonlySlider = document.getElementById('slider-ro')
-// Setup a player
-const player = new Player(tween.duration)
-
-player.pipe(
-  spreadAssign(
-    tween,
-    meddle
-  )
-).subscribe(state => {
-  // NB: this is the ONLY thing that touches the slider value
-  slider.value = state.sliderVal
-
-  // let's set our read-only slider with the unmeddled state
-  // to illustrate the difference
-  const unmeddled = tween.at(player.time)
-  readonlySlider.value = unmeddled.sliderVal
-})
-
-player.on('update', ( time ) => {
-  // show the time
-  timeDisplay.innerHTML = time.toFixed(2) + 'ms'
-})
-
-// let's loop the player
-player.on('play', () => {
-  if (player.time >= player.totalTime) {
-    // it will pause when it reaches the end... so...
-    // seek to the beginning
-    player.seek(0)
-  }
-})
 
 slider.addEventListener('mousedown', e => {
   const value = e.target.value
@@ -99,9 +68,42 @@ slider.addEventListener('mouseup', e => {
   meddle.set({ sliderVal: value }).freeze(false)
 })
 
+// Setup a player
+const player = new Player(tween.duration)
+
+player.pipe(
+  spreadAssign(
+    tween,
+    meddle
+  )
+).subscribe(state => {
+  // NB: this is the ONLY thing that touches the slider value
+  slider.value = state.sliderVal
+
+  // let's set our read-only slider with the unmeddled state
+  // to illustrate the difference
+  const unmeddled = tween.at(player.time)
+  readonlySlider.value = unmeddled.sliderVal
+})
+
+player.on('update', (time) => {
+  // show the time
+  timeDisplay.innerHTML = time.toFixed(2) + 'ms'
+})
+
+// let's loop the player
+player.on('play', () => {
+  if (player.time >= player.totalTime) {
+    // it will pause when it reaches the end... so...
+    // seek to the beginning
+    player.seek(0)
+  }
+})
+
 // hook up the play/pause button
 const playBtn = document.getElementById('play')
 
 playBtn.addEventListener('click', e => {
   player.togglePause()
 })
+
