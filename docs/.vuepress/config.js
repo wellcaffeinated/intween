@@ -1,11 +1,15 @@
 module.exports = {
-  title: 'InTween.js',
-  description: 'Your companion for building rich interactive media',
+  title: 'InTween',
+  description: 'Your companion for building rich interactive media with Interactive Tweens',
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/' },
+      { text: 'In Depth', link: '/in-depth/' },
       { text: 'Demos', link: '/demos/' },
-      { text: 'GitHub', link: 'https://github.com/wellcaffeinated/InTween' },
+      { text: 'API', link: 'https://github.com/wellcaffeinated/intween.git' },
+      { text: 'GitHub', link: 'https://github.com/wellcaffeinated/intween' },
     ]
+    , lastUpdated: 'Last Updated'
+    , smoothScroll: true
   }
 }

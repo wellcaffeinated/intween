@@ -29,6 +29,7 @@ export class Tween extends TweenOperator {
     this._schema = createSchema(schema)
     this._startingState = createState(this._schema)
 
+    this._loop = false
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this._refreshTimeline()
   }
@@ -109,6 +110,11 @@ export class Tween extends TweenOperator {
     return this
   }
 
+  loop(toggle = true){
+    this._loop = toggle
+    return this
+  }
+
   _refreshTimeline() {
     this.timeline = createTimeline(this._schema, this.frames)
     return this
@@ -121,6 +127,10 @@ export class Tween extends TweenOperator {
   }
 
   at(time) {
+    if (this._loop){
+      time = time % this.duration
+    }
+
     if (time >= this.duration) {
       const m = this.timeline[this.timeline.length - 1]
 

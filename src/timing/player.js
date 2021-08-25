@@ -141,7 +141,8 @@ export class Player extends Emitter {
     this._time = time
 
     if (playbackRate > 0 && time >= totalTime) {
-      time = totalTime
+      this._time = totalTime
+      this.emit('update', time)
       if (this._loop){
         this.emit('end')
         this.seek(0)
@@ -150,7 +151,8 @@ export class Player extends Emitter {
         this.emit('end')
       }
     } else if (playbackRate < 0 && time <= 0) {
-      time = 0
+      this._time = 0
+      this.emit('update', time)
       if (this._loop){
         this.emit('end')
         this.seek(totalTime)

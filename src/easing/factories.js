@@ -1,5 +1,6 @@
 /**
  * Easing adapted from phaser
+ * https://github.com/photonstorm/phaser/tree/master/src/math/easing
  * license: https://opensource.org/licenses/MIT
  */
 

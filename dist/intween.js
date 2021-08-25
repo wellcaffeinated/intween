@@ -574,6 +574,7 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
     _this.timeline = [];
     _this._schema = (0, _schema.createSchema)(schema);
     _this._startingState = (0, _schema.createState)(_this._schema);
+    _this._loop = false;
     _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
 
     _this._refreshTimeline();
@@ -664,6 +665,13 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
       return this;
     }
   }, {
+    key: "loop",
+    value: function loop() {
+      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      this._loop = toggle;
+      return this;
+    }
+  }, {
     key: "_refreshTimeline",
     value: function _refreshTimeline() {
       this.timeline = (0, _timeline.createTimeline)(this._schema, this.frames);
@@ -678,6 +686,10 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
   }, {
     key: "at",
     value: function at(time) {
+      if (this._loop) {
+        time = time % this.duration;
+      }
+
       if (time >= this.duration) {
         var m = this.timeline[this.timeline.length - 1];
         return _objectSpread({}, m.state);
@@ -725,6 +737,7 @@ var _factories = __webpack_require__(/*! ./factories */ "./src/easing/factories.
 
 /**
  * Easing adapted from phaser
+ * https://github.com/photonstorm/phaser/tree/master/src/math/easing
  * license: https://opensource.org/licenses/MIT
  */
 var halfPi = Math.PI / 2;
@@ -938,6 +951,7 @@ exports.makeSteps = exports.makeBackInOut = exports.makeBackOut = exports.makeBa
 
 /**
  * Easing adapted from phaser
+ * https://github.com/photonstorm/phaser/tree/master/src/math/easing
  * license: https://opensource.org/licenses/MIT
  */
 var Pi2 = Math.PI * 2;
@@ -2898,6 +2912,7 @@ var Player = /*#__PURE__*/function (_Emitter) {
     _this._time = 0;
     _this.playbackRate = 1;
     _this._paused = true;
+    _this._loop = false;
     _this._sub = (0, _animationFrames.animationFrames)().subscribe(function (t) {
       return _this.step(t);
     });
@@ -2964,6 +2979,13 @@ var Player = /*#__PURE__*/function (_Emitter) {
     key: "play",
     value: function play() {
       return this.togglePause(false);
+    }
+  }, {
+    key: "loop",
+    value: function loop() {
+      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      this._loop = toggle;
+      return this;
     } // Stops after it reaches time t
 
   }, {
@@ -3010,18 +3032,34 @@ var Player = /*#__PURE__*/function (_Emitter) {
         this._playToTime = false;
       }
 
+      this._time = time;
+
       if (playbackRate > 0 && time >= totalTime) {
-        time = totalTime;
-        this.togglePause(true);
-        this.emit('end');
+        this._time = totalTime;
+        this.emit('update', time);
+
+        if (this._loop) {
+          this.emit('end');
+          this.seek(0);
+        } else {
+          this.togglePause(true);
+          this.emit('end');
+        }
       } else if (playbackRate < 0 && time <= 0) {
-        time = 0;
-        this.togglePause(true);
-        this.emit('end');
+        this._time = 0;
+        this.emit('update', time);
+
+        if (this._loop) {
+          this.emit('end');
+          this.seek(totalTime);
+        } else {
+          this.togglePause(true);
+          this.emit('end');
+        }
+      } else {
+        this.emit('update', time);
       }
 
-      this._time = time;
-      this.emit('update', time);
       return this;
     }
   }], [{
