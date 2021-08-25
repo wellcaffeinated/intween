@@ -129,14 +129,10 @@ export function zip(...sources) {
   });
 }
 
-export const spreadAssign = (...operators) => source => new Observable(sink => {
+export const spreadCombineLatest = (...operators) => source => new Observable(sink => {
   const subject = new Subject()
   const observables = operators.map(o => o(subject))
-
-  const sub = pipe(
-    map(results => Object.assign({}, ...results))
-  )(combineLatest(...observables)).subscribe(sink)
-
+  const sub = combineLatest(...observables).subscribe(sink)
   const sub2 = source.subscribe(subject)
 
   return () => {
@@ -144,3 +140,9 @@ export const spreadAssign = (...operators) => source => new Observable(sink => {
     sub2.unsubscribe()
   }
 })
+
+export const spreadAssign = (...operators) => source =>
+  pipe(
+    map(results => Object.assign({}, ...results))
+  )(spreadCombineLatest(...operators)(source))
+

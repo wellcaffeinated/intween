@@ -29,6 +29,7 @@ export class Tween extends TweenOperator {
     this._schema = createSchema(schema)
     this._startingState = createState(this._schema)
 
+    this._timeLabel = false
     this._loop = false
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this._refreshTimeline()
@@ -36,6 +37,11 @@ export class Tween extends TweenOperator {
 
   get duration() {
     return this.timeline[this.timeline.length - 1]?.time || 0
+  }
+
+  withTime(label = 'time'){
+    this._timeLabel = label || false
+    return this
   }
 
   by(endTime, duration, state, easing){
@@ -131,16 +137,27 @@ export class Tween extends TweenOperator {
       time = time % this.duration
     }
 
+    let state
     if (time >= this.duration) {
       const m = this.timeline[this.timeline.length - 1]
 
-      return { ...m.state }
+      state = { ...m.state }
+    } else {
+
+      const transitions = getTransitionsAtTime(this.timeline, time)
+      const startState = getStartState(this.timeline, time, this._startingState)
+
+      state = reduceTransitions(this._schema, transitions, time, startState)
     }
 
-    const transitions = getTransitionsAtTime(this.timeline, time)
-    const startState = getStartState(this.timeline, time, this._startingState)
+    if (this._timeLabel){
+      if (state[this._timeLabel] !== undefined){
+        throw new Error(`State already has a property that would be overriden by time variable "${this._timeLabel}"`)
+      }
+      state[this._timeLabel] = time
+    }
 
-    return reduceTransitions(this._schema, transitions, time, startState)
+    return state
   }
 
   getTransitions(time) {

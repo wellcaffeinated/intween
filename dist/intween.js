@@ -574,6 +574,7 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
     _this.timeline = [];
     _this._schema = (0, _schema.createSchema)(schema);
     _this._startingState = (0, _schema.createState)(_this._schema);
+    _this._timeLabel = false;
     _this._loop = false;
     _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
 
@@ -588,6 +589,13 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
       var _this$timeline;
 
       return ((_this$timeline = this.timeline[this.timeline.length - 1]) === null || _this$timeline === void 0 ? void 0 : _this$timeline.time) || 0;
+    }
+  }, {
+    key: "withTime",
+    value: function withTime() {
+      var label = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'time';
+      this._timeLabel = label || false;
+      return this;
     }
   }, {
     key: "by",
@@ -690,14 +698,26 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
         time = time % this.duration;
       }
 
+      var state;
+
       if (time >= this.duration) {
         var m = this.timeline[this.timeline.length - 1];
-        return _objectSpread({}, m.state);
+        state = _objectSpread({}, m.state);
+      } else {
+        var transitions = (0, _timeline.getTransitionsAtTime)(this.timeline, time);
+        var startState = (0, _timeline.getStartState)(this.timeline, time, this._startingState);
+        state = (0, _timeline.reduceTransitions)(this._schema, transitions, time, startState);
       }
 
-      var transitions = (0, _timeline.getTransitionsAtTime)(this.timeline, time);
-      var startState = (0, _timeline.getStartState)(this.timeline, time, this._startingState);
-      return (0, _timeline.reduceTransitions)(this._schema, transitions, time, startState);
+      if (this._timeLabel) {
+        if (state[this._timeLabel] !== undefined) {
+          throw new Error("State already has a property that would be overriden by time variable \"".concat(this._timeLabel, "\""));
+        }
+
+        state[this._timeLabel] = time;
+      }
+
+      return state;
     }
   }, {
     key: "getTransitions",
@@ -1691,12 +1711,13 @@ var _exportNames = {
   merge: true,
   combineLatest: true,
   zip: true,
+  spreadCombineLatest: true,
   spreadAssign: true
 };
 exports.merge = merge;
 exports.combineLatest = combineLatest;
 exports.zip = zip;
-exports.spreadAssign = exports.map = void 0;
+exports.spreadAssign = exports.spreadCombineLatest = exports.map = void 0;
 
 var _pipe = __webpack_require__(/*! ./pipe */ "./src/rx/pipe.js");
 
@@ -1924,7 +1945,7 @@ function zip() {
   });
 }
 
-var spreadAssign = function spreadAssign() {
+var spreadCombineLatest = function spreadCombineLatest() {
   for (var _len4 = arguments.length, operators = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
     operators[_key4] = arguments[_key4];
   }
@@ -1935,15 +1956,27 @@ var spreadAssign = function spreadAssign() {
       var observables = operators.map(function (o) {
         return o(subject);
       });
-      var sub = (0, _pipe.pipe)(map(function (results) {
-        return Object.assign.apply(Object, [{}].concat(_toConsumableArray(results)));
-      }))(combineLatest.apply(void 0, _toConsumableArray(observables))).subscribe(sink);
+      var sub = combineLatest.apply(void 0, _toConsumableArray(observables)).subscribe(sink);
       var sub2 = source.subscribe(subject);
       return function () {
         sub.unsubscribe();
         sub2.unsubscribe();
       };
     });
+  };
+};
+
+exports.spreadCombineLatest = spreadCombineLatest;
+
+var spreadAssign = function spreadAssign() {
+  for (var _len5 = arguments.length, operators = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+    operators[_key5] = arguments[_key5];
+  }
+
+  return function (source) {
+    return (0, _pipe.pipe)(map(function (results) {
+      return Object.assign.apply(Object, [{}].concat(_toConsumableArray(results)));
+    }))(spreadCombineLatest.apply(void 0, operators)(source));
   };
 };
 

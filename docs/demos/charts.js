@@ -2,15 +2,15 @@ const { Tween, Observable, Easing } = InTween
 
 // setup our instance
 const tween = new Tween({
-  x: 0
-  , y: 0
-})
+  y: {
+    type: 0
+  }
+}).withTime('x')
 
 Array(10).fill(0).forEach((_, i) => {
   const x = i * 40
   const y = Math.random() * 400
-  tween.by(x, { x }, 'linear')
-  tween.by(x, { y }, 'quadInOut')
+  tween.by(x, { y }, 'cubicInOut')
 })
 
 const canvas = document.getElementById('chart')
