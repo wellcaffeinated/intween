@@ -96,7 +96,7 @@ const meddle = new Meddle(tween).easing('quadInOut')
 
 const onInteract = e => {
   const ctx = circuitEl.getBoundingClientRect()
-  let [x, y] = [e.pageX, e.pageY]
+  let [x, y] = [e.clientX, e.clientY]
   x -= ctx.x
   y -= ctx.y
   meddle.set({ circle: [x, y] })
@@ -107,6 +107,7 @@ const sub = animationFrames().pipe(
     tween,
     meddle
   )
+  , animationThrottle()
 ).subscribe(state => {
   circleEl.style.transform = `translate(${state.circle[0]}px, ${state.circle[1]}px)`
   outlineEl.style.transform = `translate(${state.outline[0]}px, ${state.outline[1]}px)`
@@ -116,7 +117,7 @@ window.addEventListener('click', onInteract)
 ```
 
 <script>
-const { Tween, animationFrames, Meddle, spreadAssign } = InTween
+const { Tween, animationFrames, Meddle, spreadAssign, animationThrottle } = InTween
 
 export default {
   name: 'Home',
@@ -153,7 +154,7 @@ export default {
 
     const onInteract = e => {
       const ctx = circuitEl.getBoundingClientRect()
-      let [x, y] = [e.pageX, e.pageY]
+      let [x, y] = [e.clientX, e.clientY]
       x -= ctx.x
       y -= ctx.y
       meddle.set({ circle: [x, y] })
@@ -164,6 +165,7 @@ export default {
         tween,
         meddle
       )
+      , animationThrottle()
     ).subscribe(state => {
       circleEl.style.transform = `translate(${state.circle[0]}px, ${state.circle[1]}px)`
       outlineEl.style.transform = `translate(${state.outline[0]}px, ${state.outline[1]}px)`

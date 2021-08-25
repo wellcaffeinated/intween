@@ -7,7 +7,7 @@ sidebar: auto
 
 **InTween** is ...
 
-## Quick Start
+## Installation
 
 ### ES6 / Webpack / npm
 
@@ -56,9 +56,10 @@ The sections after this one will go into MUCH more detail. But to quickly get so
 * A Meddle
 * A Player
 * spreadAssign()
+* animationThrottle()
 
 ```js
-import { Tween, Meddle, Player, spreadAssign } from 'intween'
+import { Tween, Meddle, Player, spreadAssign, animationThrottle } from 'intween'
 ```
 
 Here's an example of creating a tween that changes a position from `[0, 0]`
@@ -86,7 +87,7 @@ const meddle = new Meddle(tween).easing('backIn')
 
 // connect it to some interaction event
 window.addEventListener('click', e => {
-  const position = [e.pageX, e.pageY]
+  const position = [e.clientX, e.clientY]
   meddle.set({ position })
 })
 ```
@@ -102,6 +103,7 @@ player.pipe(
     tween,
     meddle
   )
+  , animationThrottle()
 ).subscribe(state => {
   // do stuff with state.position
 })
@@ -509,6 +511,8 @@ const tween = new Tween({
 ## Extras
 
 ### Interoperation with D3 Interpolate
+
+https://github.com/medikoo/memoizee
 
 ### Using Audio Players (like SoundCloud) as Time Sources
 
