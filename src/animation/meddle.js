@@ -1,6 +1,6 @@
-import { pick } from '@/util'
+import { pick, invLerpClamped } from '@/util'
 import { map, merge, Subject } from '@/rx'
-import { getTimeFraction, getInterpolatedState } from '@/transition'
+import { getInterpolatedState } from '@/transition'
 import { parseTime } from '@/parsers/time'
 import { parseEasing } from '@/parsers/easing'
 import { TweenOperator } from './tween-operator'
@@ -125,7 +125,7 @@ export class Meddle extends TweenOperator {
       this.clear()
     }
 
-    const timeFraction = getTimeFraction(
+    const timeFraction = invLerpClamped(
       this.startTime + this._relaxDelay
       , this.endTime
       , time

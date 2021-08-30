@@ -33,6 +33,10 @@ export function createFrame( state, meta, defaultMetaOptions ){
     throw new Error('Can not create frame without state object')
   }
 
+  if ( typeof state !== 'object' ){
+    throw new Error('States must be plain objects')
+  }
+
   state = { ...state }
   meta = parseMeta( meta || state.$meta, defaultMetaOptions )
 

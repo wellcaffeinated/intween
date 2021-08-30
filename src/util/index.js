@@ -39,19 +39,32 @@ export const lerp = function( from, to, t ){
   return from * ( 1 - t ) + to * t
 }
 
-// clamp
+export const invLerp = function( from, to, x ){
+  const diff = to - from
+  return diff ? (x - from) / diff : 1
+}
+
 export const clamp = function( min, max, v ){
   return Math.min(Math.max(v, min), max)
 }
 
+export const lerpClamped = function( from, to, t ){
+  return lerp(from, to, clamp(0, 1, t))
+}
+
+export const invLerpClamped = function( from, to, x ){
+  return clamp(0, 1, invLerp(from, to, x))
+}
+
 export const filterObjectValues = function( obj, fn ){
-  return Object.keys(obj).reduce((ret, key) => {
+  const out = {}
+  for (const key in obj){
     const value = obj[key]
-    if (fn(value, key)){
-      ret[key] = value
+    if (fn(value, key)) {
+      out[key] = value
     }
-    return ret
-  }, {})
+  }
+  return out
 }
 
 export const sanitizedObject = function( obj ){
@@ -59,10 +72,11 @@ export const sanitizedObject = function( obj ){
 }
 
 export const mapProperties = function( obj, fn ){
-  return Object.keys( obj ).reduce( (ret, key) => {
-    ret[key] = fn(obj[key], key)
-    return ret
-  }, {} )
+  const out = {}
+  for (const key in obj){
+    out[key] = fn(obj[key], key)
+  }
+  return out
 }
 
 export const pick = function( obj, keys = [] ){
@@ -70,10 +84,11 @@ export const pick = function( obj, keys = [] ){
     // all
     return { ...obj }
   }
-  return keys.reduce( (out, k) => {
-    out[k] = obj[k]
-    return out
-  }, {})
+  const out = {}
+  for (const key of keys){
+    out[key] = obj[key]
+  }
+  return out
 }
 
 // Only take properties that are present in
@@ -120,13 +135,13 @@ export const sortedIndex = function( array, value, callback, retHighest ) {
   return low
 }
 
-export const getIntersectingPaths = function ( o1, o2 ){
+export const getIntersectingPaths = function( o1, o2 ){
   return Object.keys(o1).filter(
     Object.prototype.hasOwnProperty.bind( o2 )
   )
 }
 
-export const pull = function (arr, o){
+export const pull = function(arr, o){
   const idx = arr.indexOf(o)
   arr.splice(idx, 1)
   return arr

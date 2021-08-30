@@ -1,9 +1,10 @@
 import { linear } from '@/easing'
 import { parseEasing } from '@/parsers/easing'
 import { createSchema, createState } from '@/schema'
-import { getTimeFraction, getInterpolatedState } from '@/transition'
+import { getInterpolatedState } from '@/transition'
 import { Observable } from '@/rx'
 import { animationFrames } from '@/timing/animation-frames'
+import { invLerpClamped } from '@/util'
 
 const defaultConfig = { duration: 1000, easing: 'cubicOut' }
 // Helper to smooth state changes
@@ -40,7 +41,7 @@ export function Smoothen(
         if (prev <= 0){ return 0 }
 
         const tf = easing(
-          getTimeFraction(
+          invLerpClamped(
             startTime
             , endTime
             , time

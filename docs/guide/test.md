@@ -24,12 +24,12 @@ export default {
       range: 0,
       toggle: false
     })
-    .to({
+    .by('3s', {
       x: 500,
       range: 1,
       toggle: true
-    }, '3s', { easing: 'quadInOut' })
-    .to('4s', {
+    }, 'quadInOut')
+    .to({
       x: 300,
       range: 4
     }, { easing: InTween.Easing.makeElasticOut(0.7, 0.5) })

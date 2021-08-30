@@ -1,64 +1,69 @@
 import { parseEasing } from '@/parsers/easing'
 import { parseInterpolator } from '@/parsers/interpolator'
+import { makeForArray } from '@/interpolators/factories'
 import { isExplicit, getType, getTypeCfg } from '@/type'
+import { mapProperties } from '@/util'
 
+const TYPE_DEF_KEYS = Object.keys(getTypeCfg('object'))
 const DEFAULT_EASING = 'linear'
 
-export function createSchema( schemaDef ){
-  const schema = {}
-  const props = Object.keys( schemaDef )
+function checkExplicitTypeDefinition(def){
+  const extraKeys = Object.keys(def).filter(k => TYPE_DEF_KEYS.indexOf(k) < 0)
+  if (extraKeys.length){
+    throw new Error('Type definition contains extra keys. Does your definition use "type" as a property name?')
+  }
+}
 
-  for ( const prop of props ){
-    const def = schemaDef[prop]
-    let easing
-    let interpolator
-    let type
-    let cfg
-    let defaultVal
-
-    if ( typeof def === 'object' && def.type !== undefined ){
-      type = getType( def.type )
-      cfg = getTypeCfg( type )
-      if ( !cfg ){
-        throw new Error(`Unrecognized type ${type}`)
-      }
-
-      if ( isExplicit( type, def.type ) ){
-        defaultVal = def.default || cfg.default
-      } else {
-        defaultVal = def.type
-      }
-
-      easing = parseEasing(def.easing || DEFAULT_EASING)
-      interpolator = parseInterpolator(def.interpolator || cfg.interpolator)
-
-    } else {
-      if ( typeof def === 'string' ){
-        type = 'string'
-      } else {
-        type = getType( def )
-      }
-
-      cfg = getTypeCfg( type )
-      if ( !cfg ){
-        throw new Error(`Unrecognized type ${type}`)
-      }
-
-      easing = parseEasing(def.easing || DEFAULT_EASING)
-      interpolator = parseInterpolator(cfg.interpolator)
-      defaultVal = isExplicit( type, def ) ? cfg.default : def
-    }
-
-    schema[prop] = {
-      type
-      , easing
-      , default: defaultVal
-      , interpolator: interpolator
-      , def
-    }
+function getInterpolator(type, cfg, defaultVal){
+  if (type === 'array' && defaultVal && defaultVal.length){
+    const subSchema = parseSchemaProp(defaultVal[0])
+    return makeForArray(subSchema.interpolator)
   }
 
-  return schema
+  return parseInterpolator(cfg.interpolator)
+}
+
+export function parseSchemaProp( def ){
+  let easing
+  let interpolator
+  let type
+  let cfg
+  let defaultVal
+
+  if (typeof def === 'object' && def.type !== undefined) {
+    checkExplicitTypeDefinition(def)
+    type = getType(def.type)
+    cfg = getTypeCfg(type)
+
+    if (isExplicit(type, def.type)) {
+      defaultVal = def.default || cfg.default
+    } else {
+      defaultVal = def.type
+    }
+
+    easing = parseEasing(def.easing || DEFAULT_EASING)
+    interpolator = parseInterpolator(def.interpolator) || getInterpolator(type, cfg, defaultVal)
+
+  } else {
+    type = getType(def)
+    cfg = getTypeCfg(type)
+
+    easing = parseEasing(def.easing || DEFAULT_EASING)
+    defaultVal = def
+    interpolator = getInterpolator(type, cfg, defaultVal)
+  }
+
+  return {
+    type
+    , easing
+    , default: defaultVal
+    , interpolator
+    , def
+  }
+}
+
+export function createSchema( schemaDef ){
+  return mapProperties(schemaDef, parseSchemaProp)
 }
 
 export function createState( schema ){

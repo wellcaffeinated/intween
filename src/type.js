@@ -52,7 +52,7 @@ export function getType( val ){
   const type = typeof val
 
   if ( type === 'string' ){
-    return val
+    return 'string'
   }
 
   if ( val === Number || type === 'number' ){
@@ -71,12 +71,8 @@ export function getType( val ){
     return 'array'
   }
 
-  if ( val === Object ){
+  if ( val === Object || type === 'object' ){
     return 'object'
-  }
-
-  if ( type === 'object' ){
-    throw new Error('Can not use implicit definition for objects or custom types')
   }
 
   return type
@@ -105,9 +101,15 @@ export function isExplicit( type, val ){
     return val === 'object' || val === Object
   }
 
-  return true
+  return type === val
 }
 
 export function getTypeCfg( type ){
-  return NATIVE_TYPES[type] || CUSTOM_TYPES[type]
+  const cfg = NATIVE_TYPES[type] || CUSTOM_TYPES[type]
+
+  if (!cfg) {
+    throw new Error(`Unrecognized type ${type}`)
+  }
+
+  return cfg
 }

@@ -1,6 +1,6 @@
-import { getIntersectingPaths, lerp, sortedIndex } from '@/util'
+import { getIntersectingPaths, lerp, sortedIndex, invLerpClamped } from '@/util'
 import { createState } from '@/schema'
-import { getInterpolatedState, createTransitionFromFrame, getTimeFraction } from '@/transition'
+import { getInterpolatedState, createTransitionFromFrame } from '@/transition'
 
 // Check for conflicting overlaps
 // ---------------------------------------
@@ -214,7 +214,7 @@ export function getStartState( timeline, time, defaultState ){
 // ---------------------------------------
 export function reduceTransitions( schema, transitions = [], time = 0, initialState = {} ){
   return transitions.reduce( (state, tr) => {
-    const progress = getTimeFraction( tr.startTime, tr.endTime, time )
+    const progress = invLerpClamped( tr.startTime, tr.endTime, time )
 
     return Object.assign(
       state

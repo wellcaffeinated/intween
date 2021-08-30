@@ -1,4 +1,4 @@
-import { pick, clamp } from '@/util'
+import { pick } from '@/util'
 
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
   const endState = frame.state
@@ -54,11 +54,4 @@ export function getInterpolatedState( schema, startState, endState, timeFraction
   }
 
   return nextState
-}
-
-export function getTimeFraction( startTime, endTime, time ){
-  const duration = endTime - startTime
-  const frac = duration ? (time - startTime) / duration : 1
-
-  return clamp(0, 1, frac)
 }
