@@ -2299,8 +2299,6 @@ var _type = __webpack_require__(/*! @/type */ "./src/type.js");
 
 var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 var TYPE_DEF_KEYS = Object.keys((0, _type.getTypeCfg)('object'));
 var DEFAULT_EASING = 'linear';
 
@@ -2330,7 +2328,7 @@ function parseSchemaProp(def) {
   var cfg;
   var defaultVal;
 
-  if (_typeof(def) === 'object' && def.type !== undefined) {
+  if ((0, _util.isPlainObject)(def) && def.type !== undefined) {
     checkExplicitTypeDefinition(def);
     type = (0, _type.getType)(def.type);
     cfg = (0, _type.getTypeCfg)(type);
@@ -3312,12 +3310,19 @@ var NATIVE_TYPES = {
 exports.NATIVE_TYPES = NATIVE_TYPES;
 var CUSTOM_TYPES = {};
 
+function getCustomTypeByVal(val) {
+  return Object.values(CUSTOM_TYPES).find(function (_ref) {
+    var constructor = _ref.constructor;
+    return val instanceof constructor;
+  });
+}
+
 function registerType(cfg) {
   var type = cfg.type,
       interpolator = cfg.interpolator;
 
-  if (!type || !interpolator) {
-    throw new Error('Custom types must have "type" and "interpolator" specified');
+  if (!type || !interpolator || cfg.default === undefined) {
+    throw new Error('Custom types must have "type", "default", and "interpolator" specified');
   }
 
   if (CUSTOM_TYPES[type]) {
@@ -3329,12 +3334,24 @@ function registerType(cfg) {
     interpolator: interpolator,
     default: cfg.default
   };
+
+  if (cfg.default.constructor) {
+    CUSTOM_TYPES[type].constructor = cfg.default.constructor;
+  }
 }
 
 function getType(val) {
+  if (val === null) {
+    throw new Error('Can not determine type of null value');
+  }
+
   var type = _typeof(val);
 
   if (type === 'string') {
+    if (val in CUSTOM_TYPES) {
+      return val;
+    }
+
     return 'string';
   }
 
@@ -3352,6 +3369,13 @@ function getType(val) {
 
   if (val === Array || Array.isArray(val)) {
     return 'array';
+  } // check custom types
+
+
+  var custom = getCustomTypeByVal(val);
+
+  if (custom) {
+    return custom.type;
   }
 
   if (val === Object || type === 'object') {
@@ -3743,6 +3767,8 @@ var _exportNames = {
   lerpClamped: true,
   invLerpClamped: true,
   cloneDeep: true,
+  isObjectLike: true,
+  isPlainObject: true,
   filterObjectValues: true,
   sanitizedObject: true,
   mapProperties: true,
@@ -3754,7 +3780,7 @@ var _exportNames = {
   shortestModDist: true
 };
 exports.shortestModDist = shortestModDist;
-exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.cloneDeep = exports.invLerpClamped = exports.lerpClamped = exports.clamp = exports.invLerp = exports.lerp = exports.castArray = exports.now = exports.typeName = exports.identity = void 0;
+exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.isPlainObject = exports.isObjectLike = exports.cloneDeep = exports.invLerpClamped = exports.lerpClamped = exports.clamp = exports.invLerp = exports.lerp = exports.castArray = exports.now = exports.typeName = exports.identity = void 0;
 
 var _callable = __webpack_require__(/*! ./callable */ "./src/util/callable.js");
 
@@ -3796,11 +3822,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 var identity = function identity(a) {
   return a;
 };
 
 exports.identity = identity;
+var objectCtorString = Function.prototype.toString.call(Object);
 var toString = Object.prototype.toString;
 
 var typeName = function typeName(v) {
@@ -3898,6 +3927,29 @@ var cloneDeep = function cloneDeep(obj) {
 };
 
 exports.cloneDeep = cloneDeep;
+
+var isObjectLike = function isObjectLike(v) {
+  return v !== null && _typeof(v) === 'object';
+};
+
+exports.isObjectLike = isObjectLike;
+
+var isPlainObject = function isPlainObject(value) {
+  if (!isObjectLike(value)) {
+    return false;
+  }
+
+  var proto = Object.getPrototypeOf(value);
+
+  if (proto === null) {
+    return true;
+  }
+
+  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+  return typeof Ctor === 'function' && Ctor instanceof Ctor && Function.prototype.toString.call(Ctor) === objectCtorString;
+};
+
+exports.isPlainObject = isPlainObject;
 
 var filterObjectValues = function filterObjectValues(obj, fn) {
   var out = {};

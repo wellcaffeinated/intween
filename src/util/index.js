@@ -2,6 +2,7 @@ export * from './callable'
 export * from './emitter'
 export const identity = a => a
 
+const objectCtorString = Function.prototype.toString.call(Object)
 const toString = Object.prototype.toString
 export const typeName = v => toString.call(v).slice(8, -1)
 
@@ -74,6 +75,19 @@ export const cloneDeep = obj => {
     }
   }
   return out
+}
+
+export const isObjectLike = v => v !== null && typeof v === 'object'
+
+export const isPlainObject = value => {
+  if (!isObjectLike(value)) { return false }
+  const proto = Object.getPrototypeOf(value)
+  if (proto === null) {
+    return true
+  }
+  const Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor
+  return typeof Ctor === 'function' && Ctor instanceof Ctor &&
+    Function.prototype.toString.call(Ctor) === objectCtorString
 }
 
 export const filterObjectValues = function( obj, fn ){

@@ -30,11 +30,16 @@ export const NATIVE_TYPES = {
 
 const CUSTOM_TYPES = {}
 
+function getCustomTypeByVal(val){
+  return Object.values(CUSTOM_TYPES)
+    .find(({ constructor }) => val instanceof constructor)
+}
+
 export function registerType( cfg ){
   const { type, interpolator } = cfg
 
-  if ( !type || !interpolator ){
-    throw new Error('Custom types must have "type" and "interpolator" specified')
+  if ( !type || !interpolator || cfg.default === undefined ){
+    throw new Error('Custom types must have "type", "default", and "interpolator" specified')
   }
 
   if ( CUSTOM_TYPES[type] ){
@@ -46,12 +51,23 @@ export function registerType( cfg ){
     , interpolator
     , default: cfg.default
   }
+
+  if (cfg.default.constructor){
+    CUSTOM_TYPES[type].constructor = cfg.default.constructor
+  }
 }
 
 export function getType( val ){
+  if (val === null){
+    throw new Error('Can not determine type of null value')
+  }
+
   const type = typeof val
 
   if ( type === 'string' ){
+    if ( val in CUSTOM_TYPES ){
+      return val
+    }
     return 'string'
   }
 
@@ -69,6 +85,12 @@ export function getType( val ){
 
   if ( val === Array || Array.isArray( val ) ){
     return 'array'
+  }
+
+  // check custom types
+  const custom = getCustomTypeByVal(val)
+  if (custom){
+    return custom.type
   }
 
   if ( val === Object || type === 'object' ){

@@ -130,10 +130,7 @@
       type: 'vector'
       , default: new THREE.Vector3()
       , interpolator: (from, to, t) => {
-        let v = new THREE.Vector3()
-        if (!from){ console.log(from, to) }
-        v.copy( from )
-        return v.lerp( to, t )
+        return from.clone().lerp( to, t )
       }
     })
 
@@ -143,10 +140,7 @@
     const schema = { cameraPhi: s.phi, cameraTheta: s.theta, cameraR: s.radius }
 
     objects.forEach( (obj, i) => {
-      schema[`object-${i}`] = {
-        type: 'vector'
-        , default: obj.position.clone()
-      }
+      schema[`object-${i}`] = obj.position.clone()
     })
 
     const tween = new InTween.Tween( schema )
