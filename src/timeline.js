@@ -1,4 +1,4 @@
-import { getIntersectingPaths, lerp, sortedIndex, invLerpClamped } from '@/util'
+import { getIntersectingPaths, lerp, sortedIndex, invLerpClamped, cloneDeep } from '@/util'
 import { createState } from '@/schema'
 import { getInterpolatedState, createTransitionFromFrame } from '@/transition'
 
@@ -220,5 +220,5 @@ export function reduceTransitions( schema, transitions = [], time = 0, initialSt
       state
       , getInterpolatedState( schema, tr.startState, tr.endState, progress, tr.easing )
     )
-  }, { ...initialState })
+  }, cloneDeep(initialState))
 }

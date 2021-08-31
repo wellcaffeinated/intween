@@ -517,6 +517,8 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.Tween = void 0;
 
+var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
+
 var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
 var _frame = __webpack_require__(/*! @/frame */ "./src/frame.js");
@@ -526,12 +528,6 @@ var _time = __webpack_require__(/*! @/parsers/time */ "./src/parsers/time.js");
 var _timeline = __webpack_require__(/*! @/timeline */ "./src/timeline.js");
 
 var _tweenOperator = __webpack_require__(/*! ./tween-operator */ "./src/animation/tween-operator.js");
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -704,7 +700,7 @@ var Tween = /*#__PURE__*/function (_TweenOperator) {
 
       if (time >= this.duration) {
         var m = this.timeline[this.timeline.length - 1];
-        state = _objectSpread({}, m.state);
+        state = (0, _util.cloneDeep)(m.state);
       } else {
         var transitions = (0, _timeline.getTransitionsAtTime)(this.timeline, time);
         var startState = (0, _timeline.getStartState)(this.timeline, time, this._startingState);
@@ -1220,7 +1216,7 @@ function createFrame(state, meta, defaultMetaOptions) {
     throw new Error('States must be plain objects');
   }
 
-  state = _objectSpread({}, state);
+  state = (0, _util.cloneDeep)(state);
   meta = parseMeta(meta || state.$meta, defaultMetaOptions);
   delete state.$meta;
   var percentDuration = pctReg.exec(meta.duration);
@@ -2634,7 +2630,7 @@ function reduceTransitions(schema) {
   return transitions.reduce(function (state, tr) {
     var progress = (0, _util.invLerpClamped)(tr.startTime, tr.endTime, time);
     return Object.assign(state, (0, _transition.getInterpolatedState)(schema, tr.startState, tr.endState, progress, tr.easing));
-  }, _objectSpread({}, initialState));
+  }, (0, _util.cloneDeep)(initialState));
 }
 
 /***/ }),
@@ -3210,12 +3206,6 @@ exports.getInterpolatedState = getInterpolatedState;
 
 var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function createTransitionFromFrame(startTime, endTime, frame, previousState) {
   var endState = frame.state;
   var startState = (0, _util.pick)(previousState, Object.keys(endState));
@@ -3236,14 +3226,14 @@ function interpolateProperty(fn, from, to, progress) {
 
 function getInterpolatedState(schema, startState, endState, timeFraction, easing) {
   if (timeFraction <= 0) {
-    return _objectSpread({}, startState);
+    return (0, _util.cloneDeep)(startState);
   }
 
   if (timeFraction >= 1) {
-    return _objectSpread({}, endState);
+    return (0, _util.cloneDeep)(endState);
   }
 
-  var nextState = _objectSpread({}, startState);
+  var nextState = (0, _util.cloneDeep)(startState);
 
   for (var prop in endState) {
     var def = schema[prop];
@@ -3744,6 +3734,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 var _exportNames = {
   identity: true,
+  typeName: true,
   now: true,
   castArray: true,
   lerp: true,
@@ -3751,6 +3742,7 @@ var _exportNames = {
   clamp: true,
   lerpClamped: true,
   invLerpClamped: true,
+  cloneDeep: true,
   filterObjectValues: true,
   sanitizedObject: true,
   mapProperties: true,
@@ -3762,7 +3754,7 @@ var _exportNames = {
   shortestModDist: true
 };
 exports.shortestModDist = shortestModDist;
-exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.invLerpClamped = exports.lerpClamped = exports.clamp = exports.invLerp = exports.lerp = exports.castArray = exports.now = exports.identity = void 0;
+exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.cloneDeep = exports.invLerpClamped = exports.lerpClamped = exports.clamp = exports.invLerp = exports.lerp = exports.castArray = exports.now = exports.typeName = exports.identity = void 0;
 
 var _callable = __webpack_require__(/*! ./callable */ "./src/util/callable.js");
 
@@ -3806,12 +3798,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var identity = function identity(a) {
   return a;
+};
+
+exports.identity = identity;
+var toString = Object.prototype.toString;
+
+var typeName = function typeName(v) {
+  return toString.call(v).slice(8, -1);
 }; // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
 
 
-exports.identity = identity;
+exports.typeName = typeName;
 
 var now = function () {
   if (typeof window === 'undefined' && typeof process !== 'undefined') {
@@ -3874,6 +3873,31 @@ var invLerpClamped = function invLerpClamped(from, to, x) {
 };
 
 exports.invLerpClamped = invLerpClamped;
+
+var cloneDeep = function cloneDeep(obj) {
+  if (typeof obj === 'function') {
+    return obj;
+  }
+
+  var out = Array.isArray(obj) ? [] : {};
+
+  for (var key in obj) {
+    var value = obj[key];
+    var type = typeName(value);
+
+    if (type === 'Array' || type === 'Object') {
+      out[key] = cloneDeep(value);
+    } else if (type === 'Date') {
+      out[key] = new Date(value.getTime());
+    } else {
+      out[key] = value;
+    }
+  }
+
+  return out;
+};
+
+exports.cloneDeep = cloneDeep;
 
 var filterObjectValues = function filterObjectValues(obj, fn) {
   var out = {};

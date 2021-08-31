@@ -1,6 +1,6 @@
 import { parseEasing } from '@/parsers/easing'
 import { parseTime } from '@/parsers/time'
-import { sanitizedObject } from '@/util'
+import { sanitizedObject, cloneDeep } from '@/util'
 
 const pctReg = /^((\d{1,3})(\.\d*)?)%$/
 const META_PARSERS = {
@@ -37,7 +37,7 @@ export function createFrame( state, meta, defaultMetaOptions ){
     throw new Error('States must be plain objects')
   }
 
-  state = { ...state }
+  state = cloneDeep(state)
   meta = parseMeta( meta || state.$meta, defaultMetaOptions )
 
   delete state.$meta

@@ -1,3 +1,4 @@
+import { cloneDeep } from '@/util'
 import { createSchema, createState } from '@/schema'
 import { createFrame } from '@/frame'
 import { parseTime } from '@/parsers/time'
@@ -141,7 +142,7 @@ export class Tween extends TweenOperator {
     if (time >= this.duration) {
       const m = this.timeline[this.timeline.length - 1]
 
-      state = { ...m.state }
+      state = cloneDeep(m.state)
     } else {
 
       const transitions = getTransitionsAtTime(this.timeline, time)

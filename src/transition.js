@@ -1,4 +1,4 @@
-import { pick } from '@/util'
+import { pick, cloneDeep } from '@/util'
 
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
   const endState = frame.state
@@ -22,14 +22,14 @@ export function interpolateProperty( fn, from, to, progress ){
 export function getInterpolatedState( schema, startState, endState, timeFraction, easing ){
 
   if ( timeFraction <= 0 ){
-    return { ...startState }
+    return cloneDeep(startState)
   }
 
   if ( timeFraction >= 1 ){
-    return { ...endState }
+    return cloneDeep(endState)
   }
 
-  const nextState = { ...startState }
+  const nextState = cloneDeep(startState)
 
   for ( const prop in endState ){
     const def = schema[prop]

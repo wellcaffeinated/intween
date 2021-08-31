@@ -2,6 +2,9 @@ export * from './callable'
 export * from './emitter'
 export const identity = a => a
 
+const toString = Object.prototype.toString
+export const typeName = v => toString.call(v).slice(8, -1)
+
 // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
@@ -54,6 +57,23 @@ export const lerpClamped = function( from, to, t ){
 
 export const invLerpClamped = function( from, to, x ){
   return clamp(0, 1, invLerp(from, to, x))
+}
+
+export const cloneDeep = obj => {
+  if (typeof obj === 'function') { return obj }
+  const out = Array.isArray(obj) ? [] : {}
+  for (const key in obj) {
+    const value = obj[key]
+    const type = typeName(value)
+    if (type === 'Array' || type === 'Object') {
+      out[key] = cloneDeep(value)
+    } else if (type === 'Date') {
+      out[key] = new Date(value.getTime())
+    } else {
+      out[key] = value
+    }
+  }
+  return out
 }
 
 export const filterObjectValues = function( obj, fn ){
