@@ -139,7 +139,7 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
     _this = _super.call(this);
     _this._subject = new _rx.Subject();
     _this._tween = tween;
-    _this.options = Object.assign({}, DEFAULT_OPTIONS, options);
+    _this.options = options;
     _this.lastTime = 0; // reset
 
     _this.defaults();
@@ -147,10 +147,19 @@ var Meddle = /*#__PURE__*/function (_TweenOperator) {
     _this.clear();
 
     return _this;
-  } // toggle freezing of meddle states
-
+  }
 
   _createClass(Meddle, [{
+    key: "options",
+    get: function get() {
+      return this._options;
+    },
+    set: function set(o) {
+      this._options = Object.assign({}, DEFAULT_OPTIONS, o);
+      this.defaults();
+    } // toggle freezing of meddle states
+
+  }, {
     key: "freeze",
     value: function freeze() {
       var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -281,9 +290,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.Smoothen = Smoothen;
 
-var _easing = __webpack_require__(/*! @/easing */ "./src/easing/index.js");
-
-var _easing2 = __webpack_require__(/*! @/parsers/easing */ "./src/parsers/easing.js");
+var _easing = __webpack_require__(/*! @/parsers/easing */ "./src/parsers/easing.js");
 
 var _schema = __webpack_require__(/*! @/schema */ "./src/schema.js");
 
@@ -323,7 +330,7 @@ function Smoothen() {
       var schema;
       var time = 0;
       var currentState;
-      var easing = (0, _easing2.parseEasing)(config.easing);
+      var easing = (0, _easing.parseEasing)(config.easing);
 
       if (!getState) {
         getState = function getState() {
@@ -344,18 +351,18 @@ function Smoothen() {
           var startTime = _ref.startTime,
               endTime = _ref.endTime;
 
-          if (prev <= 0) {
+          if (prev === 0) {
             return 0;
           }
 
-          var tf = easing((0, _util.invLerpClamped)(startTime, endTime, time)) / prev;
-          prev = tf;
+          var tf = (0, _util.invLerpClamped)(startTime, endTime, time) / prev;
+          prev = easing(tf);
           return tf;
         });
 
         currentState = timeFracs.reduceRight(function (targetState, tf, i) {
           var startState = _targets[i].startState;
-          return (0, _transition.getInterpolatedState)(schema, startState, targetState, tf, _easing.linear);
+          return (0, _transition.getInterpolatedState)(schema, startState, targetState, tf, easing);
         }, _targets[_targets.length - 1].targetState); // clean
 
         while (((_targets$ = _targets[0]) === null || _targets$ === void 0 ? void 0 : _targets$.endTime) <= time) {
@@ -863,7 +870,7 @@ var expIn = function expIn(t) {
 exports.expIn = expIn;
 
 var expOut = function expOut(t) {
-  return t === 0 ? 1 : 1 - Math.pow(1024, -t);
+  return t === 0 ? 0 : 1 - Math.pow(1024, -t);
 };
 
 exports.expOut = expOut;
@@ -1260,16 +1267,10 @@ var _exportNames = {
   Util: true,
   Easing: true,
   Interpolators: true,
-  Parsers: true,
   registerType: true,
-  interpolateProperty: true
+  interpolateProperty: true,
+  Parsers: true
 };
-Object.defineProperty(exports, "Parsers", ({
-  enumerable: true,
-  get: function get() {
-    return _parsers.default;
-  }
-}));
 Object.defineProperty(exports, "registerType", ({
   enumerable: true,
   get: function get() {
@@ -1282,7 +1283,7 @@ Object.defineProperty(exports, "interpolateProperty", ({
     return _transition.interpolateProperty;
   }
 }));
-exports.Interpolators = exports.Easing = exports.Util = void 0;
+exports.Parsers = exports.Interpolators = exports.Easing = exports.Util = void 0;
 
 var _rx = __webpack_require__(/*! @/rx */ "./src/rx/index.js");
 
@@ -1338,13 +1339,13 @@ Object.keys(_timing).forEach(function (key) {
   });
 });
 
-var _parsers = _interopRequireDefault(__webpack_require__(/*! @/parsers */ "./src/parsers/index.js"));
-
 var _type = __webpack_require__(/*! @/type */ "./src/type.js");
 
 var _transition = __webpack_require__(/*! @/transition */ "./src/transition.js");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _Parsers = _interopRequireWildcard(__webpack_require__(/*! @/parsers */ "./src/parsers/index.js"));
+
+exports.Parsers = _Parsers;
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -1519,21 +1520,43 @@ exports.parseEasing = parseEasing;
 
 var Easing = _interopRequireWildcard(__webpack_require__(/*! @/easing/core */ "./src/easing/core.js"));
 
+var _util = __webpack_require__(/*! @/util */ "./src/util/index.js");
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function parseEasing(easing) {
   if (easing === undefined || easing === null) {
-    return false;
+    return undefined;
   }
 
-  if (easing instanceof Function) {
-    return easing;
-  } else if (typeof easing === 'string') {
-    if (easing in Easing) {
-      return Easing[easing];
+  if (typeof easing === 'string') {
+    var easings = easing.replace(' ', '').split('+');
+
+    if (easings.length === 1) {
+      easing = easings[0];
+
+      if (easing in Easing) {
+        return Easing[easing];
+      }
+    } else {
+      return _util.combineEasing.apply(void 0, _toConsumableArray(easings.map(parseEasing)));
     }
+  } else if (easing instanceof Function) {
+    return easing;
   }
 
   throw new Error("Unrecognized easing name \"".concat(easing, "\""));
@@ -3777,10 +3800,11 @@ var _exportNames = {
   sortedIndex: true,
   getIntersectingPaths: true,
   pull: true,
-  shortestModDist: true
+  shortestModDist: true,
+  combineEasing: true
 };
 exports.shortestModDist = shortestModDist;
-exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.isPlainObject = exports.isObjectLike = exports.cloneDeep = exports.invLerpClamped = exports.lerpClamped = exports.clamp = exports.invLerp = exports.lerp = exports.castArray = exports.now = exports.typeName = exports.identity = void 0;
+exports.combineEasing = exports.pull = exports.getIntersectingPaths = exports.sortedIndex = exports.mergeIntersecting = exports.pick = exports.mapProperties = exports.sanitizedObject = exports.filterObjectValues = exports.isPlainObject = exports.isObjectLike = exports.cloneDeep = exports.invLerpClamped = exports.lerpClamped = exports.clamp = exports.invLerp = exports.lerp = exports.castArray = exports.now = exports.typeName = exports.identity = void 0;
 
 var _callable = __webpack_require__(/*! ./callable */ "./src/util/callable.js");
 
@@ -4080,6 +4104,27 @@ function shortestModDist(a0, a1, modulo) {
   var fix = d > 0.5 ? -1 : d < -0.5 ? 1 : 0;
   return (d + fix + cycles) * modulo;
 }
+
+var combineEasing = function combineEasing() {
+  for (var _len = arguments.length, easings = new Array(_len), _key = 0; _key < _len; _key++) {
+    easings[_key] = arguments[_key];
+  }
+
+  var num = easings.length;
+
+  if (num === 1) {
+    return easings[0];
+  }
+
+  var invNum = 1 / num;
+  return function (t) {
+    var p = t * num;
+    var i = clamp(0, num - 1, Math.floor(p));
+    return (easings[i](p - i) + i) * invNum;
+  };
+};
+
+exports.combineEasing = combineEasing;
 
 /***/ }),
 

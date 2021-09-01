@@ -1,13 +1,20 @@
 import * as Easing from '@/easing/core'
+import { combineEasing } from '@/util'
 
 export function parseEasing(easing){
-  if (easing === undefined || easing === null){ return false }
-  if (easing instanceof Function){
-    return easing
-  } else if (typeof easing === 'string'){
-    if (easing in Easing){
-      return Easing[easing]
+  if (easing === undefined || easing === null){ return undefined }
+  if (typeof easing === 'string') {
+    const easings = easing.replace(' ', '').split('+')
+    if (easings.length === 1) {
+      easing = easings[0]
+      if (easing in Easing){
+        return Easing[easing]
+      }
+    } else {
+      return combineEasing(...easings.map(parseEasing))
     }
+  } else if (easing instanceof Function){
+    return easing
   }
 
   throw new Error(`Unrecognized easing name "${easing}"`)

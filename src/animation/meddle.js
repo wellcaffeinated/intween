@@ -21,11 +21,20 @@ export class Meddle extends TweenOperator {
 
     this._subject = new Subject()
     this._tween = tween
-    this.options = Object.assign({}, DEFAULT_OPTIONS, options)
+    this.options = options
     this.lastTime = 0
     // reset
     this.defaults()
     this.clear()
+  }
+
+  get options(){
+    return this._options
+  }
+
+  set options(o){
+    this._options = Object.assign({}, DEFAULT_OPTIONS, o)
+    this.defaults()
   }
 
   // toggle freezing of meddle states

@@ -1,4 +1,4 @@
-import { linear } from '@/easing'
+// import { linear } from '@/easing'
 import { parseEasing } from '@/parsers/easing'
 import { createSchema, createState } from '@/schema'
 import { getInterpolatedState } from '@/transition'
@@ -38,17 +38,15 @@ export function Smoothen(
 
       let prev = 1
       const timeFracs = _targets.map(({ startTime, endTime }) => {
-        if (prev <= 0){ return 0 }
+        if (prev === 0){ return 0 }
 
-        const tf = easing(
-          invLerpClamped(
-            startTime
-            , endTime
-            , time
-          )
+        const tf = invLerpClamped(
+          startTime
+          , endTime
+          , time
         ) / prev
 
-        prev = tf
+        prev = easing(tf)
         return tf
       })
 
@@ -59,7 +57,7 @@ export function Smoothen(
           , startState
           , targetState
           , tf
-          , linear
+          , easing
         )
       }, _targets[_targets.length - 1].targetState)
 

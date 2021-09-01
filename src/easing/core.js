@@ -36,7 +36,7 @@ export const sinIn = t => 1 - Math.cos(t * halfPi)
 export const sinOut = t => Math.sin(t * halfPi)
 export const sinInOut = t => 0.5 * (1 - Math.cos(Math.PI * t))
 export const expIn = t => t === 0 ? 0 : Math.pow(1024, t - 1)
-export const expOut = t => t === 0 ? 1 : 1 - Math.pow(1024, -t)
+export const expOut = t => t === 0 ? 0 : 1 - Math.pow(1024, -t)
 export const expInOut = t => {
   if (t === 0) return 0
   if (t === 1) return 1

@@ -189,3 +189,14 @@ export function shortestModDist(a0, a1, modulo) {
   const fix = d > 0.5 ? -1 : d < -0.5 ? 1 : 0
   return (d + fix + cycles) * modulo
 }
+
+export const combineEasing = (...easings) => {
+  const num = easings.length
+  if (num === 1){ return easings[0] }
+  const invNum = 1 / num
+  return t => {
+    const p = t * num
+    const i = clamp(0, num - 1, Math.floor(p))
+    return (easings[i](p - i) + i) * invNum
+  }
+}
