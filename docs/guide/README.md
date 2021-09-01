@@ -5,7 +5,71 @@ sidebar: auto
 
 ## Introduction
 
-**InTween** is ...
+**InTween** is a toolkit for creating interactive animations by [tweening](https://en.wikipedia.org/wiki/Inbetweening).
+It performs similar functionality to other libraries like
+[TWEENJS](https://createjs.com/tweenjs),
+[animejs](https://animejs.com/), and
+[tween.js](https://github.com/tweenjs/tween.js/),
+however **InTween** excels at creating interactive, and interrupted tweens.
+A great example of where you would do this is in creating
+[interactive videos, like this one](https://labs.minutelabs.io/what-is-a-day/#/welcome).
+
+The fastest way to get started is to [install InTween](#installation) and follow the
+[TLDR instructions](#tldr-too-long-didn-t-read).
+
+If you need more convincing, let's just compare InTween to other libraries. Let's start
+with [tween.js](https://github.com/tweenjs/tween.js/). The self-contained example in
+their readme rewritten using InTween would look like this:
+
+:::details The Tween.js Code
+
+```js
+const box = document.createElement('div')
+box.style.setProperty('background-color', '#008800')
+box.style.setProperty('width', '100px')
+box.style.setProperty('height', '100px')
+document.body.appendChild(box)
+
+// Setup the animation loop.
+function animate(time) {
+  requestAnimationFrame(animate)
+  TWEEN.update(time)
+}
+requestAnimationFrame(animate)
+
+const coords = {x: 0, y: 0} // Start at (0, 0)
+const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coords'.
+  .to({x: 300, y: 200}, 1000) // Move to (300, 200) in 1 second.
+  .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+  .onUpdate(() => {
+    // Called after tween.js updates 'coords'.
+    // Move 'box' to the position described by 'coords' with a CSS translation.
+    box.style.setProperty('transform', `translate(${coords.x}px, ${coords.y}px)`)
+  })
+  .start() // Start the tween immediately.
+```
+
+:::
+
+```js
+const box = document.createElement('div')
+box.style.setProperty('background-color', '#008800')
+box.style.setProperty('width', '100px')
+box.style.setProperty('height', '100px')
+document.body.appendChild(box)
+
+const tween = new InTween.Tween({ x: 0, y: 0 })
+  .by('1s', { x: 300, y: 200 }, 'easeOutQuad') // Move to (300, 200) in 1 second.
+  // ...using an easing function to make the animation smooth.
+
+// Start the tween immediately.
+InTween.animationFrames()
+  .pipe(tween)
+  .subscribe((state) => {
+    // Move 'box' to the position described by 'state' with a CSS translation.
+    box.style.setProperty('transform', `translate(${state.x}px, ${state.y}px)`)
+  })
+```
 
 ## Installation
 
@@ -266,6 +330,40 @@ import { Easing } from 'intween'
 tween.by('1s', { value: 1 }, Easing.makeSteps(5)) // take 5 discrete steps
 ```
 
+:::tip
+It's also possible to combine easing functions using `pipe` or `Util.combineEasing`.
+:::
+
+You can also combine easing functions for more complex behaviour. Although,
+success can be a bit hit or miss in terms of smoothness. To combine easing
+functions using them one after another, you can reference them by name:
+
+```js
+tween.by('1s', { value: 1 }, 'quadIn + backOut')
+```
+
+or use `Util.combineEasing`:
+
+```js
+import { Util, Easing } from 'intween'
+const combined = Util.combineEasing(
+  Easing.quadIn,
+  Easing.backOut
+)
+tween.by('1s', { value: 1 }, combined)
+```
+
+Sometimes you can get better results by using `pipe()`
+
+```js
+import { pipe, Easing } from 'intween'
+const fall = pipe(
+  Easing.quadIn,
+  Easing.bounceOut
+)
+tween.by('1s', { value: 1 }, fall)
+```
+
 ## Time Sources
 
 In the InTween library, Tween objects by themselves don't do anything.
@@ -308,7 +406,7 @@ and works very well with [RXJS](https://rxjs.dev/).
 :::
 
 An Observable is very similar to a data stream. Most of the core
-Observables in InTween are time-based. So you can subscribe to
+Observables in InTween are time-based. So you can subscribe to them to react to
 changes in time. The most basic time Observable is created by calling
 `animationFrames()`.
 
@@ -380,8 +478,8 @@ player.destroy()
 
 InTween was built to animate *anything*. In addition to connecting
 the dots for numbers, InTween can handle all kinds of primitive types;
-*Number, Boolean, String*. It can also handle arrays of numbers and
-objects with numeric properties!
+*Number, Boolean, String*. It can also handle objects with numeric properties
+and arrays of any known type!
 
 For example:
 
@@ -415,10 +513,10 @@ See [this example of tweening all kinds of types](/demos/all-interpolators).
 ### Interpolators
 
 You can read [In Depth about Interpolators](/in-depth/#state-transitions) but
-the short version is this:
+the short version is this: **Interpolators tell you how to get the inbetween
+values for a given type.**
 
-Interpolators tell you how to get the inbetween values for a given
-type. All primitive types have default interpolators associated
+All primitive types have default interpolators associated
 with them. Most of the time, you won't need to worry about
 interpolators for primitive types.
 
@@ -508,7 +606,145 @@ const tween = new Tween({
 
 ## Interactive Tweens (Meddling)
 
-## Extras
+So far we have been creating non-interactive animations. The main
+strength of InTween is its ability to **interactively** tween things.
+
+The main idea behind interactive tweening is this: A tween's state
+is overriden by user interaction (called meddling), and then
+seemlessly returned to the main tween timeline.
+
+Here's a cartoon depiction of the process:
+
+```
+        (interaction)
+              x------[Meddle]---\
+                                 \
+x-------[Tween]-------------------`-------x
+```
+
+The way we achieve this is by using a `Meddle` object. A `Meddle`
+object needs awareness of the tween it will be "meddling" with
+so that it can peek ahead at the state it needs to merge back with
+in future.
+
+```js
+const meddle = new Meddle(tween)
+```
+
+Like the `Tween` object, it also operates on time Observables... that is
+to say, you can `pipe()` a time Observable through it like this:
+
+```js
+player
+  .pipe(meddle)
+  .subscribe(state => {
+    // use the meddled state
+  })
+```
+
+The default meddle state is empty (`{}`), so this alone wouldn't do much.
+However if we call `meddle.set()` we can influence the current meddle state.
+
+```js
+// on user interaction...
+meddle.set({ x: userX })
+```
+
+Some things to note:
+
+1. Any call to `.set()` will trigger an override and the internal timer
+tracking when to rejoin the tween will reset.
+2. The property definitions of the meddle should match the tween it's meddling.
+3. The properties specified in a `.set()` call will be merged into the meddle's
+current state. So calling `.set({ x: 1 }).set({ y: 2 })` is equivalent to
+`.set({ x: 1, y: 2 })`.
+
+We can also influence how long we want to override the state, and how
+it should return to the tween state. We can do this ahead of time
+or when interaction happens.
+
+```js
+const meddle = new Meddle(tween, {
+  relaxDelay: '1s',
+  relaxDuration: '2s',
+  easing: 'bounceOut',
+})
+// -- and/or --
+meddle.easing('quadInOut')
+```
+
+We can also prevent the meddle state from returning to the tween entirely
+by freezing the meddle where it is.
+
+```js
+meddle.freeze() // stay like this
+meddle.freeze(false) // release
+```
+
+### Merging Tween and Meddle States with spreadAssign()
+
+The Tween and Meddle states need to be used together and merged together.
+The way we can do this is by using a function called `spreadAssign()`.
+What it does is take the time input from a [Time Source](#time-sources),
+feed it into multiple operators and use `Object.assign()` to merge
+the states together.
+
+The standard way of combining a tween and a meddle would be something like
+this:
+
+```js
+player.pipe(
+  spreadAssign(
+    tween,
+    meddle
+  )
+).subscribe(state => {
+  // combined state
+})
+```
+
+And if you need more meddles, just add them!
+
+```js
+spreadAssign(
+  tween,
+  meddle,
+  meddle2,
+  /// ...
+)
+```
+
+### Optimizing rendering with animationThrottle()
+
+:::tip Takeaway
+Placing `animationThrottle()` at the end of your state stream will
+prevent unnecessary reactions to state changes. (IE: it limits
+updates to the speed of `window.requestAnimationFrame`)
+:::
+
+Normally, any changes to state will feed into the final `subscribe()`
+callback. If you have a bunch of `meddle.set()` calls, this may mean
+that the subscribe callback will get called faster than a normal
+60 frames per second. This is unnecessarily wasteful on resources.
+
+To correct this, we can use a special operator called `animationThrottle()`
+which simply removes the unnecessary extra updates. This makes it good practice
+to place it at the end of your `pipe()` right before you update the visuals
+of your animation.
+
+```js
+player.pipe(
+  spreadAssign(
+    tween,
+    meddle
+  ),
+  animationThrottle()
+).subscribe(state => {
+  // combined state
+})
+```
+
+## Recipes and Extras
 
 ### Interoperation with D3 Interpolate
 
