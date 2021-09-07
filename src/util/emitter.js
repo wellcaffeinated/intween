@@ -1,5 +1,5 @@
-import { Observable } from '@/rx/observable'
-import { sortedIndex } from '@/util'
+import { Observable } from '../rx/observable.js'
+import { sortedIndex } from './utils.js'
 
 const defaultPriority = 1
 

@@ -1,4 +1,4 @@
-import { Observable } from '@/rx/observable'
+import { Observable } from './observable.js'
 
 export class Subject extends Observable {
   closed = false

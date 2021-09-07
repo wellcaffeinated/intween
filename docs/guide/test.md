@@ -54,8 +54,8 @@ export default {
       map(e => ({ x: e.pageX, y: e.pageY }))
       , InTween.Smoothen({
         duration: 1000,
-        easing: 'quadIn + backOut',
-        // easing: InTween.pipe(InTween.Easing.quadIn, InTween.Easing.bounceOut)
+        // easing: 'quadIn + backOut',
+        easing: InTween.pipe(InTween.Easing.quadIn, InTween.Easing.bounceOut)
       }, () => this.state)
     ).subscribe((state) => {
       // console.log(state)

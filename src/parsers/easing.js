@@ -1,5 +1,5 @@
-import * as Easing from '@/easing/core'
-import { combineEasing } from '@/util'
+import * as Easing from '../easing/core.js'
+import { combineEasing } from '../util/index.js'
 
 export function parseEasing(easing){
   if (easing === undefined || easing === null){ return undefined }

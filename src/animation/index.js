@@ -1,3 +1,3 @@
-export * from './tween'
-export * from './meddle'
-export * from './smoothen'
+export * from './tween.js'
+export * from './meddle.js'
+export * from './smoothen.js'

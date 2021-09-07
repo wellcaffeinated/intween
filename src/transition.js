@@ -1,4 +1,4 @@
-import { pick, cloneDeep } from '@/util'
+import { pick, cloneDeep } from './util/index.js'
 
 export function createTransitionFromFrame( startTime, endTime, frame, previousState ){
   const endState = frame.state

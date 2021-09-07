@@ -1,4 +1,4 @@
-import { Observable } from '@/rx/observable'
+import { Observable } from '../rx/observable.js'
 
 export const regulatedBy = (regulator, onlyNew = false) => source => new Observable(sink => {
   let isFresh = false

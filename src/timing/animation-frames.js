@@ -1,5 +1,5 @@
-import { Observable } from '@/rx/observable'
-import { now } from '@/util'
+import { Observable } from '../rx/observable.js'
+import { now } from '../util/index.js'
 
 const tickStack = []
 

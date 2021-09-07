@@ -1,10 +1,10 @@
 // import { linear } from '@/easing'
-import { parseEasing } from '@/parsers/easing'
-import { createSchema, createState } from '@/schema'
-import { getInterpolatedState } from '@/transition'
-import { Observable } from '@/rx'
-import { animationFrames } from '@/timing/animation-frames'
-import { invLerpClamped } from '@/util'
+import { parseEasing } from '../parsers/easing.js'
+import { createSchema, createState } from '../schema.js'
+import { getInterpolatedState } from '../transition.js'
+import { Observable } from '../rx/index.js'
+import { animationFrames } from '../timing/animation-frames.js'
+import { invLerpClamped } from '../util/index.js'
 
 const defaultConfig = { duration: 1000, easing: 'cubicOut' }
 // Helper to smooth state changes

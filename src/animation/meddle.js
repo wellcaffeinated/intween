@@ -1,9 +1,9 @@
-import { pick, invLerpClamped } from '@/util'
-import { map, merge, Subject } from '@/rx'
-import { getInterpolatedState } from '@/transition'
-import { parseTime } from '@/parsers/time'
-import { parseEasing } from '@/parsers/easing'
-import { TweenOperator } from './tween-operator'
+import { pick, invLerpClamped } from '../util/index.js'
+import { map, merge, Subject } from '../rx/index.js'
+import { getInterpolatedState } from '../transition.js'
+import { parseTime } from '../parsers/time.js'
+import { parseEasing } from '../parsers/easing.js'
+import { TweenOperator } from './tween-operator.js'
 
 const DEFAULT_OPTIONS = {
   relaxDuration: 500

@@ -1,4 +1,4 @@
-import * as Interpolators from '@/interpolators/core'
+import * as Interpolators from '../interpolators/core.js'
 
 export function parseInterpolator(interp) {
   if (interp === undefined || interp === null) { return false }

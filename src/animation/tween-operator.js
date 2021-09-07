@@ -1,5 +1,5 @@
-import { Callable } from '@/util'
-import { map } from '@/rx'
+import { Callable } from '../util/index.js'
+import { map } from '../rx/index.js'
 
 export class TweenOperator extends Callable {
   at(t) {

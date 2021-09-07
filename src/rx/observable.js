@@ -1,7 +1,7 @@
 import 'core-js/features/symbol/observable'
 import Obs from 'core-js-pure/features/observable'
-import { pipeFromArray } from './pipe'
-import { identity } from '@/util'
+import { pipeFromArray } from './pipe.js'
+import { identity } from '../util/utils.js'
 
 export class Observable extends Obs {
   constructor(subscriber){

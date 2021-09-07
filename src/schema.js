@@ -1,8 +1,8 @@
-import { parseEasing } from '@/parsers/easing'
-import { parseInterpolator } from '@/parsers/interpolator'
-import { makeForArray } from '@/interpolators/factories'
-import { isExplicit, getType, getTypeCfg } from '@/type'
-import { mapProperties, isPlainObject } from '@/util'
+import { parseEasing } from './parsers/easing.js'
+import { parseInterpolator } from './parsers/interpolator.js'
+import { makeForArray } from './interpolators/factories.js'
+import { isExplicit, getType, getTypeCfg } from './type.js'
+import { mapProperties, isPlainObject } from './util/index.js'
 
 const TYPE_DEF_KEYS = Object.keys(getTypeCfg('object'))
 const DEFAULT_EASING = 'linear'

@@ -1,10 +1,10 @@
-import { pipe } from './pipe'
-import { Observable } from './observable'
-import { Subject } from './subject'
+import { pipe } from './pipe.js'
+import { Observable } from './observable.js'
+import { Subject } from './subject.js'
 
-export * from './pipe'
-export * from './observable'
-export * from './subject'
+export * from './pipe.js'
+export * from './observable.js'
+export * from './subject.js'
 
 export const map = fn => source => new Observable(sink =>
   source.subscribe({

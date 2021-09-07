@@ -1,0 +1,15 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "modules": "auto",
+        "targets": ">1%",
+        "loose": true,
+        "bugfixes": true
+      }
+    ]
+  ],
+  "plugins": [
+  ]
+}

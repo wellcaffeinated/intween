@@ -1,5 +1,5 @@
-import { lerp, mapProperties, shortestModDist } from '@/util'
-import { makeToggle, makeForArray } from './factories'
+import { lerp, mapProperties, shortestModDist } from '../util/index.js'
+import { makeToggle, makeForArray } from './factories.js'
 
 const Pi2 = Math.PI * 2
 

@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it */
 
 import chai from 'chai'
 import { createTimeline } from '../src/timeline'
@@ -14,11 +14,8 @@ const expect = chai.expect
 describe('Schema generation', () => {
   describe('Given an array defninition', () => {
     it('should detect the type properly', () => {
-      let frames
-      let schema
-
-      schema = createSchema({ arr: [1, 2, 3] })
-      frames = [
+      const schema = createSchema({ arr: [1, 2, 3] })
+      const frames = [
         createFrame( { arr: [3, 4, 5] }, { startTime: 2000, time: 4000 } )
       ]
 
@@ -52,7 +49,7 @@ describe('Schema generation', () => {
           let r1 = radius( from.x, from.y )
           let ang1 = Math.atan2( from.y, from.x )
           let r2 = radius( to.x, to.y )
-          let ang2 = Math.atan2( tp.y, tp.x )
+          let ang2 = Math.atan2( to.y, to.x )
           let r = Interpolators.linear( r1, r2, t )
           let ang = Interpolators.linear( ang1, ang2, t )
           let x = r * Math.cos( ang )

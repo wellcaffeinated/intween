@@ -1,4 +1,4 @@
-import { identity } from '@/util'
+import { identity } from '../util/utils.js'
 
 export function pipeFromArray(fns) {
   if (fns.length === 0) {

@@ -2,9 +2,9 @@
 //
 // ---------------------------------------
 
-import { parseTime } from '@/parsers/time'
-import { animationFrames } from './animation-frames'
-import { Emitter } from '../util/emitter'
+import { parseTime } from '../parsers/time.js'
+import { animationFrames } from './animation-frames.js'
+import { Emitter } from '../util/emitter.js'
 
 export class Player extends Emitter {
 

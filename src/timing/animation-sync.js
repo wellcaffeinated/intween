@@ -1,5 +1,5 @@
-import { Observable } from '@/rx/observable'
-import { animationFrames } from './animation-frames'
+import { Observable } from '../rx/observable.js'
+import { animationFrames } from './animation-frames.js'
 
 const defaultThreshold = 5000 / 60 // 5 frames
 

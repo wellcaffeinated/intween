@@ -1,2 +1,2 @@
-export * from './factories'
-export * from './core'
+export * from './factories.js'
+export * from './core.js'

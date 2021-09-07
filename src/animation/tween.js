@@ -1,14 +1,14 @@
-import { cloneDeep } from '@/util'
-import { createSchema, createState } from '@/schema'
-import { createFrame } from '@/frame'
-import { parseTime } from '@/parsers/time'
+import { cloneDeep } from '../util/index.js'
+import { createSchema, createState } from '../schema.js'
+import { createFrame } from '../frame.js'
+import { parseTime } from '../parsers/time.js'
 import {
   getTransitionsAtTime
   , createTimeline
   , reduceTransitions
   , getStartState
-} from '@/timeline'
-import { TweenOperator } from './tween-operator'
+} from '../timeline.js'
+import { TweenOperator } from './tween-operator.js'
 
 const DEFAULT_OPTIONS = {
   tweenDuration: '100%'

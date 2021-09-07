@@ -1,6 +1,6 @@
-import { getIntersectingPaths, lerp, sortedIndex, invLerpClamped, cloneDeep } from '@/util'
-import { createState } from '@/schema'
-import { getInterpolatedState, createTransitionFromFrame } from '@/transition'
+import { getIntersectingPaths, lerp, sortedIndex, invLerpClamped, cloneDeep } from './util/index.js'
+import { createState } from './schema.js'
+import { getInterpolatedState, createTransitionFromFrame } from './transition.js'
 
 // Check for conflicting overlaps
 // ---------------------------------------

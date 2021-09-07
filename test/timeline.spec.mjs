@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it */
 
 import chai from 'chai'
 import {

@@ -12,7 +12,7 @@ import {
   makeBackOut,
   makeBackInOut,
   makeSteps
-} from './factories'
+} from './factories.js'
 
 const halfPi = Math.PI / 2
 

@@ -1,7 +1,7 @@
-/* global describe, it, before */
+/* global describe, it */
 
 import chai from 'chai'
-import {parseTime} from '../src/parsers/time.js'
+import { parseTime } from '../src/parsers/time.js'
 
 chai.expect()
 

@@ -1,6 +1,6 @@
-import { parseEasing } from '@/parsers/easing'
-import { parseTime } from '@/parsers/time'
-import { sanitizedObject, cloneDeep } from '@/util'
+import { parseEasing } from './parsers/easing.js'
+import { parseTime } from './parsers/time.js'
+import { sanitizedObject, cloneDeep } from './util/index.js'
 
 const pctReg = /^((\d{1,3})(\.\d*)?)%$/
 const META_PARSERS = {
