@@ -177,6 +177,10 @@ player.play() // go!
 
 ## What is a Tween, really?
 
+:::tip Takeaway
+A `Tween` (in InTween) can be used to transition properties between many states with easing functions.
+:::
+
 Many coders will be familiar with using tweens in other libraries. The word "tween"
 is short for *inbetween*. Tweens are a way of moving through states inbetween a starting
 and ending state. A state could be anything; a boolean, a string, a position vector.
@@ -199,16 +203,20 @@ a tween will calculate all the inbetween steps. This makes animation easy!
 Example:
 
 ```js
-const tween = new Tween({ value: 0 }).by('5s', { value: 5 })
+const tween = new Tween({ x: 0 }).by('5s', { x: 5 })
 // NB: time is in ms
-tween.at(0) // => { value: 0 }
-tween.at(1000) // => { value: 1 }
-tween.at(2000) // => { value: 2 }
+tween.at(0)    // => { x: 0 }
+tween.at(1000) // => { x: 1 }
+tween.at(2000) // => { x: 2 }
 // ...
-tween.at(5000) // => { value: 5 }
+tween.at(5000) // => { x: 5 }
 ```
 
 ### Frames
+
+:::tip Takeaway
+A Frame is a target state that tweens transition between.
+:::
 
 Some libraries let you chain their version of tweens into timelines to get a more
 complex multi-stage animation... This isn't necessary with InTween. Just keep
@@ -282,6 +290,11 @@ tween.in('10:10', '20%', { value: 1 }) // same with duration of 2 minutes 2 seco
 ```
 
 ## Easing
+
+:::tip Takeaway
+Easing functions modify how a transition "feels". They change the way
+that one state transitions to another.
+:::
 
 Animation would be pretty boring without easing. Easing is the quality of the
 transition between two states.
@@ -365,6 +378,11 @@ tween.by('1s', { value: 1 }, fall)
 ```
 
 ## Time Sources
+
+:::tip Takeaway
+Time sources like `Player` and `animationFrames` provide the time
+input used by `Tween` and `Meddle`.
+:::
 
 In the InTween library, Tween objects by themselves don't do anything.
 They are just a way of mapping time to state. If you want an inbetween
@@ -535,7 +553,7 @@ property that only changes to its final value once the
 new Tween({
   myNumber: {
     type: Number,
-    default: 0,
+    value: 0,
     interpolator: 'toggle'
   }
 })
@@ -606,6 +624,11 @@ const tween = new Tween({
 
 ## Interactive Tweens (Meddling)
 
+:::tip Takeaway
+A `Meddle` can be used to override a Tween state temporarily
+and gracefully return to the correct Tween state at a later time.
+:::
+
 So far we have been creating non-interactive animations. The main
 strength of InTween is its ability to **interactively** tween things.
 
@@ -670,7 +693,9 @@ const meddle = new Meddle(tween, {
   easing: 'bounceOut',
 })
 // -- and/or --
-meddle.easing('quadInOut')
+meddle.relaxDelay('1s')
+  .relaxDuration('2s')
+  .easing('quadInOut')
 ```
 
 We can also prevent the meddle state from returning to the tween entirely
@@ -682,6 +707,16 @@ meddle.freeze(false) // release
 ```
 
 ### Merging Tween and Meddle States with spreadAssign()
+
+:::tip Takeaway
+The `spreadAssign()` function spreads the time input
+across several time Operators and then merges their
+resulting states together.
+
+```
+spreadAssign(A, B, C, ...): t -> A(t) | B(t) | C(t) | ...
+```
+:::
 
 The Tween and Meddle states need to be used together and merged together.
 The way we can do this is by using a function called `spreadAssign()`.

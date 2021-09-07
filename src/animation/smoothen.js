@@ -1,5 +1,6 @@
 // import { linear } from '@/easing'
 import { parseEasing } from '../parsers/easing.js'
+import { parseTime } from '../parsers/time.js'
 import { createSchema, createState } from '../schema.js'
 import { getInterpolatedState } from '../transition.js'
 import { Observable } from '../rx/index.js'
@@ -81,7 +82,7 @@ export function Smoothen(
 
       _targets.push({
         startTime: time
-        , endTime: time + config.duration
+        , endTime: time + parseTime(config.duration)
         , startState
         , targetState
       })

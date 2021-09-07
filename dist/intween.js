@@ -3791,7 +3791,7 @@
 
         _targets.push({
           startTime: time,
-          endTime: time + config.duration,
+          endTime: time + parseTime(config.duration),
           startState,
           targetState
         });
@@ -4138,3 +4138,4 @@
   Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5qcyIsInNvdXJjZXMiOltdLCJzb3VyY2VzQ29udGVudCI6W10sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiIifQ==

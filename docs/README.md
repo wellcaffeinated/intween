@@ -67,7 +67,9 @@ footer: MIT Licensed | Copyright © 2019-present Jasper Palfree
   <span>Click!</span>
 </div>
 
-And this is all it takes...
+It doesn't take much code to create something playful!
+
+:::details See the code!
 
 ```javascript
 const tween = new Tween({
@@ -94,14 +96,7 @@ tween.in('2s', {
 
 const meddle = new Meddle(tween).easing('quadInOut')
 
-const onInteract = e => {
-  const ctx = circuitEl.getBoundingClientRect()
-  let [x, y] = [e.clientX, e.clientY]
-  x -= ctx.x
-  y -= ctx.y
-  meddle.set({ circle: [x, y] })
-}
-
+let lastPos = [0, 0]
 const sub = animationFrames().pipe(
   spreadAssign(
     tween,
@@ -109,15 +104,38 @@ const sub = animationFrames().pipe(
   )
   , animationThrottle()
 ).subscribe(state => {
+  lastPos = state.circle
   circleEl.style.transform = `translate(${state.circle[0]}px, ${state.circle[1]}px)`
   outlineEl.style.transform = `translate(${state.outline[0]}px, ${state.outline[1]}px)`
 })
 
+const clicks = new Subject()
+
+const sub2 = clicks.pipe(
+  Smoothen(
+    {
+      duration: '.3s',
+      easing: 'quadIn + backOut'
+    },
+    () => ({ pos: lastPos })
+  )
+).subscribe(({ pos }) => meddle.set({ circle: pos }))
+
+const onInteract = e => {
+  const ctx = circuitEl.getBoundingClientRect()
+  let [x, y] = [e.clientX, e.clientY]
+  x -= ctx.x
+  y -= ctx.y
+  clicks.next({ pos: [x, y] })
+}
+
 window.addEventListener('click', onInteract)
 ```
 
+:::
+
 <script>
-const { Tween, animationFrames, Meddle, spreadAssign, animationThrottle } = InTween
+const { Tween, animationFrames, Meddle, spreadAssign, animationThrottle, Smoothen, Subject } = InTween
 
 export default {
   name: 'Home',
@@ -152,14 +170,7 @@ export default {
 
     const meddle = new Meddle(tween).easing('quadInOut')
 
-    const onInteract = e => {
-      const ctx = circuitEl.getBoundingClientRect()
-      let [x, y] = [e.clientX, e.clientY]
-      x -= ctx.x
-      y -= ctx.y
-      meddle.set({ circle: [x, y] })
-    }
-
+    let lastPos = [0, 0]
     const sub = animationFrames().pipe(
       spreadAssign(
         tween,
@@ -167,15 +178,37 @@ export default {
       )
       , animationThrottle()
     ).subscribe(state => {
+      lastPos = state.circle
       circleEl.style.transform = `translate(${state.circle[0]}px, ${state.circle[1]}px)`
       outlineEl.style.transform = `translate(${state.outline[0]}px, ${state.outline[1]}px)`
     })
+
+    const clicks = new Subject()
+
+    const sub2 = clicks.pipe(
+      Smoothen(
+        {
+          duration: '.3s',
+          easing: 'quadIn + backOut'
+        },
+        () => ({ pos: lastPos })
+      )
+    ).subscribe(({ pos }) => meddle.set({ circle: pos }))
+
+    const onInteract = e => {
+      const ctx = circuitEl.getBoundingClientRect()
+      let [x, y] = [e.clientX, e.clientY]
+      x -= ctx.x
+      y -= ctx.y
+      clicks.next({ pos: [x, y] })
+    }
 
     window.addEventListener('click', onInteract)
 
     this.$on('hook:beforeDestroy', () => {
       window.removeEventListener('click', onInteract)
       sub.unsubscribe()
+      sub2.unsubscribe()
     })
   }
 }
