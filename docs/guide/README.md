@@ -490,11 +490,11 @@ const tween = new Tween({
   string: "Hello",
   array: {
     type: Array,
-    default: [0, 0, 0]
+    value: [0, 0, 0]
   },
   object: {
     type: Object,
-    default: { x: 0, y: 0, z: 0 }
+    value: { x: 0, y: 0, z: 0 }
   }
 })
 .by('1s', {
@@ -562,12 +562,12 @@ import { Interpolators } from 'intween'
 new Tween({
   clock: {
     type: Number,
-    default: 0,
+    value: 0,
     interpolator: Interpolators.makeCyclic(12) // mod 12
   },
   halfWay: {
     type: String,
-    default: 'Hello',
+    value: 'Hello',
     interpolator: Interpolators.makeToggle(0.5) // change half-way through
   }
 })

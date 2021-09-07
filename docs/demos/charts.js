@@ -2,9 +2,7 @@ const { Tween, Observable, Easing } = InTween
 
 // setup our instance
 const tween = new Tween({
-  y: {
-    type: 0
-  }
+  y: 0
 }).withTime('x')
 
 Array(10).fill(0).forEach((_, i) => {

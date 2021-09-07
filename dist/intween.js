@@ -2841,6 +2841,12 @@
     }) => val instanceof constructor);
   }
 
+  function getCustomTypeByConstructor(val) {
+    return Object.values(CUSTOM_TYPES).find(({
+      constructor
+    }) => val === constructor);
+  }
+
   function registerType(cfg) {
     const {
       type,
@@ -2865,7 +2871,7 @@
       CUSTOM_TYPES[type].constructor = cfg.default.constructor;
     }
   }
-  function getType(val) {
+  function inferType(val) {
     if (val === null) {
       throw new Error('Can not determine type of null value');
     }
@@ -2880,19 +2886,15 @@
       return 'string';
     }
 
-    if (val === Number || type === 'number') {
+    if (type === 'number') {
       return 'number';
     }
 
-    if (val === Boolean || type === 'boolean') {
+    if (type === 'boolean') {
       return 'boolean';
     }
 
-    if (val === String) {
-      return 'string';
-    }
-
-    if (val === Array || Array.isArray(val)) {
+    if (Array.isArray(val)) {
       return 'array';
     } // check custom types
 
@@ -2903,12 +2905,54 @@
       return custom.type;
     }
 
-    if (val === Object || type === 'object') {
+    if (type === 'object') {
       return 'object';
     }
 
     return type;
-  } // determine if the schema declaration is an explicit declaration
+  }
+  function getType(type) {
+    if (type === null) {
+      throw new Error('Can not determine type of null value');
+    }
+
+    if (typeof type === 'string') {
+      if (type in CUSTOM_TYPES) {
+        return type;
+      }
+
+      return type;
+    }
+
+    if (type === Number || type === 'number') {
+      return 'number';
+    }
+
+    if (type === Boolean || type === 'boolean') {
+      return 'boolean';
+    }
+
+    if (type === String) {
+      return 'string';
+    }
+
+    if (type === Array) {
+      return 'array';
+    } // check custom types
+
+
+    const custom = getCustomTypeByConstructor(type);
+
+    if (custom) {
+      return custom.type;
+    }
+
+    if (type === Object || type === 'object') {
+      return 'object';
+    }
+
+    return type;
+  }
   function getTypeCfg(type) {
     const cfg = NATIVE_TYPES[type] || CUSTOM_TYPES[type];
 
@@ -2948,13 +2992,13 @@
 
     if (isPlainObject(def) && (def.value !== undefined || def.type !== undefined)) {
       checkExplicitTypeDefinition(def);
-      type = def.type || getType(def.value);
+      type = getType(def.type) || inferType(def.value);
       cfg = getTypeCfg(type);
       defaultVal = def.value || cfg.default;
       easing = parseEasing(def.easing || DEFAULT_EASING);
       interpolator = parseInterpolator(def.interpolator) || getInterpolator(type, cfg, defaultVal);
     } else {
-      type = getType(def);
+      type = inferType(def);
       cfg = getTypeCfg(type);
       easing = parseEasing(def.easing || DEFAULT_EASING);
       defaultVal = def;

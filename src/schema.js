@@ -1,7 +1,7 @@
 import { parseEasing } from './parsers/easing.js'
 import { parseInterpolator } from './parsers/interpolator.js'
 import { makeForArray } from './interpolators/factories.js'
-import { getType, getTypeCfg } from './type.js'
+import { getType, inferType, getTypeCfg } from './type.js'
 import { mapProperties, isPlainObject } from './util/index.js'
 
 const TYPE_DEF_KEYS = ['value', ...Object.keys(getTypeCfg('object'))]
@@ -32,7 +32,7 @@ export function parseSchemaProp( def ){
 
   if (isPlainObject(def) && (def.value !== undefined || def.type !== undefined)) {
     checkExplicitTypeDefinition(def)
-    type = def.type || getType(def.value)
+    type = getType(def.type) || inferType(def.value)
     cfg = getTypeCfg(type)
 
     defaultVal = def.value || cfg.default
@@ -41,7 +41,7 @@ export function parseSchemaProp( def ){
     interpolator = parseInterpolator(def.interpolator) || getInterpolator(type, cfg, defaultVal)
 
   } else {
-    type = getType(def)
+    type = inferType(def)
     cfg = getTypeCfg(type)
 
     easing = parseEasing(def.easing || DEFAULT_EASING)

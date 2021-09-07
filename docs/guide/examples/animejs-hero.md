@@ -31,7 +31,7 @@ function run(){
     positions: startPos,
     easingName: {
       type: String,
-      default: 'start',
+      value: 'start',
       interpolator: InTween.Interpolators.makeToggle(0)
     }
   }).loop()

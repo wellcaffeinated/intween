@@ -35,6 +35,11 @@ function getCustomTypeByVal(val){
     .find(({ constructor }) => val instanceof constructor)
 }
 
+function getCustomTypeByConstructor(val) {
+  return Object.values(CUSTOM_TYPES)
+    .find(({ constructor }) => val === constructor)
+}
+
 export function registerType( cfg ){
   const { type, interpolator } = cfg
 
@@ -57,73 +62,84 @@ export function registerType( cfg ){
   }
 }
 
-export function getType( val ){
-  if (val === null){
+export function inferType( val ){
+  if (val === null) {
     throw new Error('Can not determine type of null value')
   }
 
   const type = typeof val
 
-  if ( type === 'string' ){
-    if ( val in CUSTOM_TYPES ){
+  if (type === 'string') {
+    if (val in CUSTOM_TYPES) {
       return val
     }
     return 'string'
   }
 
-  if ( val === Number || type === 'number' ){
+  if (type === 'number') {
     return 'number'
   }
 
-  if ( val === Boolean || type === 'boolean' ){
+  if (type === 'boolean') {
     return 'boolean'
   }
 
-  if ( val === String ){
-    return 'string'
-  }
-
-  if ( val === Array || Array.isArray( val ) ){
+  if (Array.isArray(val)) {
     return 'array'
   }
 
   // check custom types
   const custom = getCustomTypeByVal(val)
-  if (custom){
+  if (custom) {
     return custom.type
   }
 
-  if ( val === Object || type === 'object' ){
+  if (type === 'object') {
     return 'object'
   }
 
   return type
 }
 
-// determine if the schema declaration is an explicit declaration
-// of the type. eg: (type: 2) is implicit number
-export function isExplicit( type, val ){
-  if ( type === 'string' ){
-    return val === 'string' || val === String
+export function getType( type ){
+  if (type === null){
+    throw new Error('Can not determine type of null value')
   }
 
-  if ( type === 'number' ){
-    return val === 'number' || val === Number
+  if ( typeof type === 'string' ){
+    if (type in CUSTOM_TYPES ){
+      return type
+    }
+    return type
   }
 
-  if ( type === 'boolean' ){
-    return val === 'boolean' || val === Boolean
+  if ( type === Number || type === 'number' ){
+    return 'number'
   }
 
-  if ( type === 'array' ){
-    return val === 'array' || val === Array
+  if ( type === Boolean || type === 'boolean' ){
+    return 'boolean'
   }
 
-  if ( type === 'object' ){
-    return val === 'object' || val === Object
+  if ( type === String ){
+    return 'string'
   }
 
-  return type === val
+  if ( type === Array ){
+    return 'array'
+  }
+
+  // check custom types
+  const custom = getCustomTypeByConstructor(type)
+  if (custom){
+    return custom.type
+  }
+
+  if ( type === Object || type === 'object' ){
+    return 'object'
+  }
+
+  return type
 }
 
 export function getTypeCfg( type ){
