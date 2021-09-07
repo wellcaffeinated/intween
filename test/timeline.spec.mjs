@@ -20,10 +20,10 @@ describe('Timeline generation', () => {
       let frames
       let schema
 
-      schema = createSchema({ x: Number })
+      schema = createSchema({ x: 0 })
       frames = [
-        createFrame( { x: 2 }, { startTime: 2000, time: 4000 } )
-        , createFrame( { x: 4 }, { startTime: 1000, time: 3000 } )
+        createFrame( { x: 2 }, { startTime: 2000, endTime: 4000 } )
+        , createFrame( { x: 4 }, { startTime: 1000, endTime: 3000 } )
       ]
       expect( () => createTimeline( schema, frames ) ).to.throw()
     })
@@ -34,20 +34,20 @@ describe('Timeline generation', () => {
       let frames
       let schema
 
-      schema = createSchema({ x: Number })
+      schema = createSchema({ x: 0 })
       frames = [
-        createFrame( { x: 2 }, { startTime: 2000, time: 4000 } )
-        , createFrame( { x: 4 }, { duration: '100%', time: 5000 } )
-        , createFrame( { x: 5 }, { duration: '50%', time: 7000 } )
-        , createFrame( { x: 2 }, { duration: '1s', time: '9s' } )
+        createFrame( { x: 2 }, { startTime: 2000, endTime: 4000 } )
+        , createFrame( { x: 4 }, { duration: '100%', endTime: 5000 } )
+        , createFrame( { x: 5 }, { duration: '50%', endTime: 7000 } )
+        , createFrame( { x: 2 }, { duration: '1s', endTime: '9s' } )
       ]
 
       let timeline = createTimeline( schema, frames )
       let endpoints = timeline.filter( e => e.type === 'end' )
       let startpoints = timeline.filter( e => e.type === 'start' )
 
-      expect( endpoints.map( e => e.time ) ).to.eql([ 4000, 5000, 7000, 9000 ])
-      expect( startpoints.map( e => e.time ) ).to.eql([ 2000, 4000, 6000, 8000 ])
+      expect( endpoints.map( e => e.time ) ).to.eql([4000, 5000, 7000, 9000])
+      expect( startpoints.map( e => e.time ) ).to.eql([2000, 4000, 6000, 8000])
     })
 
     it('should give correct state at given time', () => {
@@ -56,8 +56,8 @@ describe('Timeline generation', () => {
 
       schema = createSchema({ x: 0, y: 0 })
       frames = [
-        createFrame( { y: 10 }, { duration: '100%', time: '10s' } )
-        , createFrame( { x: 1 }, { duration: '4s', time: '10s' } )
+        createFrame( { y: 10 }, { duration: '100%', endTime: '10s' } )
+        , createFrame( { x: 1 }, { duration: '4s', endTime: '10s' } )
       ]
 
       let time = 4000

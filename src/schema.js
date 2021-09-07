@@ -1,10 +1,10 @@
 import { parseEasing } from './parsers/easing.js'
 import { parseInterpolator } from './parsers/interpolator.js'
 import { makeForArray } from './interpolators/factories.js'
-import { isExplicit, getType, getTypeCfg } from './type.js'
+import { getType, getTypeCfg } from './type.js'
 import { mapProperties, isPlainObject } from './util/index.js'
 
-const TYPE_DEF_KEYS = Object.keys(getTypeCfg('object'))
+const TYPE_DEF_KEYS = ['value', ...Object.keys(getTypeCfg('object'))]
 const DEFAULT_EASING = 'linear'
 
 function checkExplicitTypeDefinition(def){
@@ -30,16 +30,12 @@ export function parseSchemaProp( def ){
   let cfg
   let defaultVal
 
-  if (isPlainObject(def) && def.type !== undefined) {
+  if (isPlainObject(def) && (def.value !== undefined || def.type !== undefined)) {
     checkExplicitTypeDefinition(def)
-    type = getType(def.type)
+    type = def.type || getType(def.value)
     cfg = getTypeCfg(type)
 
-    if (isExplicit(type, def.type)) {
-      defaultVal = def.default || cfg.default
-    } else {
-      defaultVal = def.type
-    }
+    defaultVal = def.value || cfg.default
 
     easing = parseEasing(def.easing || DEFAULT_EASING)
     interpolator = parseInterpolator(def.interpolator) || getInterpolator(type, cfg, defaultVal)

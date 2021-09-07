@@ -1,5 +1,5 @@
 /**
- * InTween
+ * InTween 1.0.0-beta
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
@@ -2844,32 +2844,6 @@ function getType( val ){
   return type
 }
 
-// determine if the schema declaration is an explicit declaration
-// of the type. eg: (type: 2) is implicit number
-function isExplicit( type, val ){
-  if ( type === 'string' ){
-    return val === 'string' || val === String
-  }
-
-  if ( type === 'number' ){
-    return val === 'number' || val === Number
-  }
-
-  if ( type === 'boolean' ){
-    return val === 'boolean' || val === Boolean
-  }
-
-  if ( type === 'array' ){
-    return val === 'array' || val === Array
-  }
-
-  if ( type === 'object' ){
-    return val === 'object' || val === Object
-  }
-
-  return type === val
-}
-
 function getTypeCfg( type ){
   const cfg = NATIVE_TYPES[type] || CUSTOM_TYPES[type];
 
@@ -2880,7 +2854,7 @@ function getTypeCfg( type ){
   return cfg
 }
 
-const TYPE_DEF_KEYS = Object.keys(getTypeCfg('object'));
+const TYPE_DEF_KEYS = ['value', ...Object.keys(getTypeCfg('object'))];
 const DEFAULT_EASING = 'linear';
 
 function checkExplicitTypeDefinition(def){
@@ -2906,16 +2880,12 @@ function parseSchemaProp( def ){
   let cfg;
   let defaultVal;
 
-  if (isPlainObject(def) && def.type !== undefined) {
+  if (isPlainObject(def) && (def.value !== undefined || def.type !== undefined)) {
     checkExplicitTypeDefinition(def);
-    type = getType(def.type);
+    type = def.type || getType(def.value);
     cfg = getTypeCfg(type);
 
-    if (isExplicit(type, def.type)) {
-      defaultVal = def.default || cfg.default;
-    } else {
-      defaultVal = def.type;
-    }
+    defaultVal = def.value || cfg.default;
 
     easing = parseEasing(def.easing || DEFAULT_EASING);
     interpolator = parseInterpolator(def.interpolator) || getInterpolator(type, cfg, defaultVal);
@@ -4076,4 +4046,3 @@ var index = /*#__PURE__*/Object.freeze({
 });
 
 export { index$2 as Easing, index$1 as Interpolators, Meddle, Observable, index as Parsers, Player, Smoothen, Subject, Tween, index$3 as Util, animationFrames, animationSync, animationThrottle, combineLatest, interpolateProperty, map, merge, pipe, pipeFromArray, registerType, regulatedBy, spreadAssign, spreadCombineLatest, zip };
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5tb2R1bGUuanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIn0=

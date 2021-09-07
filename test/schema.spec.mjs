@@ -44,6 +44,7 @@ describe('Schema generation', () => {
 
       registerType({
         type: 'My Type'
+        , default: { x: 0, y: 0 }
         , interpolator( from, to, t ){
           // spherical
           let r1 = radius( from.x, from.y )
