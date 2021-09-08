@@ -1,5 +1,5 @@
 /**
- * InTween 1.0.0-beta.2
+ * InTween 1.0.0-beta.3
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
@@ -4162,4 +4162,3 @@
   Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5qcyIsInNvdXJjZXMiOltdLCJzb3VyY2VzQ29udGVudCI6W10sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiIifQ==
