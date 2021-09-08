@@ -1,28 +1,42 @@
 import { Observable } from '../rx/observable.js'
 import { now } from '../util/index.js'
 
+const requestAnimationFrame = ((window) => {
+  return window.requestAnimationFrame || (fn => setTimeout(fn, 16))
+})(window)
+
 const tickStack = []
 
 function step() {
-  window.requestAnimationFrame(step)
+  const l = tickStack.length
+  if (l === 0){ return }
+
+  requestAnimationFrame(step)
   const t = now()
 
-  for (let l = tickStack.length, i = 0; i < l; i++) {
+  for (let i = 0; i < l; i++) {
     const fn = tickStack[i]
     fn && fn(t)
   }
 }
 
-step()
+function add(fn){
+  tickStack.push(fn)
+  if (tickStack.length === 1) { step() }
+}
+
+function remove(fn){
+  const i = tickStack.indexOf(fn)
+  tickStack.splice(i, 1)
+}
 
 export function animationFrames() {
   return new Observable(observer => {
     const to = now()
     const cb = (t) => observer.next(t - to)
-    tickStack.push(cb)
+    add(cb)
     return () => {
-      const i = tickStack.indexOf(cb)
-      tickStack.splice(i, 1)
+      remove(cb)
     }
   })
 }

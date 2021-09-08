@@ -43,11 +43,11 @@ function demo1(){
 
   const tween = new InTween.Tween({
     x: {
-      type: 0
+      value: 0
       , interpolator: 'degrees'
     }
     , y: {
-      type: 0
+      value: 0
       , interpolator: 'degrees'
     }
   }, {

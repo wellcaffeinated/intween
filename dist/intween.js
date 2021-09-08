@@ -1,12 +1,12 @@
 /**
- * InTween 1.0.0-beta
+ * InTween 1.0.0-beta.2
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.THREE = {}));
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.InTween = {}));
 }(this, (function (exports) { 'use strict';
 
   const identity = a => a;
@@ -3688,29 +3688,50 @@
 
   }
 
+  const requestAnimationFrame = (window => {
+    return window.requestAnimationFrame || (fn => setTimeout(fn, 16));
+  })(window);
+
   const tickStack = [];
 
   function step() {
-    window.requestAnimationFrame(step);
+    const l = tickStack.length;
+
+    if (l === 0) {
+      return;
+    }
+
+    requestAnimationFrame(step);
     const t = now();
 
-    for (let l = tickStack.length, i = 0; i < l; i++) {
+    for (let i = 0; i < l; i++) {
       const fn = tickStack[i];
       fn && fn(t);
     }
   }
 
-  step();
+  function add(fn) {
+    tickStack.push(fn);
+
+    if (tickStack.length === 1) {
+      step();
+    }
+  }
+
+  function remove(fn) {
+    const i = tickStack.indexOf(fn);
+    tickStack.splice(i, 1);
+  }
+
   function animationFrames() {
     return new Observable(observer => {
       const to = now();
 
       const cb = t => observer.next(t - to);
 
-      tickStack.push(cb);
+      add(cb);
       return () => {
-        const i = tickStack.indexOf(cb);
-        tickStack.splice(i, 1);
+        remove(cb);
       };
     });
   }
@@ -3960,24 +3981,24 @@
       this._time = time;
 
       if (playbackRate > 0 && time >= totalTime) {
-        this._time = totalTime;
-        this.emit('update', time);
-
         if (this._loop) {
+          this._time = time = 0;
+          this.emit('update', time);
           this.emit('end');
-          this.seek(0);
         } else {
+          this._time = time = totalTime;
+          this.emit('update', time);
           this.togglePause(true);
           this.emit('end');
         }
       } else if (playbackRate < 0 && time <= 0) {
-        this._time = 0;
-        this.emit('update', time);
-
         if (this._loop) {
+          this._time = time = totalTime;
+          this.emit('update', time);
           this.emit('end');
-          this.seek(totalTime);
         } else {
+          this._time = time = 0;
+          this.emit('update', time);
           this.togglePause(true);
           this.emit('end');
         }
@@ -4141,3 +4162,4 @@
   Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5qcyIsInNvdXJjZXMiOltdLCJzb3VyY2VzQ29udGVudCI6W10sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiIifQ==

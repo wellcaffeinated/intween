@@ -1,7 +1,8 @@
 /* global describe, it */
 
 import chai from 'chai'
-import { parseTime } from '../src/parsers/time.js'
+import { Parsers } from '..'
+const { parseTime } = Parsers
 
 chai.expect()
 

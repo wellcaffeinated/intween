@@ -1,5 +1,5 @@
 /**
- * InTween 1.0.0-beta
+ * InTween 1.0.0-beta.2
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
@@ -3666,28 +3666,42 @@ class Meddle extends TweenOperator {
   }
 }
 
+const requestAnimationFrame = ((window) => {
+  return window.requestAnimationFrame || (fn => setTimeout(fn, 16))
+})(window);
+
 const tickStack = [];
 
 function step() {
-  window.requestAnimationFrame(step);
+  const l = tickStack.length;
+  if (l === 0){ return }
+
+  requestAnimationFrame(step);
   const t = now();
 
-  for (let l = tickStack.length, i = 0; i < l; i++) {
+  for (let i = 0; i < l; i++) {
     const fn = tickStack[i];
     fn && fn(t);
   }
 }
 
-step();
+function add(fn){
+  tickStack.push(fn);
+  if (tickStack.length === 1) { step(); }
+}
+
+function remove(fn){
+  const i = tickStack.indexOf(fn);
+  tickStack.splice(i, 1);
+}
 
 function animationFrames() {
   return new Observable(observer => {
     const to = now();
     const cb = (t) => observer.next(t - to);
-    tickStack.push(cb);
+    add(cb);
     return () => {
-      const i = tickStack.indexOf(cb);
-      tickStack.splice(i, 1);
+      remove(cb);
     }
   })
 }
@@ -3938,22 +3952,24 @@ class Player extends Emitter {
     this._time = time;
 
     if (playbackRate > 0 && time >= totalTime) {
-      this._time = totalTime;
-      this.emit('update', time);
-      if (this._loop){
+      if (this._loop) {
+        this._time = time = 0;
+        this.emit('update', time);
         this.emit('end');
-        this.seek(0);
       } else {
+        this._time = time = totalTime;
+        this.emit('update', time);
         this.togglePause(true);
         this.emit('end');
       }
     } else if (playbackRate < 0 && time <= 0) {
-      this._time = 0;
-      this.emit('update', time);
-      if (this._loop){
+      if (this._loop) {
+        this._time = time = totalTime;
+        this.emit('update', time);
         this.emit('end');
-        this.seek(totalTime);
       } else {
+        this._time = time = 0;
+        this.emit('update', time);
         this.togglePause(true);
         this.emit('end');
       }
@@ -4091,3 +4107,4 @@ var index = /*#__PURE__*/Object.freeze({
 });
 
 export { index$2 as Easing, index$1 as Interpolators, Meddle, Observable, index as Parsers, Player, Smoothen, Subject, Tween, index$3 as Util, animationFrames, animationSync, animationThrottle, combineLatest, interpolateProperty, map, merge, pipe, pipeFromArray, registerType, regulatedBy, spreadAssign, spreadCombineLatest, zip };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5tb2R1bGUuanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIn0=

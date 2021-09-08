@@ -49,7 +49,7 @@ let builds = [
     output: [
       {
         format: 'umd',
-        name: 'THREE',
+        name: 'InTween',
         file: 'dist/intween.js',
       }
     ]
@@ -70,7 +70,7 @@ let builds = [
     output: [
       {
         format: 'umd',
-        name: 'THREE',
+        name: 'InTween',
         file: 'dist/intween.min.js'
       }
     ]
