@@ -58,6 +58,7 @@ footer: MIT Licensed | Copyright © 2019-present Jasper Palfree
   -ms-user-select: none;
   user-select: none;
   margin-bottom: 3rem;
+  transform: translateZ(0);
 }
 </style>
 

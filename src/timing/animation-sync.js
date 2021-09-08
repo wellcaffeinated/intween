@@ -37,8 +37,10 @@ export const animationSync = (config = {}) => timeSource => new Observable(sink 
     }
 
     lastFrameTime = frameTime
-    lastTime = time
-    sink.next(time)
+    if (time !== lastTime){
+      lastTime = time
+      sink.next(time)
+    }
 
     if (isComplete) {
       sink.complete()

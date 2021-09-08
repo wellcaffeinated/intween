@@ -19,7 +19,8 @@
     "test": "BABEL_ENV=test mocha --require @babel/register --require @babel/register --colors ./test/*.spec.*js",
     "test:watch": "mocha --require @babel/register --colors -w ./test/*.spec.*js",
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",

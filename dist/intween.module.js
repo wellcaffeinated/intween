@@ -3698,7 +3698,7 @@ const defaultConfig = { duration: 1000, easing: 'cubicOut' };
 // Helper to smooth state changes
 // ---------------------------------------
 function Smoothen(
-  config = defaultConfig,
+  config,
   getState,
   schemaDef = null
 ){
@@ -3706,6 +3706,8 @@ function Smoothen(
     getState = config;
     config = defaultConfig;
   }
+
+  config = Object.assign({}, defaultConfig, config);
 
   return source => new Observable(sink => {
     const _targets = [];
@@ -3889,7 +3891,6 @@ class Player extends Emitter {
   // Stops after it reaches time t
   playTo(time) {
     if (this._time === time) {
-      this.seek(time);
       return this
     }
 
@@ -4050,8 +4051,10 @@ const animationSync = (config = {}) => timeSource => new Observable(sink => {
     }
 
     lastFrameTime = frameTime;
-    lastTime = time;
-    sink.next(time);
+    if (time !== lastTime){
+      lastTime = time;
+      sink.next(time);
+    }
 
     if (isComplete) {
       sink.complete();

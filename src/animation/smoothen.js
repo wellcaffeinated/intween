@@ -11,7 +11,7 @@ const defaultConfig = { duration: 1000, easing: 'cubicOut' }
 // Helper to smooth state changes
 // ---------------------------------------
 export function Smoothen(
-  config = defaultConfig,
+  config,
   getState,
   schemaDef = null
 ){
@@ -19,6 +19,8 @@ export function Smoothen(
     getState = config
     config = defaultConfig
   }
+
+  config = Object.assign({}, defaultConfig, config)
 
   return source => new Observable(sink => {
     const _targets = []

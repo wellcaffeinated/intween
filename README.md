@@ -1,9 +1,4 @@
 # InTween
 
-# ideas
+Your companion for building rich interactive media with Interactive Tweens.
 
-Maybe distinguish between "text" and "string" types.
-
-## Todo
-
-[ ] A way to quickly add "activate/deactivate" keyframes for booleans, say

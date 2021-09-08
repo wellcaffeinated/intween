@@ -779,6 +779,89 @@ player.pipe(
 })
 ```
 
+## Smoothing User Interaction
+
+:::tip Takeaway
+By using ``Smoothen()`` you can transition smoothly to
+target states on demand.
+:::
+
+So far, the user interaction has overridden the state instantly. But
+often we'd like that to be a smooth transition from the tween state
+to the override state.
+
+For example, if a user clicks on the screen we might want to
+move an object there smoothly. And if they click elsewhere
+_during_ the transition, we'd like to respond to that smoothly too.
+
+To do this we use `Smoothen()`. Technically, this creates an operator
+that maps an Observable over [Frames](#frames) to animation states.
+
+An example is called for...
+
+```js
+import { Smoothen, Subject } from 'intween'
+
+const clicks = new Subject()
+
+window.addEventListener(event => {
+  const position = [e.clientX, e.clientY]
+  clicks.next({ position })
+})
+
+clicks.pipe(
+  Smoothen({ duration: '1s', easing: 'quadOut' })
+).subscribe(state => {
+  // animates a div between clicks
+  const [x, y] = state.position
+  myDiv.style.transform = `translate(${x}px, ${y}px)`
+})
+```
+
+:::tip
+A `Subject` is a quick way of creating observables.
+For more information on `Subject`, see the [rxjs documentation on Subject](https://rxjs.dev/guide/subject).
+:::
+
+The above code would move a div element whenever you click on the
+page. And if you click while the div is currently moving, it will
+compensate for the new end position in a smooth way.
+
+:::warning
+When using this with a `Meddle` you'll need to provide a state
+getter function to ensure that Smoothen knows where to start from.
+:::
+
+You can easily send the output of Smoothen into a Meddle to
+make the meddling smooth! However, when using `Smoothen()`
+to meddle with a tween, there's an extra step that needs to happen.
+Since a tween may change the state without `Smoothen()`
+knowing about it, we need to provide a getter function so that
+it is aware of these changes.
+
+```js{10,18,20}
+// elsewhere...
+let animationState
+player.pipe(
+  spreadAssign(
+    tween,
+    meddle
+  ),
+  animationThrottle()
+).subscribe(state => {
+  animationState = state
+  // update views...
+})
+
+/// smooth our meddles
+clicks.pipe(
+  Smoothen(
+    { duration: '1s', easing: 'quadOut' },
+    () => animationState
+  )
+).subscribe(state => meddle.set({ position: state.position }))
+```
+
 ## Recipes and Extras
 
 ### Interoperation with D3 Interpolate
