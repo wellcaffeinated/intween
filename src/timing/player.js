@@ -140,22 +140,24 @@ export class Player extends Emitter {
     this._time = time
 
     if (playbackRate > 0 && time >= totalTime) {
-      this._time = totalTime
-      this.emit('update', time)
-      if (this._loop){
+      if (this._loop) {
+        this._time = time = 0
+        this.emit('update', time)
         this.emit('end')
-        this.seek(0)
       } else {
+        this._time = time = totalTime
+        this.emit('update', time)
         this.togglePause(true)
         this.emit('end')
       }
     } else if (playbackRate < 0 && time <= 0) {
-      this._time = 0
-      this.emit('update', time)
-      if (this._loop){
+      if (this._loop) {
+        this._time = time = totalTime
+        this.emit('update', time)
         this.emit('end')
-        this.seek(totalTime)
       } else {
+        this._time = time = 0
+        this.emit('update', time)
         this.togglePause(true)
         this.emit('end')
       }
