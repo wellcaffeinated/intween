@@ -1,6 +1,6 @@
 {
   "name": "intween",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "The Interactive Tweening Library",
   "main": "dist/intween.js",
   "module": "dist/intween.module.js",
