@@ -28,10 +28,6 @@ export function createPlayer( parentEl, player ){
   })
 
   player.on('update', ( time ) => {
-    // this triggers when the player's time changes
-    // so we seek the manager to that time
-    // manager.seek( time )
-
     // show the time
     timeDisplay.innerHTML = (time / 1000).toFixed(2) + 's'
     scrubber.value = time

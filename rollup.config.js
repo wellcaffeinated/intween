@@ -24,6 +24,12 @@ let builds = [
     plugins: [
       nodeResolve(),
       commonjs(),
+      babel({
+        babelHelpers: 'bundled',
+        compact: false,
+        babelrc: false,
+        ...babelrc
+      }),
       header()
     ],
     output: [

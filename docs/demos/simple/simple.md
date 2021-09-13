@@ -9,19 +9,10 @@
 <label>Read-only (not meddled)</label>
 <input type="range" min="1" max="100" value="50" class="slider" id="slider-ro">
 
-<ClientOnly>
-  <demo/>
+<!-- <ClientOnly>
+  <script src="./simple.js"></script>
 </ClientOnly>
-
-<script>
-export default {
-  name: 'demo',
-  beforeMount(){
-    import('./simple.js')
-  }
-}
-</script>
 
 ## Code
 
-<<< @/docs/demos/simple.js
+<<< @/docs/demos/simple.js -->

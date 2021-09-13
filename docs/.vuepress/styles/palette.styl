@@ -3,3 +3,21 @@ $accentColor = #af6a3e
 $textColor = #2c3e50
 $borderColor = #eaecef
 $codeBgColor = #282c34
+
+button.button,
+select
+  padding: 4px 8px
+  background: $textColor
+  border: 1px solid $textColor
+  color: $borderColor
+  border-radius: 3px
+  cursor: pointer
+  transition: all 0.3s ease
+
+  &:hover:not(:active)
+    background-color: $accentColor
+    border-color: $accentColor
+
+select
+  padding: 3px 8px
+  outline: none

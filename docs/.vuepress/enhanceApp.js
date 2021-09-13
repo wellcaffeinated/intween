@@ -1,4 +1,4 @@
-import * as InTween from '../../dist/intween.js'
+import * as InTween from 'intween'
 window.InTween = InTween
 
 export default ({
@@ -8,4 +8,5 @@ export default ({
   siteData // site metadata
 }) => {
   // ...apply enhancements to the app
+  Vue.prototype.InTween = InTween
 }

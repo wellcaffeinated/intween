@@ -59,7 +59,7 @@ box.style.setProperty('height', '100px')
 document.body.appendChild(box)
 
 const tween = new InTween.Tween({ x: 0, y: 0 })
-  .by('1s', { x: 300, y: 200 }, 'easeOutQuad') // Move to (300, 200) in 1 second.
+  .by('1s', { x: 300, y: 200 }, 'quadOut') // Move to (300, 200) in 1 second.
   // ...using an easing function to make the animation smooth.
 
 // Start the tween immediately.
@@ -71,11 +71,25 @@ InTween.animationFrames()
   })
 ```
 
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/simple/simple.js
+</code-block>
+
+<code-block title="html">
+<<< @/docs/demos/simple/simple.html
+</code-block>
+</code-group>
+
+<ClientOnly>
+  <TweenDemo name="simple" />
+</ClientOnly>
+
 ## Installation
 
 ### ES6 / Webpack / npm
 
-Like most other libraries these days, just install it with yarn/npm.
+Like most other libraries these days, just install it with yarn/npm and bundle it with [webpack](https://webpack.js.org/) or [rollup](https://rollupjs.org/guide/en/).
 
 <code-group>
 <code-block title="YARN">
@@ -102,8 +116,11 @@ import { Tween, Meddle, Player } from 'intween'
 Feel free to include the library manually with a script tag. All functionality will be
 kept inside a global `InTween` variable.
 
-```js
+```html
+<script src="path/to/intween.min.js"></script>
+<script>
 const { Tween, Meddle, Player } = InTween // window.InTween
+</script>
 ```
 
 ### CDN
@@ -299,6 +316,10 @@ that one state transitions to another.
 Animation would be pretty boring without easing. Easing is the quality of the
 transition between two states.
 
+You can try out some easing functions here to see what they look like:
+
+<EasingDemo />
+
 ::: tip
 For more details, see the [In Depth Documentation on State Transitions](/in-depth/#state-transitions)
 :::
@@ -343,6 +364,8 @@ import { Easing } from 'intween'
 tween.by('1s', { value: 1 }, Easing.makeSteps(5)) // take 5 discrete steps
 ```
 
+<EasingDemo :easing="InTween.Easing.makeSteps(5)" />
+
 :::tip
 It's also possible to combine easing functions using `pipe` or `Util.combineEasing`.
 :::
@@ -355,6 +378,8 @@ functions using them one after another, you can reference them by name:
 tween.by('1s', { value: 1 }, 'quadIn + backOut')
 ```
 
+<EasingDemo easing="quadIn + backOut" />
+
 or use `Util.combineEasing`:
 
 ```js
@@ -366,7 +391,8 @@ const combined = Util.combineEasing(
 tween.by('1s', { value: 1 }, combined)
 ```
 
-Sometimes you can get better results by using `pipe()`
+Sometimes you can get better results by using `pipe()`, which is the same as
+doing `k => Easing.bounceOut(Easing.quadIn(k))`.
 
 ```js
 import { pipe, Easing } from 'intween'
@@ -376,6 +402,8 @@ const fall = pipe(
 )
 tween.by('1s', { value: 1 }, fall)
 ```
+
+<EasingDemo :easing="InTween.pipe(InTween.Easing.quadIn, InTween.Easing.bounceOut)" />
 
 ## Time Sources
 
@@ -491,6 +519,28 @@ player.on('end', () => {
 subscription.unsubscribe()
 player.destroy()
 ```
+
+Here's a little demo showing how you could build your own
+UI for a player and attach the player instance to a
+play/pause button, a scrubber, and a time display.
+
+<ClientOnly>
+  <TweenDemo name="player-controls" />
+</ClientOnly>
+
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/player-controls/player-controls.js
+</code-block>
+
+<code-block title="html">
+<<< @/docs/demos/player-controls/player-controls.html
+</code-block>
+
+<code-block title="css">
+<<< @/docs/demos/player-controls/player-controls.css
+</code-block>
+</code-group>
 
 ## Data Types and Interpolators
 
@@ -714,7 +764,7 @@ across several time Operators and then merges their
 resulting states together.
 
 ```
-spreadAssign(A, B, C, ...): t -> A(t) | B(t) | C(t) | ...
+spreadAssign(A, B, C, ...): t -> A(t) ∪ B(t) ∪ C(t) ∪ ...
 ```
 :::
 
@@ -799,24 +849,23 @@ that maps an Observable over [Frames](#frames) to animation states.
 
 An example is called for...
 
-```js
-import { Smoothen, Subject } from 'intween'
+<ClientOnly>
+  <TweenDemo name="smoothen-demo" />
+</ClientOnly>
 
-const clicks = new Subject()
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/smoothen-demo/smoothen-demo.js
+</code-block>
 
-window.addEventListener(event => {
-  const position = [e.clientX, e.clientY]
-  clicks.next({ position })
-})
+<code-block title="html">
+<<< @/docs/demos/smoothen-demo/smoothen-demo.html
+</code-block>
 
-clicks.pipe(
-  Smoothen({ duration: '1s', easing: 'quadOut' })
-).subscribe(state => {
-  // animates a div between clicks
-  const [x, y] = state.position
-  myDiv.style.transform = `translate(${x}px, ${y}px)`
-})
-```
+<code-block title="css">
+<<< @/docs/demos/smoothen-demo/smoothen-demo.css
+</code-block>
+</code-group>
 
 :::tip
 A `Subject` is a quick way of creating observables.

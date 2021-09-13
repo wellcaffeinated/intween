@@ -1,0 +1,8 @@
+.player-controls-demo {
+  display: flex;
+  flex-direction: row;
+}
+
+.player-controls-demo button {
+  width: 80px;
+}

@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   title: 'InTween',
   description: 'Your companion for building rich interactive media with Interactive Tweens',
@@ -11,5 +13,12 @@ module.exports = {
     ]
     , lastUpdated: 'Last Updated'
     , smoothScroll: true
+  },
+  configureWebpack: {
+    resolve: {
+      alias: {
+        'intween': path.join(__dirname, '../../dist/intween.module.js')
+      }
+    }
   }
 }
