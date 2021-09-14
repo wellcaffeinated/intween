@@ -52,7 +52,7 @@ export default {
 
     const sub = fromEvent(window, 'click').pipe(
       map(e => ({ x: e.pageX, y: e.pageY }))
-      , InTween.Smoothen({
+      , InTween.smoothen({
         duration: 1000,
         // easing: 'quadIn + backOut',
         easing: InTween.pipe(InTween.Easing.quadIn, InTween.Easing.bounceOut)

@@ -113,7 +113,7 @@ const sub = animationFrames().pipe(
 const clicks = new Subject()
 
 const sub2 = clicks.pipe(
-  Smoothen(
+  smoothen(
     {
       duration: '.3s',
       easing: 'quadIn + backOut'
@@ -136,7 +136,7 @@ window.addEventListener('click', onInteract)
 :::
 
 <script>
-const { Tween, animationFrames, Meddle, spreadAssign, animationThrottle, Smoothen, Subject } = InTween
+const { Tween, animationFrames, Meddle, spreadAssign, animationThrottle, smoothen, Subject } = InTween
 
 export default {
   name: 'Home',
@@ -187,7 +187,7 @@ export default {
     const clicks = new Subject()
 
     const sub2 = clicks.pipe(
-      Smoothen(
+      smoothen(
         {
           duration: '.3s',
           easing: 'quadIn + backOut'

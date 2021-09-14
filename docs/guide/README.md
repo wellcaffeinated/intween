@@ -833,7 +833,7 @@ player.pipe(
 ## Smoothing User Interaction
 
 :::tip Takeaway
-By using ``Smoothen()`` you can transition smoothly to
+By using ``smoothen()`` you can transition smoothly to
 target states on demand.
 :::
 
@@ -845,7 +845,7 @@ For example, if a user clicks on the screen we might want to
 move an object there smoothly. And if they click elsewhere
 _during_ the transition, we'd like to respond to that smoothly too.
 
-To do this we use `Smoothen()`. Technically, this creates an operator
+To do this we use `smoothen()`. Technically, this creates an operator
 that maps an Observable over [Frames](#frames) to animation states.
 
 An example is called for...
@@ -879,13 +879,13 @@ compensate for the new end position in a smooth way.
 
 :::warning
 When using this with a `Meddle` you'll need to provide a state
-getter function to ensure that Smoothen knows where to start from.
+getter function to ensure that smoothen knows where to start from.
 :::
 
-You can easily send the output of Smoothen into a Meddle to
-make the meddling smooth! However, when using `Smoothen()`
+You can easily send the output of smoothen into a Meddle to
+make the meddling smooth! However, when using `smoothen()`
 to meddle with a tween, there's an extra step that needs to happen.
-Since a tween may change the state without `Smoothen()`
+Since a tween may change the state without `smoothen()`
 knowing about it, we need to provide a getter function so that
 it is aware of these changes.
 
@@ -905,7 +905,7 @@ player.pipe(
 
 /// smooth our meddles
 clicks.pipe(
-  Smoothen(
+  smoothen(
     { duration: '1s', easing: 'quadOut' },
     () => animationState
   )

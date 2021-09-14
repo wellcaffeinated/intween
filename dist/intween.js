@@ -226,10 +226,6 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  function getCjsExportFromNamespace (n) {
-  	return n && n['default'] || n;
-  }
-
   var check$1 = function (it) {
     return it && it.Math == Math && it;
   }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -1455,12 +1451,6 @@
 
   defineWellKnownSymbol('observable');
 
-  // empty
-
-  var es_object_toString = /*#__PURE__*/Object.freeze({
-    __proto__: null
-  });
-
   var toString_1 = function (argument) {
     if (isSymbol(argument)) throw TypeError('Cannot convert a Symbol value to a string');
     return String(argument);
@@ -2029,8 +2019,6 @@
 
     iterators[COLLECTION_NAME] = iterators.Array;
   }
-
-  getCjsExportFromNamespace(es_object_toString);
 
   var observable = path.Observable;
 
@@ -3764,7 +3752,7 @@
   }; // Helper to smooth state changes
   // ---------------------------------------
 
-  function Smoothen(config, getState, schemaDef = null) {
+  function smoothen(config, getState, schemaDef = null) {
     if (config instanceof Function) {
       getState = config;
       config = defaultConfig;
@@ -4161,7 +4149,6 @@
   exports.Observable = Observable;
   exports.Parsers = index;
   exports.Player = Player;
-  exports.Smoothen = Smoothen;
   exports.Subject = Subject;
   exports.Tween = Tween;
   exports.Util = index$3;
@@ -4176,6 +4163,7 @@
   exports.pipeFromArray = pipeFromArray;
   exports.registerType = registerType;
   exports.regulatedBy = regulatedBy;
+  exports.smoothen = smoothen;
   exports.spreadAssign = spreadAssign;
   exports.spreadCombineLatest = spreadCombineLatest;
   exports.zip = zip;

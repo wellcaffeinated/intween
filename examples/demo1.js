@@ -97,7 +97,7 @@ function demo1(){
   interaction
     .pipe(
       rxjs.throttleTime(100)
-      , InTween.Smoothen(() => lastState)
+      , InTween.smoothen(() => lastState)
     )
     .subscribe(state => meddle.set(state))
 

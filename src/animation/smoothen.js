@@ -10,7 +10,7 @@ import { invLerpClamped } from '../util/index.js'
 const defaultConfig = { duration: 1000, easing: 'cubicOut' }
 // Helper to smooth state changes
 // ---------------------------------------
-export function Smoothen(
+export function smoothen(
   config,
   getState,
   schemaDef = null

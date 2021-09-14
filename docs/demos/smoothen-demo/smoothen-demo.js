@@ -1,4 +1,4 @@
-import { Smoothen, Subject } from 'intween'
+import { smoothen, Subject } from 'intween'
 
 const container = document.querySelector('.smoothen-demo')
 const ball = document.querySelector('.smoothen-demo .ball')
@@ -12,7 +12,7 @@ container.addEventListener('click', e => {
 })
 
 clicks.pipe(
-  Smoothen({ duration: '1s', easing: 'quadOut' })
+  smoothen({ duration: '1s', easing: 'quadOut' })
 ).subscribe(state => {
   // animates a div between clicks
   const [x, y] = state.position
