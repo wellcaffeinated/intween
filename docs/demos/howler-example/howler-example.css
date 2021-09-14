@@ -1,0 +1,24 @@
+.howler-example-demo .controls {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 2em;
+}
+
+.howler-example-demo button {
+  width: 80px;
+}
+
+.demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background: #282c34;
+  overflow: hidden;
+}
+
+.box {
+  width: 100px;
+  height: 100px;
+  background: tomato;
+}

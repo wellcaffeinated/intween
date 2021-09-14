@@ -4098,9 +4098,9 @@
     });
     const sub = timeSource.subscribe({
       next: time => {
-        paused = time === false || time === syncTime;
+        paused = time === syncTime;
         syncTime = time;
-        isFresh = time !== false;
+        isFresh = true;
       },
       complete: () => {
         isComplete = true;

@@ -17,7 +17,9 @@ module.exports = {
   configureWebpack: {
     resolve: {
       alias: {
-        'intween': path.join(__dirname, '../../dist/intween.module.js')
+        'intween': path.join(__dirname, '../../dist/intween.module.js'),
+        'chroma': path.join(__dirname, '../lib/chroma.js'),
+        'howler': path.join(__dirname, '../lib/howler.min.js'),
       }
     }
   }

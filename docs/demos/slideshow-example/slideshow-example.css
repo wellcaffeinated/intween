@@ -1,0 +1,26 @@
+.slideshow {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  height: 300px;
+}
+
+.slideshow .track {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slideshow .slide {
+  width: calc(100% - 100px);
+  flex-shrink: 0;
+  border: 1px solid #af6a3e;
+  margin: 20px 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -913,10 +913,111 @@ clicks.pipe(
 
 ## Recipes and Extras
 
-### Interoperation with D3 Interpolate
+### Tweening Colors
 
-https://github.com/medikoo/memoizee
+When tweening colors, a nice way to do it is by using the amazing
+[chromajs library](https://gka.github.io/chroma.js/) and registering
+a new type for it.
 
-### Using Audio Players (like SoundCloud) as Time Sources
+<ClientOnly>
+  <TweenDemo name="colors-example" />
+</ClientOnly>
+
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/colors-example/colors-example.js
+</code-block>
+
+<code-block title="html">
+<<< @/docs/demos/colors-example/colors-example.html
+</code-block>
+
+<code-block title="css">
+<<< @/docs/demos/colors-example/colors-example.css
+</code-block>
+</code-group>
+
+### Using Audio Players (like Howler or SoundCloud) as Time Sources
+
+As long as the audio player's api can tell you what
+time the audio is at (which is almost always the case)
+then you can create a timesource from it by using a
+combination of `animationSync()`, `animationFrames()` and `map()`.
+The `animationSync()` function ensures that even if there are
+small jumps in the precision of the reporting of the time, the animation
+will still come out smooth on the other side. The `animationSync`
+will also only report new time values which reduces costly rendering
+when paused.
+
+Here's a funky demo that does this with [Howler](https://howlerjs.com/).
+
+<ClientOnly>
+  <TweenDemo name="howler-example" />
+</ClientOnly>
+
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/howler-example/howler-example.js
+</code-block>
+
+<code-block title="html">
+<<< @/docs/demos/howler-example/howler-example.html
+</code-block>
+
+<code-block title="css">
+<<< @/docs/demos/howler-example/howler-example.css
+</code-block>
+</code-group>
+
+If the audio player api provides a playback
+event (like SoundCloud does) then you can plug into that.
+
+Here's how you might do use the soundcloud widget as a
+time source:
+
+```js
+import { Subject spreadAssign, animationThrottle } from 'intween'
+
+const scTimeSource = new Subject()
+
+// somehow create a soundcloud widget, then...
+widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
+  const time = e.currentPosition
+  scTimeSource.next(time)
+})
+
+scTimeSource.pipe(
+  spreadAssign(
+    tween,
+    meddle
+  )
+  , animationThrottle()
+).subscribe(state => {
+  // ...
+})
+```
 
 ### Creating Slideshows
+
+Here's a demo that shows a very easy way to create slideshows!
+The trick is to use `player.playTo()` so that it plays until
+the next slide. You can go all out and animate the slide content
+too, of course!
+
+<ClientOnly>
+  <TweenDemo name="slideshow-example" />
+</ClientOnly>
+
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/slideshow-example/slideshow-example.js
+</code-block>
+
+<code-block title="html">
+<<< @/docs/demos/slideshow-example/slideshow-example.html
+</code-block>
+
+<code-block title="css">
+<<< @/docs/demos/slideshow-example/slideshow-example.css
+</code-block>
+</code-group>
