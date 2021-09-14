@@ -2487,7 +2487,7 @@ var index$3 = /*#__PURE__*/Object.freeze({
 const Pi2$1 = Math.PI * 2;
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
- * @param { number } [period = 0.1] - Sets how tight the sine - wave is,
+ * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 
@@ -2509,7 +2509,7 @@ const makeElasticIn = (a = 0.1, p = 0.1) => {
 };
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
- * @param { number } [period = 0.1] - Sets how tight the sine - wave is,
+ * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 
@@ -2531,7 +2531,7 @@ const makeElasticOut = (a = 0.1, p = 0.1) => {
 };
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
- * @param { number } [period = 0.1] - Sets how tight the sine - wave is,
+ * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 

@@ -7,10 +7,14 @@ const apiFiles = fs.readdirSync(apidir).filter(file => {
 }).map(file => file.replace('.md', ''))
 
 const sidebar = {
-  '/api/': [
-    '',
-    ...apiFiles
-  ],
+  '/api/': [{
+    sidebarDepth: 4,
+    collapsable: false,
+    children: [
+      '',
+      ...apiFiles
+    ]
+  }],
   '/': 'auto'
 }
 

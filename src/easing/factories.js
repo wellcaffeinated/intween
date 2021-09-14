@@ -8,7 +8,7 @@ const Pi2 = Math.PI * 2
 
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
- * @param { number } [period = 0.1] - Sets how tight the sine - wave is,
+ * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 export const makeElasticIn = (a = 0.1, p = 0.1) => {
@@ -31,7 +31,7 @@ export const makeElasticIn = (a = 0.1, p = 0.1) => {
 
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
- * @param { number } [period = 0.1] - Sets how tight the sine - wave is,
+ * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 export const makeElasticOut = (a = 0.1, p = 0.1) => {
@@ -54,7 +54,7 @@ export const makeElasticOut = (a = 0.1, p = 0.1) => {
 
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
- * @param { number } [period = 0.1] - Sets how tight the sine - wave is,
+ * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 export const makeElasticInOut = (a = 0.1, p = 0.1) => {
