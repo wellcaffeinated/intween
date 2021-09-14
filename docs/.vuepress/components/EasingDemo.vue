@@ -4,7 +4,7 @@
   <select v-if="!easing" v-model="selected">
     <option v-for="e in easings" :key="e" :value="e">easing: {{ e }}</option>
   </select>
-  <div ref="target" class="ball"></div>
+  <div ref="target" class="circle"></div>
 </div>
 </template>
 
@@ -69,7 +69,7 @@ export default {
   overflow: hidden;
 }
 
-.ball {
+.circle {
   position: absolute;
   top: 50%;
   left: 50px;
@@ -77,7 +77,7 @@ export default {
   transform: translateZ(0);
 }
 
-.ball::after {
+.circle::after {
   content: '';
   display: block;
   width: 50px;

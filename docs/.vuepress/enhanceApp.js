@@ -1,3 +1,4 @@
+import pageComponents from '@internal/page-components'
 import * as InTween from 'intween'
 window.InTween = InTween
 
@@ -7,6 +8,23 @@ export default ({
   router, // the router instance for the app
   siteData // site metadata
 }) => {
+  // https://github.com/vuejs/vuepress/issues/1173
+  for (const [name, component] of Object.entries(pageComponents)) {
+    Vue.component(name, component)
+  }
   // ...apply enhancements to the app
   Vue.prototype.InTween = InTween
+
+  // https://github.com/vuejs/vuepress/issues/1499
+  window.onload = () => {
+    requestAnimationFrame(() => {
+      if (location.hash) {
+        const element = document.getElementById(location.hash.slice(1))
+
+        if (element) {
+          element.scrollIntoView()
+        }
+      }
+    })
+  }
 }

@@ -1,6 +1,7 @@
 ---
 sidebar: auto
 ---
+
 # Guide
 
 ## Introduction

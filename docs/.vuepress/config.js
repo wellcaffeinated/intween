@@ -1,4 +1,18 @@
 const path = require('path')
+const fs = require('fs')
+
+const apidir = path.join(__dirname, '../api')
+const apiFiles = fs.readdirSync(apidir).filter(file => {
+  return file !== 'README.md' && file.substr(-3) === '.md' && !fs.lstatSync(path.join(apidir, file)).isDirectory()
+}).map(file => file.replace('.md', ''))
+
+const sidebar = {
+  '/api/': [
+    '',
+    ...apiFiles
+  ],
+  '/': 'auto'
+}
 
 module.exports = {
   title: 'InTween',
@@ -6,11 +20,12 @@ module.exports = {
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/' },
-      { text: 'In Depth', link: '/in-depth/' },
+      { text: 'API', link: '/api/' },
       { text: 'Demos', link: '/demos/' },
-      { text: 'API', link: 'https://github.com/wellcaffeinated/intween.git' },
+      { text: 'In Depth', link: '/in-depth/' },
       { text: 'GitHub', link: 'https://github.com/wellcaffeinated/intween' },
     ]
+    , sidebar
     , lastUpdated: 'Last Updated'
     , smoothScroll: true
   },
