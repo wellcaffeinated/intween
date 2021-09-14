@@ -226,10 +226,6 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  function getCjsExportFromNamespace (n) {
-  	return n && n['default'] || n;
-  }
-
   var check$1 = function (it) {
     return it && it.Math == Math && it;
   }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -1435,12 +1431,6 @@
 
   defineWellKnownSymbol('observable');
 
-  // empty
-
-  var es_object_toString = /*#__PURE__*/Object.freeze({
-    __proto__: null
-  });
-
   var toString_1 = function (argument) {
     if (isSymbol(argument)) throw TypeError('Cannot convert a Symbol value to a string');
     return String(argument);
@@ -2009,8 +1999,6 @@
 
     iterators[COLLECTION_NAME] = iterators.Array;
   }
-
-  getCjsExportFromNamespace(es_object_toString);
 
   var observable = path.Observable;
 
@@ -3496,7 +3484,8 @@
       }
 
       const frame = createFrame(state, meta, {
-        duration: this.options.tweenDuration
+        duration: this.options.tweenDuration,
+        easing: this.options.easing
       });
 
       if (frame.meta.id && this.framesById[frame.meta.id]) {
@@ -4109,9 +4098,9 @@
     });
     const sub = timeSource.subscribe({
       next: time => {
-        paused = time === syncTime;
+        paused = time === false || time === syncTime;
         syncTime = time;
-        isFresh = true;
+        isFresh = time !== false;
       },
       complete: () => {
         isComplete = true;

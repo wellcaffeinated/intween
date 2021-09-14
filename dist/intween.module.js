@@ -3478,7 +3478,8 @@ class Tween extends TweenOperator {
     }
 
     const frame = createFrame(state, meta, {
-      duration: this.options.tweenDuration
+      duration: this.options.tweenDuration,
+      easing: this.options.easing
     });
 
     if (frame.meta.id && this.framesById[frame.meta.id]) {
@@ -4091,9 +4092,9 @@ const animationSync = (config = {}) => timeSource => new Observable(sink => {
   });
   const sub = timeSource.subscribe({
     next: time => {
-      paused = time === syncTime;
+      paused = time === false || time === syncTime;
       syncTime = time;
-      isFresh = true;
+      isFresh = time !== false;
     },
     complete: () => {
       isComplete = true;
