@@ -2295,8 +2295,8 @@
       });
     }
     /**
-    * EventEmitter#on( topic, fn( data, event )[, scope, priority] ) -> this
-    * EventEmitter#on( topicConfig[, scope, priority] ) -> this
+    * Emitter#on( topic, fn( data, event )[, scope, priority] ) -> this
+    * Emitter#on( topicConfig[, scope, priority] ) -> this
     * - topic (String): The topic name
     * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
     * - fn (Function): The callback function (if not using Object as previous argument)
@@ -2338,8 +2338,8 @@
       return this;
     }
     /**
-    * EventEmitter#off( topic, fn[, scope] ) -> this
-    * EventEmitter#off( topicCfg ) -> this
+    * Emitter#off( topic, fn[, scope] ) -> this
+    * Emitter#off( topicCfg ) -> this
     * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
     * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
     * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
@@ -2361,7 +2361,7 @@
 
       if (typeof topic === 'object') {
         for (const t in topic) {
-          this.off(t, topic[t]);
+          this.off(t, topic[t], fn);
         }
 
         return this;
@@ -2392,7 +2392,7 @@
       return this;
     }
     /**
-    * EventEmitter#emit( topic[, data] ) -> this
+    * Emitter#emit( topic[, data] ) -> this
     * - topic (String): The topic name
     * - data (Mixed): The data to send
     *
@@ -2424,8 +2424,8 @@
       return this;
     }
     /**
-    * EventEmitter#one( topic, fn( data, event )[, scope, priority] ) -> this
-    * EventEmitter#one( topicConfig[, scope, priority] ) -> this
+    * Emitter#one( topic, fn( data, event )[, scope, priority] ) -> this
+    * Emitter#one( topicConfig[, scope, priority] ) -> this
     * - topic (String): The topic name
     * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
     * - fn (Function): The callback function (if not using Object as previous argument)
@@ -3949,6 +3949,8 @@
 
 
     playTo(time) {
+      time = parseTime(time);
+
       if (this._time === time) {
         return this;
       }
@@ -4156,7 +4158,6 @@
   exports.animationSync = animationSync;
   exports.animationThrottle = animationThrottle;
   exports.combineLatest = combineLatest;
-  exports.interpolateProperty = interpolateProperty;
   exports.map = map;
   exports.merge = merge;
   exports.pipe = pipe;

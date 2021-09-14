@@ -92,6 +92,7 @@ export class Player extends Emitter {
 
   // Stops after it reaches time t
   playTo(time) {
+    time = parseTime(time)
     if (this._time === time) {
       return this
     }

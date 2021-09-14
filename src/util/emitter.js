@@ -25,8 +25,8 @@ export class Emitter extends Observable {
   }
 
   /**
-  * EventEmitter#on( topic, fn( data, event )[, scope, priority] ) -> this
-  * EventEmitter#on( topicConfig[, scope, priority] ) -> this
+  * Emitter#on( topic, fn( data, event )[, scope, priority] ) -> this
+  * Emitter#on( topicConfig[, scope, priority] ) -> this
   * - topic (String): The topic name
   * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
   * - fn (Function): The callback function (if not using Object as previous argument)
@@ -73,8 +73,8 @@ export class Emitter extends Observable {
   }
 
   /**
-  * EventEmitter#off( topic, fn[, scope] ) -> this
-  * EventEmitter#off( topicCfg ) -> this
+  * Emitter#off( topic, fn[, scope] ) -> this
+  * Emitter#off( topicCfg ) -> this
   * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
   * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
   * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
@@ -96,7 +96,7 @@ export class Emitter extends Observable {
 
       for (const t in topic) {
 
-        this.off(t, topic[t])
+        this.off(t, topic[t], fn)
       }
 
       return this
@@ -130,7 +130,7 @@ export class Emitter extends Observable {
   }
 
   /**
-  * EventEmitter#emit( topic[, data] ) -> this
+  * Emitter#emit( topic[, data] ) -> this
   * - topic (String): The topic name
   * - data (Mixed): The data to send
   *
@@ -165,8 +165,8 @@ export class Emitter extends Observable {
   }
 
   /**
-  * EventEmitter#one( topic, fn( data, event )[, scope, priority] ) -> this
-  * EventEmitter#one( topicConfig[, scope, priority] ) -> this
+  * Emitter#one( topic, fn( data, event )[, scope, priority] ) -> this
+  * Emitter#one( topicConfig[, scope, priority] ) -> this
   * - topic (String): The topic name
   * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
   * - fn (Function): The callback function (if not using Object as previous argument)

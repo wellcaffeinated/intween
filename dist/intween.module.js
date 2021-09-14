@@ -2289,8 +2289,8 @@ class Emitter extends Observable {
     });
   }
   /**
-  * EventEmitter#on( topic, fn( data, event )[, scope, priority] ) -> this
-  * EventEmitter#on( topicConfig[, scope, priority] ) -> this
+  * Emitter#on( topic, fn( data, event )[, scope, priority] ) -> this
+  * Emitter#on( topicConfig[, scope, priority] ) -> this
   * - topic (String): The topic name
   * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
   * - fn (Function): The callback function (if not using Object as previous argument)
@@ -2332,8 +2332,8 @@ class Emitter extends Observable {
     return this;
   }
   /**
-  * EventEmitter#off( topic, fn[, scope] ) -> this
-  * EventEmitter#off( topicCfg ) -> this
+  * Emitter#off( topic, fn[, scope] ) -> this
+  * Emitter#off( topicCfg ) -> this
   * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
   * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
   * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
@@ -2355,7 +2355,7 @@ class Emitter extends Observable {
 
     if (typeof topic === 'object') {
       for (const t in topic) {
-        this.off(t, topic[t]);
+        this.off(t, topic[t], fn);
       }
 
       return this;
@@ -2386,7 +2386,7 @@ class Emitter extends Observable {
     return this;
   }
   /**
-  * EventEmitter#emit( topic[, data] ) -> this
+  * Emitter#emit( topic[, data] ) -> this
   * - topic (String): The topic name
   * - data (Mixed): The data to send
   *
@@ -2418,8 +2418,8 @@ class Emitter extends Observable {
     return this;
   }
   /**
-  * EventEmitter#one( topic, fn( data, event )[, scope, priority] ) -> this
-  * EventEmitter#one( topicConfig[, scope, priority] ) -> this
+  * Emitter#one( topic, fn( data, event )[, scope, priority] ) -> this
+  * Emitter#one( topicConfig[, scope, priority] ) -> this
   * - topic (String): The topic name
   * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
   * - fn (Function): The callback function (if not using Object as previous argument)
@@ -3943,6 +3943,8 @@ class Player extends Emitter {
 
 
   playTo(time) {
+    time = parseTime(time);
+
     if (this._time === time) {
       return this;
     }
@@ -4137,5 +4139,5 @@ var index = /*#__PURE__*/Object.freeze({
   parseInterpolator: parseInterpolator
 });
 
-export { index$2 as Easing, index$1 as Interpolators, Meddle, Observable, index as Parsers, Player, Subject, Tween, index$3 as Util, animationFrames, animationSync, animationThrottle, combineLatest, interpolateProperty, map, merge, pipe, pipeFromArray, registerType, regulatedBy, smoothen, spreadAssign, spreadCombineLatest, zip };
+export { index$2 as Easing, index$1 as Interpolators, Meddle, Observable, index as Parsers, Player, Subject, Tween, index$3 as Util, animationFrames, animationSync, animationThrottle, combineLatest, map, merge, pipe, pipeFromArray, registerType, regulatedBy, smoothen, spreadAssign, spreadCombineLatest, zip };
 //# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5tb2R1bGUuanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIn0=

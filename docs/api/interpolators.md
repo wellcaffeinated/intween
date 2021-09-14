@@ -72,7 +72,7 @@ Interpolators.toggle('Hello', 'World', 1) // -> 'World'
 
 This set of functions is used to create interpolators.
 
-### makeCyclic
+### makeCyclic()
 
 ```js
 makeCyclic(len) // -> Function
@@ -86,10 +86,10 @@ path between the start and end values.
 
 * `{Number} len` - The length of the cycle
 
-### makeForArray
+### makeForArray()
 
 ```js
-makeForArray(interp => {}) // -> Function
+makeForArray(interp) // -> Function
 ```
 
 Make an interpolator for arrays of a custom type.
@@ -105,7 +105,7 @@ Make an interpolator for arrays of a custom type.
 Interpolators.makeForArray(Interpolators.string)
 ```
 
-### makeToggle
+### makeToggle()
 
 ```js
 makeToggle(threshold) // -> Function
