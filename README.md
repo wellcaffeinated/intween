@@ -7,7 +7,7 @@ Your companion for building rich interactive media with **Interactive Tweens**.
 
 [Guide](https://intween.wellcaffeinated.net/guide) &mdash;
 [Demos](https://intween.wellcaffeinated.net/demos/) &mdash;
-[API Docs](https://intween.wellcaffeinated.net/api/) &mdash;
+[API Docs](https://intween.wellcaffeinated.net/api/)
 
 ### Quick Start ###
 
