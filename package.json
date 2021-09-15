@@ -1,6 +1,6 @@
 {
   "name": "intween",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "The Interactive Tweening Library",
   "main": "dist/intween.js",
   "module": "dist/intween.module.js",
@@ -21,7 +21,7 @@
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "docs:deploy": "sh deploy.sh",
-    "preversion": "npm run build",
+    "version": "npm run build",
     "prepublish": "npm run test"
   },
   "repository": {
