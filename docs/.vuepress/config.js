@@ -15,6 +15,17 @@ const sidebar = {
       ...apiFiles
     ]
   }],
+  '/demos/': [
+    '',
+    'simple/',
+    'all-interpolators/',
+    'colors-example/',
+    'player-controls/',
+    'smoothen-demo/',
+    'howler-example/',
+    'slideshow-example/',
+    'charts/'
+  ],
   '/': 'auto'
 }
 

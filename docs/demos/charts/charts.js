@@ -1,4 +1,4 @@
-const { Tween, Observable, Easing } = InTween
+import { Tween, Observable } from 'intween'
 
 // setup our instance
 const tween = new Tween({

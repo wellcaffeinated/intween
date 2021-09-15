@@ -1,5 +1,5 @@
-import { createPlayer } from '../lib/player-ui'
-const { Tween, Interpolators, Player } = InTween
+import { createPlayer } from '../../lib/player-ui'
+import { Tween, Interpolators, Player } from 'intween'
 
 // setup our instance
 const tween = new Tween({
@@ -28,7 +28,7 @@ tween.by('4s', {
   , angle: 200
   , toggle: true
   , text: 'Hello World!'
-  , array: [ 1, 2, 3 ]
+  , array: [1, 2, 3]
   , object: { x: 1, y: 2, z: 3 }
   , collection: [{ x: 1, y: 1 }, { x: 2, y: 2 }]
 })
@@ -38,7 +38,7 @@ const angleView = document.getElementById('angle')
 
 // for more information about creating a "player", see the player tutorial
 const player = new Player(tween.duration)
-createPlayer( document.getElementById('player-wrap'), player )
+createPlayer(document.getElementById('player-wrap'), player)
 
 player.pipe(tween).subscribe(state => {
   results.innerHTML = JSON.stringify(state, null, 2)
