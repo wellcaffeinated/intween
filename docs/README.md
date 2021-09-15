@@ -14,7 +14,7 @@ footer: MIT Licensed | Copyright © 2019-present Jasper Palfree
 ---
 
 <style>
-.outline, .circle, .target {
+.homepage-demo .outline, .homepage-demo .circle, .homepage-demo .target {
   position: absolute;
   top: 0;
   left: 0;
@@ -25,10 +25,10 @@ footer: MIT Licensed | Copyright © 2019-present Jasper Palfree
   border: 2px solid #af6a3e;
   border-radius: 50%;
 }
-.outline {
+.homepage-demo .outline {
   z-index: 2;
 }
-.target {
+.homepage-demo .target {
   width: 100px;
   height: 100px;
   margin-left: -50px;
@@ -36,12 +36,12 @@ footer: MIT Licensed | Copyright © 2019-present Jasper Palfree
   border: none;
   background: none;
 }
-.circle {
+.homepage-demo .circle {
   background: #af6a3e;
   border-color: #af6a3e;
   z-index: 1;
 }
-.circuit {
+.homepage-demo.circuit {
   position: relative;
   width: 200px;
   height: 200px;
@@ -62,7 +62,7 @@ footer: MIT Licensed | Copyright © 2019-present Jasper Palfree
 }
 </style>
 
-<div ref="circuit" class="circuit">
+<div ref="circuit" class="homepage-demo circuit">
   <div ref="outline" class="outline"></div>
   <div ref="circle" class="circle"></div>
   <span>Click!</span>

@@ -1,15 +1,15 @@
 # Scroll Animations
 
-<div ref="scroll" class="scroll-area">
+<div ref="scroll" class="scroll-demo scroll-area">
   <div ref="circle" class="circle"></div>
 </div>
 
 <style>
-.scroll-area {
+.scroll-demo.scroll-area {
   min-height: 200vh;
 }
 
-.circle {
+.scroll-demo .circle {
   position: fixed;
   top: 200px;
   left: 50%;

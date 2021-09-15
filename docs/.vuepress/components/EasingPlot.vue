@@ -1,5 +1,5 @@
 <template>
-<canvas ref="canvas" :width="width" :height="height"></canvas>
+<canvas ref="canvas" :width="width" :height="height" :style="style"></canvas>
 </template>
 
 <script>
@@ -37,7 +37,7 @@ function drawCircle(ctx, { x, y }, r, color) {
   ctx.fill()
 }
 
-const markerSize = 5
+const markerSize = 10
 
 export default {
   name: 'EasingPlot',
@@ -45,11 +45,11 @@ export default {
     easing: [String, Function],
     width: {
       type: Number,
-      default: 16 * 20
+      default: 16 * 40
     },
     height: {
       type: Number,
-      default: 9 * 20
+      default: 9 * 40
     }
   },
   mounted(){
@@ -78,6 +78,12 @@ export default {
         x: Util.lerp(this.domain[0], this.domain[1], x / domainSize),
         y: Util.lerp(this.range[0], this.range[1], y)
       }))
+    },
+    style(){
+      return {
+        width: `${this.width / 2}px`
+        , height: `${this.height / 2}px`
+      }
     }
   },
   watch: {
@@ -90,10 +96,10 @@ export default {
 
       ctx.fillStyle = '#282c34'
       ctx.fillRect(0, 0, this.width, this.height)
-      drawLines(ctx, this.points, '#af6a3e')
+      drawLines(ctx, this.points, '#af6a3e', 4)
 
-      drawCircle(ctx, this.points[0], 5, 'forestgreen')
-      drawCircle(ctx, this.points[this.points.length - 1], 5, 'steelblue')
+      drawCircle(ctx, this.points[0], markerSize, 'forestgreen')
+      drawCircle(ctx, this.points[this.points.length - 1], markerSize, 'steelblue')
     }
   }
 }

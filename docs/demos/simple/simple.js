@@ -1,5 +1,4 @@
-// setup our instance
-const { Tween, Meddle, spreadAssign, Player } = InTween
+import { Tween, Meddle, spreadAssign, Player } from 'intween'
 
 const tween = new Tween({
   // simple numeric value. Starts with default 50
