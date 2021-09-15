@@ -1,9 +1,9 @@
 # smoothen()
 
 ```js
-smoothen(config) // -> Observable<Object>
-smoothen(getState) // -> Observable<Object>
-smoothen(config, getState, schema) // -> Observable<Object>
+smoothen(config) // -> Operator
+smoothen(getState) // -> Operator
+smoothen(config, getState, schema) // -> Operator
 ```
 
 `smoothen` creates an operator that maps an Observable over
