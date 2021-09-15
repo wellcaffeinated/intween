@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[69],{433:function(s,n,i){"use strict";i.r(n),n.default='<div class="colors-example">\n  <div class="box"></div>\n</div>\n'}}]);

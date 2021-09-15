@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[71],{435:function(n,s,t){"use strict";t.r(s),s.default='<div class="player-controls-demo">\n  <button>play</button>\n  <input class="scrubber" type="range" min="0" max="100" step="any" value="0" />\n  <div class="time"></div>\n</div>\n'}}]);
