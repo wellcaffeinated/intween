@@ -3281,15 +3281,7 @@ function createTimeline(schema, frames = []) {
 
     idx = Math.min(idx, sortedIndex(timeline, start, getTime, true));
     timeline.splice(idx, 0, start);
-  }); // TODO: is this necessary?
-  // timeline.sort( (a, b) => {
-  //   if ( a.time === b.time ){
-  //     return a.type > b.type ? 1 : -1
-  //   }
-  //
-  //   return 0
-  // })
-  // insert frames with implicit timing
+  }); // insert frames with implicit timing
 
   implicitFrames.forEach(frame => {
     const end = {

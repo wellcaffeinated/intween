@@ -10,17 +10,19 @@ sidebar: auto
 It performs similar functionality to other libraries like
 [TWEENJS](https://createjs.com/tweenjs),
 [animejs](https://animejs.com/), and
-[tween.js](https://github.com/tweenjs/tween.js/),
-however **InTween** excels at creating interactive, and interrupted tweens.
+[tween.js](https://github.com/tweenjs/tween.js/).
+
+**However InTween excels at creating interactive, and interrupted tweens.**
 A great example of where you would do this is in creating
 [interactive videos, like this one](https://labs.minutelabs.io/what-is-a-day/#/welcome).
 
 The fastest way to get started is to [install InTween](#installation) and follow the
 [TLDR instructions](#tldr-too-long-didn-t-read).
 
-If you need more convincing, let's just compare InTween to other libraries. Let's start
-with [tween.js](https://github.com/tweenjs/tween.js/). The self-contained example in
-their readme rewritten using InTween would look like this:
+Many seasoned tweeners will be familiar with a
+[tween.js](https://github.com/tweenjs/tween.js/) style of animating
+things, so let's see how the self-contained example in their readme
+would be implemented with InTween:
 
 :::details The Tween.js Code
 
@@ -52,6 +54,8 @@ const tween = new TWEEN.Tween(coords) // Create a new tween that modifies 'coord
 
 :::
 
+Here's the InTween way to do it:
+
 ```js
 const box = document.createElement('div')
 box.style.setProperty('background-color', '#008800')
@@ -71,20 +75,6 @@ InTween.animationFrames()
     box.style.setProperty('transform', `translate(${state.x}px, ${state.y}px)`)
   })
 ```
-
-<code-group>
-<code-block title="js">
-<<< @/docs/demos/simple/simple.js
-</code-block>
-
-<code-block title="html">
-<<< @/docs/demos/simple/simple.html
-</code-block>
-</code-group>
-
-<ClientOnly>
-  <TweenDemo name="simple" />
-</ClientOnly>
 
 ## Installation
 
@@ -126,9 +116,15 @@ const { Tween, Meddle, Player } = InTween // window.InTween
 
 ### CDN
 
-::: tip TODO
-cdn links
-:::
+You can also get InTween from a CDN:
+
+```
+https://unpkg.com/intween/dist/intween.min.js
+```
+
+```html
+<script src="https://unpkg.com/intween/dist/intween.min.js"></script>
+```
 
 ## TLDR; (Too Long Didn't Read)
 

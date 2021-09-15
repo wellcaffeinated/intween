@@ -1,18 +1,15 @@
 # Simple Demo
 
-<button id="play">Play/Pause</button>
-<p>Player time: <span id="time" style="font-family: monospace">0 ms</span></p>
-
-<label>Interactive</label>
-<input type="range" min="1" max="100" value="50" class="slider" id="slider">
-
-<label>Read-only (not meddled)</label>
-<input type="range" min="1" max="100" value="50" class="slider" id="slider-ro">
-
-<!-- <ClientOnly>
-  <script src="./simple.js"></script>
+<ClientOnly>
+  <TweenDemo name="simple" />
 </ClientOnly>
 
-## Code
+<code-group>
+<code-block title="js">
+<<< @/docs/demos/simple/simple.js
+</code-block>
 
-<<< @/docs/demos/simple.js -->
+<code-block title="html">
+<<< @/docs/demos/simple/simple.html
+</code-block>
+</code-group>

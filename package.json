@@ -25,13 +25,19 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/wellcaffeinated/intween"
   },
-  "keywords": [],
-  "author": "Jasper Palfree",
+  "keywords": [
+    "intween",
+    "intween.js",
+    "tween",
+    "animation",
+    "javascript"
+  ],
+  "author": "wellcaffeinated",
   "license": "MIT",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/wellcaffeinated/intween/issues"
   },
   "browserslist": [
     "last 1 version",
