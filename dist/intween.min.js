@@ -1,5 +1,5 @@
 /**
- * InTween 1.0.0-beta.4
+ * InTween 1.0.0-beta.6
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
