@@ -22,6 +22,7 @@
     "docs:build": "vuepress build docs",
     "docs:deploy": "sh deploy.sh",
     "version": "npm run build",
+    "postversion": "git push && git push --tags",
     "prepublish": "npm run test"
   },
   "repository": {
