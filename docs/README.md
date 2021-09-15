@@ -136,7 +136,7 @@ window.addEventListener('click', onInteract)
 :::
 
 <script>
-const { Tween, animationFrames, Meddle, spreadAssign, animationThrottle, smoothen, Subject } = InTween
+import { Tween, animationFrames, Meddle, spreadAssign, animationThrottle, smoothen, Subject } from 'intween'
 
 export default {
   name: 'Home',

@@ -1,5 +1,6 @@
 import { Observable } from '../rx/observable.js'
 import { now } from '../util/index.js'
+import window from 'global/window'
 
 const requestAnimationFrame = ((window) => {
   return window.requestAnimationFrame || (fn => setTimeout(fn, 16))

@@ -1,6 +1,6 @@
 import pageComponents from '@internal/page-components'
 import * as InTween from 'intween'
-window.InTween = InTween
+import window from 'global/window'
 
 export default ({
   Vue, // the version of Vue being used in the VuePress app

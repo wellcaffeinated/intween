@@ -652,7 +652,7 @@ var shared = createCommonjsModule(function (module) {
   (module.exports = function (key, value) {
     return sharedStore[key] || (sharedStore[key] = value !== undefined ? value : {});
   })('versions', []).push({
-    version: '3.16.0',
+    version: '3.17.3',
     mode: 'pure' ,
     copyright: '© 2021 Denis Pushkarev (zloirock.ru)'
   });
@@ -890,7 +890,7 @@ var _export = function (options, source) {
   var STATIC = options.stat;
   var PROTO = options.proto;
   var nativeSource = GLOBAL ? global_1 : STATIC ? global_1[TARGET] : (global_1[TARGET] || {}).prototype;
-  var target = GLOBAL ? path : path[TARGET] || (path[TARGET] = {});
+  var target = GLOBAL ? path : path[TARGET] || createNonEnumerableProperty(path, TARGET, {})[TARGET];
   var targetPrototype = target.prototype;
   var FORCED, USE_NATIVE, VIRTUAL_PROTOTYPE;
   var key, sourceProperty, targetProperty, nativeProperty, resultProperty, descriptor;
@@ -917,7 +917,7 @@ var _export = function (options, source) {
       createNonEnumerableProperty(resultProperty, 'sham', true);
     }
 
-    target[key] = resultProperty;
+    createNonEnumerableProperty(target, key, resultProperty);
 
     if (PROTO) {
       VIRTUAL_PROTOTYPE = TARGET + 'Prototype';
@@ -927,7 +927,7 @@ var _export = function (options, source) {
       } // export virtual prototype methods
 
 
-      path[VIRTUAL_PROTOTYPE][key] = sourceProperty; // export real prototype methods
+      createNonEnumerableProperty(path[VIRTUAL_PROTOTYPE], key, sourceProperty); // export real prototype methods
 
       if (options.real && targetPrototype && !targetPrototype[key]) {
         createNonEnumerableProperty(targetPrototype, key, sourceProperty);
@@ -1008,14 +1008,20 @@ var getIteratorMethod = function (it) {
   if (it != undefined) return it[ITERATOR$3] || it['@@iterator'] || iterators[classof(it)];
 };
 
-var getIterator = function (it) {
-  var iteratorMethod = getIteratorMethod(it);
+var getIterator = function (it, usingIterator) {
+  var iteratorMethod = arguments.length < 2 ? getIteratorMethod(it) : usingIterator;
 
   if (typeof iteratorMethod != 'function') {
     throw TypeError(String(it) + ' is not iterable');
   }
 
   return anObject(iteratorMethod.call(it));
+};
+
+// https://tc39.es/ecma262/#sec-getmethod
+
+var getMethod = function (fn) {
+  return fn == null ? undefined : aFunction(fn);
 };
 
 var ITERATOR$2 = wellKnownSymbol('iterator');
@@ -1040,12 +1046,28 @@ var toLength = function (argument) {
   return argument > 0 ? min$1(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
 };
 
-var iteratorClose = function (iterator) {
-  var returnMethod = iterator['return'];
+var iteratorClose = function (iterator, kind, value) {
+  var innerResult, innerError;
+  anObject(iterator);
 
-  if (returnMethod !== undefined) {
-    return anObject(returnMethod.call(iterator)).value;
+  try {
+    innerResult = iterator['return'];
+
+    if (innerResult === undefined) {
+      if (kind === 'throw') throw value;
+      return value;
+    }
+
+    innerResult = innerResult.call(iterator);
+  } catch (error) {
+    innerError = true;
+    innerResult = error;
   }
+
+  if (kind === 'throw') throw value;
+  if (innerError) throw innerResult;
+  anObject(innerResult);
+  return value;
 };
 
 var Result = function (stopped, result) {
@@ -1062,7 +1084,7 @@ var iterate = function (iterable, unboundFunction, options) {
   var iterator, iterFn, index, length, result, next, step;
 
   var stop = function (condition) {
-    if (iterator) iteratorClose(iterator);
+    if (iterator) iteratorClose(iterator, 'normal', condition);
     return new Result(true, condition);
   };
 
@@ -1090,7 +1112,7 @@ var iterate = function (iterable, unboundFunction, options) {
       return new Result(false);
     }
 
-    iterator = iterFn.call(iterable);
+    iterator = getIterator(iterable, iterFn);
   }
 
   next = iterator.next;
@@ -1099,8 +1121,7 @@ var iterate = function (iterable, unboundFunction, options) {
     try {
       result = callFn(step.value);
     } catch (error) {
-      iteratorClose(iterator);
-      throw error;
+      iteratorClose(iterator, 'throw', error);
     }
 
     if (typeof result == 'object' && result && result instanceof Result) return result;
@@ -1210,10 +1231,6 @@ var defineProperty$2 = objectDefineProperty.f;
 var OBSERVABLE = wellKnownSymbol('observable');
 var getInternalState$2 = internalState.get;
 var setInternalState$2 = internalState.set;
-
-var getMethod = function (fn) {
-  return fn == null ? undefined : aFunction(fn);
-};
 
 var cleanupSubscription = function (subscriptionState) {
   var cleanup = subscriptionState.cleanup;
@@ -1471,70 +1488,6 @@ var stringMultibyte = {
   charAt: createMethod$1(true)
 };
 
-var correctPrototypeGetter = !fails(function () {
-  function F() {
-    /* empty */
-  }
-
-  F.prototype.constructor = null; // eslint-disable-next-line es/no-object-getprototypeof -- required for testing
-
-  return Object.getPrototypeOf(new F()) !== F.prototype;
-});
-
-var IE_PROTO$1 = sharedKey('IE_PROTO');
-var ObjectPrototype = Object.prototype; // `Object.getPrototypeOf` method
-// https://tc39.es/ecma262/#sec-object.getprototypeof
-// eslint-disable-next-line es/no-object-getprototypeof -- safe
-
-var objectGetPrototypeOf = correctPrototypeGetter ? Object.getPrototypeOf : function (O) {
-  O = toObject(O);
-  if (has$1(O, IE_PROTO$1)) return O[IE_PROTO$1];
-
-  if (typeof O.constructor == 'function' && O instanceof O.constructor) {
-    return O.constructor.prototype;
-  }
-
-  return O instanceof Object ? ObjectPrototype : null;
-};
-
-var ITERATOR$1 = wellKnownSymbol('iterator');
-var BUGGY_SAFARI_ITERATORS$1 = false;
-
-var returnThis$2 = function () {
-  return this;
-}; // `%IteratorPrototype%` object
-// https://tc39.es/ecma262/#sec-%iteratorprototype%-object
-
-
-var IteratorPrototype$2, PrototypeOfArrayIteratorPrototype, arrayIterator;
-/* eslint-disable es/no-array-prototype-keys -- safe */
-
-if ([].keys) {
-  arrayIterator = [].keys(); // Safari 8 has buggy iterators w/o `next`
-
-  if (!('next' in arrayIterator)) BUGGY_SAFARI_ITERATORS$1 = true;else {
-    PrototypeOfArrayIteratorPrototype = objectGetPrototypeOf(objectGetPrototypeOf(arrayIterator));
-    if (PrototypeOfArrayIteratorPrototype !== Object.prototype) IteratorPrototype$2 = PrototypeOfArrayIteratorPrototype;
-  }
-}
-
-var NEW_ITERATOR_PROTOTYPE = IteratorPrototype$2 == undefined || fails(function () {
-  var test = {}; // FF44- legacy iterators case
-
-  return IteratorPrototype$2[ITERATOR$1].call(test) !== test;
-});
-if (NEW_ITERATOR_PROTOTYPE) IteratorPrototype$2 = {}; // `%IteratorPrototype%[@@iterator]()` method
-// https://tc39.es/ecma262/#sec-%iteratorprototype%-@@iterator
-
-if ((NEW_ITERATOR_PROTOTYPE) && !has$1(IteratorPrototype$2, ITERATOR$1)) {
-  createNonEnumerableProperty(IteratorPrototype$2, ITERATOR$1, returnThis$2);
-}
-
-var iteratorsCore = {
-  IteratorPrototype: IteratorPrototype$2,
-  BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS$1
-};
-
 var max = Math.max;
 var min = Math.min; // Helper for a popular repeating case of the spec:
 // Let integer be ? ToInteger(index).
@@ -1624,7 +1577,7 @@ var GT = '>';
 var LT = '<';
 var PROTOTYPE = 'prototype';
 var SCRIPT = 'script';
-var IE_PROTO = sharedKey('IE_PROTO');
+var IE_PROTO$1 = sharedKey('IE_PROTO');
 
 var EmptyConstructor = function () {
   /* empty */
@@ -1650,18 +1603,15 @@ var NullProtoObjectViaIFrame = function () {
   var iframe = documentCreateElement('iframe');
   var JS = 'java' + SCRIPT + ':';
   var iframeDocument;
+  iframe.style.display = 'none';
+  html.appendChild(iframe); // https://github.com/zloirock/core-js/issues/475
 
-  if (iframe.style) {
-    iframe.style.display = 'none';
-    html.appendChild(iframe); // https://github.com/zloirock/core-js/issues/475
-
-    iframe.src = String(JS);
-    iframeDocument = iframe.contentWindow.document;
-    iframeDocument.open();
-    iframeDocument.write(scriptTag('document.F=Object'));
-    iframeDocument.close();
-    return iframeDocument.F;
-  }
+  iframe.src = String(JS);
+  iframeDocument = iframe.contentWindow.document;
+  iframeDocument.open();
+  iframeDocument.write(scriptTag('document.F=Object'));
+  iframeDocument.close();
+  return iframeDocument.F;
 }; // Check for document.domain and active x support
 // No need to use active x approach when document.domain is not set
 // see https://github.com/es-shims/es5-shim/issues/150
@@ -1678,8 +1628,8 @@ var NullProtoObject = function () {
     /* ignore */
   }
 
-  NullProtoObject = document.domain && activeXDocument ? NullProtoObjectViaActiveX(activeXDocument) : // old IE
-  NullProtoObjectViaIFrame() || NullProtoObjectViaActiveX(activeXDocument); // WSH
+  NullProtoObject = typeof document != 'undefined' ? document.domain && activeXDocument ? NullProtoObjectViaActiveX(activeXDocument) // old IE
+  : NullProtoObjectViaIFrame() : NullProtoObjectViaActiveX(activeXDocument); // WSH
 
   var length = enumBugKeys.length;
 
@@ -1688,7 +1638,7 @@ var NullProtoObject = function () {
   return NullProtoObject();
 };
 
-hiddenKeys[IE_PROTO] = true; // `Object.create` method
+hiddenKeys[IE_PROTO$1] = true; // `Object.create` method
 // https://tc39.es/ecma262/#sec-object.create
 
 var objectCreate = Object.create || function create(O, Properties) {
@@ -1699,10 +1649,71 @@ var objectCreate = Object.create || function create(O, Properties) {
     result = new EmptyConstructor();
     EmptyConstructor[PROTOTYPE] = null; // add "__proto__" for Object.getPrototypeOf polyfill
 
-    result[IE_PROTO] = O;
+    result[IE_PROTO$1] = O;
   } else result = NullProtoObject();
 
   return Properties === undefined ? result : objectDefineProperties(result, Properties);
+};
+
+var correctPrototypeGetter = !fails(function () {
+  function F() {
+    /* empty */
+  }
+
+  F.prototype.constructor = null; // eslint-disable-next-line es/no-object-getprototypeof -- required for testing
+
+  return Object.getPrototypeOf(new F()) !== F.prototype;
+});
+
+var IE_PROTO = sharedKey('IE_PROTO');
+var ObjectPrototype = Object.prototype; // `Object.getPrototypeOf` method
+// https://tc39.es/ecma262/#sec-object.getprototypeof
+// eslint-disable-next-line es/no-object-getprototypeof -- safe
+
+var objectGetPrototypeOf = correctPrototypeGetter ? Object.getPrototypeOf : function (O) {
+  O = toObject(O);
+  if (has$1(O, IE_PROTO)) return O[IE_PROTO];
+
+  if (typeof O.constructor == 'function' && O instanceof O.constructor) {
+    return O.constructor.prototype;
+  }
+
+  return O instanceof Object ? ObjectPrototype : null;
+};
+
+var ITERATOR$1 = wellKnownSymbol('iterator');
+var BUGGY_SAFARI_ITERATORS$1 = false; // `%IteratorPrototype%` object
+// https://tc39.es/ecma262/#sec-%iteratorprototype%-object
+
+var IteratorPrototype$1, PrototypeOfArrayIteratorPrototype, arrayIterator;
+/* eslint-disable es/no-array-prototype-keys -- safe */
+
+if ([].keys) {
+  arrayIterator = [].keys(); // Safari 8 has buggy iterators w/o `next`
+
+  if (!('next' in arrayIterator)) BUGGY_SAFARI_ITERATORS$1 = true;else {
+    PrototypeOfArrayIteratorPrototype = objectGetPrototypeOf(objectGetPrototypeOf(arrayIterator));
+    if (PrototypeOfArrayIteratorPrototype !== Object.prototype) IteratorPrototype$1 = PrototypeOfArrayIteratorPrototype;
+  }
+}
+
+var NEW_ITERATOR_PROTOTYPE = IteratorPrototype$1 == undefined || fails(function () {
+  var test = {}; // FF44- legacy iterators case
+
+  return IteratorPrototype$1[ITERATOR$1].call(test) !== test;
+});
+if (NEW_ITERATOR_PROTOTYPE) IteratorPrototype$1 = {};else IteratorPrototype$1 = objectCreate(IteratorPrototype$1); // `%IteratorPrototype%[@@iterator]()` method
+// https://tc39.es/ecma262/#sec-%iteratorprototype%-@@iterator
+
+if (typeof IteratorPrototype$1[ITERATOR$1] !== 'function') {
+  createNonEnumerableProperty(IteratorPrototype$1, ITERATOR$1, function () {
+    return this;
+  });
+}
+
+var iteratorsCore = {
+  IteratorPrototype: IteratorPrototype$1,
+  BUGGY_SAFARI_ITERATORS: BUGGY_SAFARI_ITERATORS$1
 };
 
 // https://tc39.es/ecma262/#sec-object.prototype.tostring
@@ -1732,7 +1743,7 @@ var setToStringTag = function (it, TAG, STATIC, SET_METHOD) {
   }
 };
 
-var IteratorPrototype$1 = iteratorsCore.IteratorPrototype;
+var IteratorPrototype = iteratorsCore.IteratorPrototype;
 
 var returnThis$1 = function () {
   return this;
@@ -1740,7 +1751,7 @@ var returnThis$1 = function () {
 
 var createIteratorConstructor = function (IteratorConstructor, NAME, next) {
   var TO_STRING_TAG = NAME + ' Iterator';
-  IteratorConstructor.prototype = objectCreate(IteratorPrototype$1, {
+  IteratorConstructor.prototype = objectCreate(IteratorPrototype, {
     next: createPropertyDescriptor(1, next)
   });
   setToStringTag(IteratorConstructor, TO_STRING_TAG, false, true);
@@ -1784,7 +1795,6 @@ Object.setPrototypeOf || ('__proto__' in {} ? function () {
   };
 }() : undefined);
 
-var IteratorPrototype = iteratorsCore.IteratorPrototype;
 var BUGGY_SAFARI_ITERATORS = iteratorsCore.BUGGY_SAFARI_ITERATORS;
 var ITERATOR = wellKnownSymbol('iterator');
 var KEYS = 'keys';
@@ -1835,7 +1845,7 @@ var defineIterator = function (Iterable, NAME, IteratorConstructor, next, DEFAUL
   if (anyNativeIterator) {
     CurrentIteratorPrototype = objectGetPrototypeOf(anyNativeIterator.call(new Iterable()));
 
-    if (IteratorPrototype !== Object.prototype && CurrentIteratorPrototype.next) {
+    if (CurrentIteratorPrototype !== Object.prototype && CurrentIteratorPrototype.next) {
 
 
       setToStringTag(CurrentIteratorPrototype, TO_STRING_TAG, true, true);
@@ -3683,9 +3693,23 @@ class Meddle extends TweenOperator {
 
 }
 
+var win;
+
+if (typeof window !== "undefined") {
+  win = window;
+} else if (typeof commonjsGlobal !== "undefined") {
+  win = commonjsGlobal;
+} else if (typeof self !== "undefined") {
+  win = self;
+} else {
+  win = {};
+}
+
+var window_1 = win;
+
 const requestAnimationFrame = (window => {
   return window.requestAnimationFrame || (fn => setTimeout(fn, 16));
-})(window);
+})(window_1);
 
 const tickStack = [];
 
@@ -4132,4 +4156,3 @@ var index = /*#__PURE__*/Object.freeze({
 });
 
 export { index$2 as Easing, index$1 as Interpolators, Meddle, Observable, index as Parsers, Player, Subject, Tween, index$3 as Util, animationFrames, animationSync, animationThrottle, combineLatest, map, merge, pipe, pipeFromArray, registerType, regulatedBy, smoothen, spreadAssign, spreadCombineLatest, zip };
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5tb2R1bGUuanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIn0=
