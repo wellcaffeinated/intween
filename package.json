@@ -20,6 +20,7 @@
     "test:watch": "mocha --require @babel/register --colors -w ./test/*.spec.*js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
+    "docs:deploy": "sh deploy.sh",
     "preversion": "npm run build",
     "prepublish": "npm run test"
   },

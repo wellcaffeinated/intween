@@ -3,7 +3,12 @@ import { now } from '../util/index.js'
 import window from 'global/window'
 
 const requestAnimationFrame = ((window) => {
-  return window.requestAnimationFrame || (fn => setTimeout(fn, 16))
+  return window.requestAnimationFrame ||
+    (fn => {
+      const t = setTimeout(fn, 16)
+      t.unref && t.unref()
+      return t
+    })
 })(window)
 
 const tickStack = []

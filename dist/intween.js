@@ -3726,7 +3726,11 @@
   var window_1 = win;
 
   const requestAnimationFrame = (window => {
-    return window.requestAnimationFrame || (fn => setTimeout(fn, 16));
+    return window.requestAnimationFrame || (fn => {
+      const t = setTimeout(fn, 16);
+      t.unref && t.unref();
+      return t;
+    });
   })(window_1);
 
   const tickStack = [];
