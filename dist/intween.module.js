@@ -3,14 +3,189 @@
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
-const identity = a => a;
-const objectCtorString = Function.prototype.toString.call(Object);
-const toString$1 = Object.prototype.toString;
-const typeName = v => toString$1.call(v).slice(8, -1); // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+
+  _setPrototypeOf(subClass, superClass);
+}
+
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+function _isNativeReflectConstruct() {
+  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+  if (Reflect.construct.sham) return false;
+  if (typeof Proxy === "function") return true;
+
+  try {
+    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function _construct(Parent, args, Class) {
+  if (_isNativeReflectConstruct()) {
+    _construct = Reflect.construct;
+  } else {
+    _construct = function _construct(Parent, args, Class) {
+      var a = [null];
+      a.push.apply(a, args);
+      var Constructor = Function.bind.apply(Parent, a);
+      var instance = new Constructor();
+      if (Class) _setPrototypeOf(instance, Class.prototype);
+      return instance;
+    };
+  }
+
+  return _construct.apply(null, arguments);
+}
+
+function _isNativeFunction(fn) {
+  return Function.toString.call(fn).indexOf("[native code]") !== -1;
+}
+
+function _wrapNativeSuper(Class) {
+  var _cache = typeof Map === "function" ? new Map() : undefined;
+
+  _wrapNativeSuper = function _wrapNativeSuper(Class) {
+    if (Class === null || !_isNativeFunction(Class)) return Class;
+
+    if (typeof Class !== "function") {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    if (typeof _cache !== "undefined") {
+      if (_cache.has(Class)) return _cache.get(Class);
+
+      _cache.set(Class, Wrapper);
+    }
+
+    function Wrapper() {
+      return _construct(Class, arguments, _getPrototypeOf(this).constructor);
+    }
+
+    Wrapper.prototype = Object.create(Class.prototype, {
+      constructor: {
+        value: Wrapper,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    return _setPrototypeOf(Wrapper, Class);
+  };
+
+  return _wrapNativeSuper(Class);
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _createForOfIteratorHelperLoose(o, allowArrayLike) {
+  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+  if (it) return (it = it.call(o)).next.bind(it);
+
+  if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+    if (it) o = it;
+    var i = 0;
+    return function () {
+      if (i >= o.length) return {
+        done: true
+      };
+      return {
+        done: false,
+        value: o[i++]
+      };
+    };
+  }
+
+  throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+var identity = function identity(a) {
+  return a;
+};
+var objectCtorString = Function.prototype.toString.call(Object);
+var toString$1 = Object.prototype.toString;
+var typeName = function typeName(v) {
+  return toString$1.call(v).slice(8, -1);
+}; // From js - https://github.com/tweenjs/tween.js/blob/master/src/Tween.js
 // Include a performance.now polyfill.
 // In node.js, use process.hrtime.
 
-const now = (() => {
+var now = function () {
   if (typeof window === 'undefined' && typeof process !== 'undefined') {
     return function now() {
       var time = process.hrtime(); // Convert [seconds, nanoseconds] to milliseconds.
@@ -31,36 +206,36 @@ const now = (() => {
       return new Date().getTime();
     };
   }
-})();
-const castArray = function (thing) {
+}();
+var castArray = function castArray(thing) {
   return Array.isArray(thing) ? thing : [thing];
 };
-const lerp = function (from, to, t) {
+var lerp = function lerp(from, to, t) {
   return from * (1 - t) + to * t;
 };
-const invLerp = function (from, to, x) {
-  const diff = to - from;
+var invLerp = function invLerp(from, to, x) {
+  var diff = to - from;
   return diff ? (x - from) / diff : 1;
 };
-const clamp = function (min, max, v) {
+var clamp = function clamp(min, max, v) {
   return Math.min(Math.max(v, min), max);
 };
-const lerpClamped = function (from, to, t) {
+var lerpClamped = function lerpClamped(from, to, t) {
   return lerp(from, to, clamp(0, 1, t));
 };
-const invLerpClamped = function (from, to, x) {
+var invLerpClamped = function invLerpClamped(from, to, x) {
   return clamp(0, 1, invLerp(from, to, x));
 };
-const cloneDeep = obj => {
+var cloneDeep = function cloneDeep(obj) {
   if (typeof obj === 'function') {
     return obj;
   }
 
-  const out = Array.isArray(obj) ? [] : {};
+  var out = Array.isArray(obj) ? [] : {};
 
-  for (const key in obj) {
-    const value = obj[key];
-    const type = typeName(value);
+  for (var key in obj) {
+    var value = obj[key];
+    var type = typeName(value);
 
     if (type === 'Array' || type === 'Object') {
       out[key] = cloneDeep(value);
@@ -73,26 +248,28 @@ const cloneDeep = obj => {
 
   return out;
 };
-const isObjectLike = v => v !== null && typeof v === 'object';
-const isPlainObject = value => {
+var isObjectLike = function isObjectLike(v) {
+  return v !== null && typeof v === 'object';
+};
+var isPlainObject = function isPlainObject(value) {
   if (!isObjectLike(value)) {
     return false;
   }
 
-  const proto = Object.getPrototypeOf(value);
+  var proto = Object.getPrototypeOf(value);
 
   if (proto === null) {
     return true;
   }
 
-  const Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
   return typeof Ctor === 'function' && Ctor instanceof Ctor && Function.prototype.toString.call(Ctor) === objectCtorString;
 };
-const filterObjectValues = function (obj, fn) {
-  const out = {};
+var filterObjectValues = function filterObjectValues(obj, fn) {
+  var out = {};
 
-  for (const key in obj) {
-    const value = obj[key];
+  for (var key in obj) {
+    var value = obj[key];
 
     if (fn(value, key)) {
       out[key] = value;
@@ -101,28 +278,34 @@ const filterObjectValues = function (obj, fn) {
 
   return out;
 };
-const sanitizedObject = function (obj) {
-  return filterObjectValues(obj, v => v !== undefined);
+var sanitizedObject = function sanitizedObject(obj) {
+  return filterObjectValues(obj, function (v) {
+    return v !== undefined;
+  });
 };
-const mapProperties = function (obj, fn) {
-  const out = {};
+var mapProperties = function mapProperties(obj, fn) {
+  var out = {};
 
-  for (const key in obj) {
+  for (var key in obj) {
     out[key] = fn(obj[key], key);
   }
 
   return out;
 };
-const pick = function (obj, keys = []) {
-  if (!keys) {
-    // all
-    return { ...obj
-    };
+var pick = function pick(obj, keys) {
+  if (keys === void 0) {
+    keys = [];
   }
 
-  const out = {};
+  if (!keys) {
+    // all
+    return _extends({}, obj);
+  }
 
-  for (const key of keys) {
+  var out = {};
+
+  for (var _iterator = _createForOfIteratorHelperLoose(keys), _step; !(_step = _iterator()).done;) {
+    var key = _step.value;
     out[key] = obj[key];
   }
 
@@ -131,10 +314,8 @@ const pick = function (obj, keys = []) {
 // first object
 // ---------------------------------------
 
-const mergeIntersecting = function (first, second) {
-  return { ...first,
-    ...pick(second, Object.keys(first))
-  };
+var mergeIntersecting = function mergeIntersecting(first, second) {
+  return _extends({}, first, pick(second, Object.keys(first)));
 };
 /**
  * util.sortedIndex( array, value[, callback] ) -> Number
@@ -146,16 +327,16 @@ const mergeIntersecting = function (first, second) {
  * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
  **/
 
-const sortedIndex = function (array, value, callback, retHighest) {
-  let low = 0;
-  let high = array ? array.length : low; // explicitly reference `identity` for better inlining in Firefox
+var sortedIndex = function sortedIndex(array, value, callback, retHighest) {
+  var low = 0;
+  var high = array ? array.length : low; // explicitly reference `identity` for better inlining in Firefox
 
   callback = callback || identity;
   value = callback(value);
 
   while (low < high) {
-    const mid = low + high >>> 1;
-    const computed = callback(array[mid]);
+    var mid = low + high >>> 1;
+    var computed = callback(array[mid]);
 
     if (retHighest ? computed <= value : computed < value) {
       low = mid + 1;
@@ -166,33 +347,37 @@ const sortedIndex = function (array, value, callback, retHighest) {
 
   return low;
 };
-const getIntersectingPaths = function (o1, o2) {
+var getIntersectingPaths = function getIntersectingPaths(o1, o2) {
   return Object.keys(o1).filter(Object.prototype.hasOwnProperty.bind(o2));
 };
-const pull = function (arr, o) {
-  const idx = arr.indexOf(o);
+var pull = function pull(arr, o) {
+  var idx = arr.indexOf(o);
   arr.splice(idx, 1);
   return arr;
 };
 function shortestModDist(a0, a1, modulo) {
-  const da = a1 - a0;
-  const frac = da / modulo;
-  const cycles = Math.floor(frac);
-  const d = frac - cycles;
-  const fix = d > 0.5 ? -1 : d < -0.5 ? 1 : 0;
+  var da = a1 - a0;
+  var frac = da / modulo;
+  var cycles = Math.floor(frac);
+  var d = frac - cycles;
+  var fix = d > 0.5 ? -1 : d < -0.5 ? 1 : 0;
   return (d + fix + cycles) * modulo;
 }
-const combineEasing = (...easings) => {
-  const num = easings.length;
+var combineEasing = function combineEasing() {
+  for (var _len = arguments.length, easings = new Array(_len), _key = 0; _key < _len; _key++) {
+    easings[_key] = arguments[_key];
+  }
+
+  var num = easings.length;
 
   if (num === 1) {
     return easings[0];
   }
 
-  const invNum = 1 / num;
-  return t => {
-    const p = t * num;
-    const i = clamp(0, num - 1, Math.floor(p));
+  var invNum = 1 / num;
+  return function (t) {
+    var p = t * num;
+    var i = clamp(0, num - 1, Math.floor(p));
     return (easings[i](p - i) + i) * invNum;
   };
 };
@@ -207,10 +392,16 @@ function pipeFromArray(fns) {
   }
 
   return function piped(input) {
-    return fns.reduce((prev, fn) => fn(prev), input);
+    return fns.reduce(function (prev, fn) {
+      return fn(prev);
+    }, input);
   };
 }
-function pipe(...ops) {
+function pipe() {
+  for (var _len = arguments.length, ops = new Array(_len), _key = 0; _key < _len; _key++) {
+    ops[_key] = arguments[_key];
+  }
+
   return pipeFromArray(ops);
 }
 
@@ -220,7 +411,7 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
-var check$1 = function (it) {
+var check$1 = function check(it) {
   return it && it.Math == Math && it;
 }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
 
@@ -236,14 +427,14 @@ var path$1 = global_1$1;
 
 // `RequireObjectCoercible` abstract operation
 // https://tc39.es/ecma262/#sec-requireobjectcoercible
-var requireObjectCoercible$1 = function (it) {
+var requireObjectCoercible$1 = function requireObjectCoercible(it) {
   if (it == undefined) throw TypeError("Can't call method on " + it);
   return it;
 };
 
 // https://tc39.es/ecma262/#sec-toobject
 
-var toObject$1 = function (argument) {
+var toObject$1 = function toObject(argument) {
   return Object(requireObjectCoercible$1(argument));
 };
 
@@ -253,7 +444,7 @@ var has$2 = Object.hasOwn || function hasOwn(it, key) {
   return hasOwnProperty$2.call(toObject$1(it), key);
 };
 
-var setGlobal$1 = function (key, value) {
+var setGlobal$1 = function setGlobal(key, value) {
   try {
     // eslint-disable-next-line es/no-object-defineproperty -- safe
     Object.defineProperty(global_1$1, key, {
@@ -285,15 +476,15 @@ var shared$1 = createCommonjsModule(function (module) {
 var id$1 = 0;
 var postfix$1 = Math.random();
 
-var uid$1 = function (key) {
+var uid$1 = function uid(key) {
   return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id$1 + postfix$1).toString(36);
 };
 
-var aFunction$2 = function (variable) {
+var aFunction$2 = function aFunction(variable) {
   return typeof variable == 'function' ? variable : undefined;
 };
 
-var getBuiltIn$1 = function (namespace, method) {
+var getBuiltIn$1 = function getBuiltIn(namespace, method) {
   return arguments.length < 2 ? aFunction$2(global_1$1[namespace]) : global_1$1[namespace] && global_1$1[namespace][method];
 };
 
@@ -319,7 +510,7 @@ if (v8$1) {
 
 var engineV8Version$1 = version$1 && +version$1;
 
-var fails$1 = function (exec) {
+var fails$1 = function fails(exec) {
   try {
     return !!exec();
   } catch (error) {
@@ -346,7 +537,7 @@ var WellKnownSymbolsStore$1 = shared$1('wks');
 var Symbol$2 = global_1$1.Symbol;
 var createWellKnownSymbol$1 = useSymbolAsUid$1 ? Symbol$2 : Symbol$2 && Symbol$2.withoutSetter || uid$1;
 
-var wellKnownSymbol$1 = function (name) {
+var wellKnownSymbol$1 = function wellKnownSymbol(name) {
   if (!has$2(WellKnownSymbolsStore$1, name) || !(nativeSymbol$1 || typeof WellKnownSymbolsStore$1[name] == 'string')) {
     if (nativeSymbol$1 && has$2(Symbol$2, name)) {
       WellKnownSymbolsStore$1[name] = Symbol$2[name];
@@ -366,13 +557,13 @@ var wellKnownSymbolWrapped$1 = {
 var descriptors$1 = !fails$1(function () {
   // eslint-disable-next-line es/no-object-defineproperty -- required for testing
   return Object.defineProperty({}, 1, {
-    get: function () {
+    get: function get() {
       return 7;
     }
   })[1] != 7;
 });
 
-var isObject$1 = function (it) {
+var isObject$1 = function isObject(it) {
   return typeof it === 'object' ? it !== null : typeof it === 'function';
 };
 
@@ -380,20 +571,20 @@ var document$2 = global_1$1.document; // typeof document.createElement is 'objec
 
 var EXISTS$1 = isObject$1(document$2) && isObject$1(document$2.createElement);
 
-var documentCreateElement$1 = function (it) {
+var documentCreateElement$1 = function documentCreateElement(it) {
   return EXISTS$1 ? document$2.createElement(it) : {};
 };
 
 var ie8DomDefine$1 = !descriptors$1 && !fails$1(function () {
   // eslint-disable-next-line es/no-object-defineproperty -- requied for testing
   return Object.defineProperty(documentCreateElement$1('div'), 'a', {
-    get: function () {
+    get: function get() {
       return 7;
     }
   }).a != 7;
 });
 
-var anObject$1 = function (it) {
+var anObject$1 = function anObject(it) {
   if (!isObject$1(it)) {
     throw TypeError(String(it) + ' is not an object');
   }
@@ -410,7 +601,7 @@ var isSymbol$1 = useSymbolAsUid$1 ? function (it) {
 
 // https://tc39.es/ecma262/#sec-ordinarytoprimitive
 
-var ordinaryToPrimitive$1 = function (input, pref) {
+var ordinaryToPrimitive$1 = function ordinaryToPrimitive(input, pref) {
   var fn, val;
   if (pref === 'string' && typeof (fn = input.toString) == 'function' && !isObject$1(val = fn.call(input))) return val;
   if (typeof (fn = input.valueOf) == 'function' && !isObject$1(val = fn.call(input))) return val;
@@ -421,7 +612,7 @@ var ordinaryToPrimitive$1 = function (input, pref) {
 var TO_PRIMITIVE$1 = wellKnownSymbol$1('toPrimitive'); // `ToPrimitive` abstract operation
 // https://tc39.es/ecma262/#sec-toprimitive
 
-var toPrimitive$1 = function (input, pref) {
+var toPrimitive$1 = function toPrimitive(input, pref) {
   if (!isObject$1(input) || isSymbol$1(input)) return input;
   var exoticToPrim = input[TO_PRIMITIVE$1];
   var result;
@@ -439,7 +630,7 @@ var toPrimitive$1 = function (input, pref) {
 
 // https://tc39.es/ecma262/#sec-topropertykey
 
-var toPropertyKey$1 = function (argument) {
+var toPropertyKey$1 = function toPropertyKey(argument) {
   var key = toPrimitive$1(argument, 'string');
   return isSymbol$1(key) ? key : String(key);
 };
@@ -466,7 +657,7 @@ var objectDefineProperty$1 = {
 
 var defineProperty$3 = objectDefineProperty$1.f;
 
-var defineWellKnownSymbol$1 = function (NAME) {
+var defineWellKnownSymbol$1 = function defineWellKnownSymbol(NAME) {
   var Symbol = path$1.Symbol || (path$1.Symbol = {});
   if (!has$2(Symbol, NAME)) defineProperty$3(Symbol, NAME, {
     value: wellKnownSymbolWrapped$1.f(NAME)
@@ -479,7 +670,7 @@ defineWellKnownSymbol$1('observable');
 
 wellKnownSymbolWrapped$1.f('observable');
 
-var check = function (it) {
+var check = function check(it) {
   return it && it.Math == Math && it;
 }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
 
@@ -491,7 +682,7 @@ function () {
   return this;
 }() || Function('return this')();
 
-var fails = function (exec) {
+var fails = function fails(exec) {
   try {
     return !!exec();
   } catch (error) {
@@ -502,7 +693,7 @@ var fails = function (exec) {
 var descriptors = !fails(function () {
   // eslint-disable-next-line es/no-object-defineproperty -- required for testing
   return Object.defineProperty({}, 1, {
-    get: function () {
+    get: function get() {
       return 7;
     }
   })[1] != 7;
@@ -525,7 +716,7 @@ var objectPropertyIsEnumerable = {
   f: f$3
 };
 
-var createPropertyDescriptor = function (bitmap, value) {
+var createPropertyDescriptor = function createPropertyDescriptor(bitmap, value) {
   return {
     enumerable: !(bitmap & 1),
     configurable: !(bitmap & 2),
@@ -536,7 +727,7 @@ var createPropertyDescriptor = function (bitmap, value) {
 
 var toString = {}.toString;
 
-var classofRaw = function (it) {
+var classofRaw = function classofRaw(it) {
   return toString.call(it).slice(8, -1);
 };
 
@@ -552,26 +743,26 @@ var indexedObject = fails(function () {
 
 // `RequireObjectCoercible` abstract operation
 // https://tc39.es/ecma262/#sec-requireobjectcoercible
-var requireObjectCoercible = function (it) {
+var requireObjectCoercible = function requireObjectCoercible(it) {
   if (it == undefined) throw TypeError("Can't call method on " + it);
   return it;
 };
 
-var toIndexedObject = function (it) {
+var toIndexedObject = function toIndexedObject(it) {
   return indexedObject(requireObjectCoercible(it));
 };
 
-var isObject = function (it) {
+var isObject = function isObject(it) {
   return typeof it === 'object' ? it !== null : typeof it === 'function';
 };
 
 var path = {};
 
-var aFunction$1 = function (variable) {
+var aFunction$1 = function aFunction(variable) {
   return typeof variable == 'function' ? variable : undefined;
 };
 
-var getBuiltIn = function (namespace, method) {
+var getBuiltIn = function getBuiltIn(namespace, method) {
   return arguments.length < 2 ? aFunction$1(path[namespace]) || aFunction$1(global_1[namespace]) : path[namespace] && path[namespace][method] || global_1[namespace] && global_1[namespace][method];
 };
 
@@ -621,7 +812,7 @@ var isSymbol = useSymbolAsUid ? function (it) {
 
 // https://tc39.es/ecma262/#sec-ordinarytoprimitive
 
-var ordinaryToPrimitive = function (input, pref) {
+var ordinaryToPrimitive = function ordinaryToPrimitive(input, pref) {
   var fn, val;
   if (pref === 'string' && typeof (fn = input.toString) == 'function' && !isObject(val = fn.call(input))) return val;
   if (typeof (fn = input.valueOf) == 'function' && !isObject(val = fn.call(input))) return val;
@@ -629,7 +820,7 @@ var ordinaryToPrimitive = function (input, pref) {
   throw TypeError("Can't convert object to primitive value");
 };
 
-var setGlobal = function (key, value) {
+var setGlobal = function setGlobal(key, value) {
   try {
     // eslint-disable-next-line es/no-object-defineproperty -- safe
     Object.defineProperty(global_1, key, {
@@ -660,7 +851,7 @@ var shared = createCommonjsModule(function (module) {
 
 // https://tc39.es/ecma262/#sec-toobject
 
-var toObject = function (argument) {
+var toObject = function toObject(argument) {
   return Object(requireObjectCoercible(argument));
 };
 
@@ -673,7 +864,7 @@ var has$1 = Object.hasOwn || function hasOwn(it, key) {
 var id = 0;
 var postfix = Math.random();
 
-var uid = function (key) {
+var uid = function uid(key) {
   return 'Symbol(' + String(key === undefined ? '' : key) + ')_' + (++id + postfix).toString(36);
 };
 
@@ -681,7 +872,7 @@ var WellKnownSymbolsStore = shared('wks');
 var Symbol$1 = global_1.Symbol;
 var createWellKnownSymbol = useSymbolAsUid ? Symbol$1 : Symbol$1 && Symbol$1.withoutSetter || uid;
 
-var wellKnownSymbol = function (name) {
+var wellKnownSymbol = function wellKnownSymbol(name) {
   if (!has$1(WellKnownSymbolsStore, name) || !(nativeSymbol || typeof WellKnownSymbolsStore[name] == 'string')) {
     if (nativeSymbol && has$1(Symbol$1, name)) {
       WellKnownSymbolsStore[name] = Symbol$1[name];
@@ -696,7 +887,7 @@ var wellKnownSymbol = function (name) {
 var TO_PRIMITIVE = wellKnownSymbol('toPrimitive'); // `ToPrimitive` abstract operation
 // https://tc39.es/ecma262/#sec-toprimitive
 
-var toPrimitive = function (input, pref) {
+var toPrimitive = function toPrimitive(input, pref) {
   if (!isObject(input) || isSymbol(input)) return input;
   var exoticToPrim = input[TO_PRIMITIVE];
   var result;
@@ -714,7 +905,7 @@ var toPrimitive = function (input, pref) {
 
 // https://tc39.es/ecma262/#sec-topropertykey
 
-var toPropertyKey = function (argument) {
+var toPropertyKey = function toPropertyKey(argument) {
   var key = toPrimitive(argument, 'string');
   return isSymbol(key) ? key : String(key);
 };
@@ -723,14 +914,14 @@ var document$1 = global_1.document; // typeof document.createElement is 'object'
 
 var EXISTS = isObject(document$1) && isObject(document$1.createElement);
 
-var documentCreateElement = function (it) {
+var documentCreateElement = function documentCreateElement(it) {
   return EXISTS ? document$1.createElement(it) : {};
 };
 
 var ie8DomDefine = !descriptors && !fails(function () {
   // eslint-disable-next-line es/no-object-defineproperty -- requied for testing
   return Object.defineProperty(documentCreateElement('div'), 'a', {
-    get: function () {
+    get: function get() {
       return 7;
     }
   }).a != 7;
@@ -755,7 +946,7 @@ var objectGetOwnPropertyDescriptor = {
 
 var replacement = /#|\.prototype\./;
 
-var isForced = function (feature, detection) {
+var isForced = function isForced(feature, detection) {
   var value = data[normalize(feature)];
   return value == POLYFILL ? true : value == NATIVE ? false : typeof detection == 'function' ? fails(detection) : !!detection;
 };
@@ -769,7 +960,7 @@ var NATIVE = isForced.NATIVE = 'N';
 var POLYFILL = isForced.POLYFILL = 'P';
 var isForced_1 = isForced;
 
-var aFunction = function (it) {
+var aFunction = function aFunction(it) {
   if (typeof it != 'function') {
     throw TypeError(String(it) + ' is not a function');
   }
@@ -777,7 +968,7 @@ var aFunction = function (it) {
   return it;
 };
 
-var functionBindContext = function (fn, that, length) {
+var functionBindContext = function functionBindContext(fn, that, length) {
   aFunction(fn);
   if (that === undefined) return fn;
 
@@ -808,7 +999,7 @@ var functionBindContext = function (fn, that, length) {
   };
 };
 
-var anObject = function (it) {
+var anObject = function anObject(it) {
   if (!isObject(it)) {
     throw TypeError(String(it) + ' is not an object');
   }
@@ -845,8 +1036,8 @@ var createNonEnumerableProperty = descriptors ? function (object, key, value) {
 
 var getOwnPropertyDescriptor = objectGetOwnPropertyDescriptor.f;
 
-var wrapConstructor = function (NativeConstructor) {
-  var Wrapper = function (a, b, c) {
+var wrapConstructor = function wrapConstructor(NativeConstructor) {
+  var Wrapper = function Wrapper(a, b, c) {
     if (this instanceof NativeConstructor) {
       switch (arguments.length) {
         case 0:
@@ -884,7 +1075,7 @@ var wrapConstructor = function (NativeConstructor) {
 */
 
 
-var _export = function (options, source) {
+var _export = function _export(options, source) {
   var TARGET = options.target;
   var GLOBAL = options.global;
   var STATIC = options.stat;
@@ -938,21 +1129,21 @@ var _export = function (options, source) {
 
 var SPECIES = wellKnownSymbol('species');
 
-var setSpecies = function (CONSTRUCTOR_NAME) {
+var setSpecies = function setSpecies(CONSTRUCTOR_NAME) {
   var Constructor = getBuiltIn(CONSTRUCTOR_NAME);
   var defineProperty = objectDefineProperty.f;
 
   if (descriptors && Constructor && !Constructor[SPECIES]) {
     defineProperty(Constructor, SPECIES, {
       configurable: true,
-      get: function () {
+      get: function get() {
         return this;
       }
     });
   }
 };
 
-var anInstance = function (it, Constructor, name) {
+var anInstance = function anInstance(it, Constructor, name) {
   if (!(it instanceof Constructor)) {
     throw TypeError('Incorrect ' + (name ? name + ' ' : '') + 'invocation');
   }
@@ -960,11 +1151,11 @@ var anInstance = function (it, Constructor, name) {
   return it;
 };
 
-var redefine = function (target, key, value, options) {
+var redefine = function redefine(target, key, value, options) {
   if (options && options.enumerable) target[key] = value;else createNonEnumerableProperty(target, key, value);
 };
 
-var redefineAll = function (target, src, options) {
+var redefineAll = function redefineAll(target, src, options) {
   for (var key in src) {
     if (options && options.unsafe && target[key]) target[key] = src[key];else redefine(target, key, src[key], options);
   }
@@ -983,7 +1174,7 @@ var CORRECT_ARGUMENTS = classofRaw(function () {
   return arguments;
 }()) == 'Arguments'; // fallback for IE11 Script Access Denied error
 
-var tryGet = function (it, key) {
+var tryGet = function tryGet(it, key) {
   try {
     return it[key];
   } catch (error) {
@@ -1004,11 +1195,11 @@ var iterators = {};
 
 var ITERATOR$3 = wellKnownSymbol('iterator');
 
-var getIteratorMethod = function (it) {
+var getIteratorMethod = function getIteratorMethod(it) {
   if (it != undefined) return it[ITERATOR$3] || it['@@iterator'] || iterators[classof(it)];
 };
 
-var getIterator = function (it, usingIterator) {
+var getIterator = function getIterator(it, usingIterator) {
   var iteratorMethod = arguments.length < 2 ? getIteratorMethod(it) : usingIterator;
 
   if (typeof iteratorMethod != 'function') {
@@ -1020,14 +1211,14 @@ var getIterator = function (it, usingIterator) {
 
 // https://tc39.es/ecma262/#sec-getmethod
 
-var getMethod = function (fn) {
+var getMethod = function getMethod(fn) {
   return fn == null ? undefined : aFunction(fn);
 };
 
 var ITERATOR$2 = wellKnownSymbol('iterator');
 var ArrayPrototype = Array.prototype; // check on default Array iterator
 
-var isArrayIteratorMethod = function (it) {
+var isArrayIteratorMethod = function isArrayIteratorMethod(it) {
   return it !== undefined && (iterators.Array === it || ArrayPrototype[ITERATOR$2] === it);
 };
 
@@ -1035,18 +1226,18 @@ var ceil = Math.ceil;
 var floor = Math.floor; // `ToInteger` abstract operation
 // https://tc39.es/ecma262/#sec-tointeger
 
-var toInteger = function (argument) {
+var toInteger = function toInteger(argument) {
   return isNaN(argument = +argument) ? 0 : (argument > 0 ? floor : ceil)(argument);
 };
 
 var min$1 = Math.min; // `ToLength` abstract operation
 // https://tc39.es/ecma262/#sec-tolength
 
-var toLength = function (argument) {
+var toLength = function toLength(argument) {
   return argument > 0 ? min$1(toInteger(argument), 0x1FFFFFFFFFFFFF) : 0; // 2 ** 53 - 1 == 9007199254740991
 };
 
-var iteratorClose = function (iterator, kind, value) {
+var iteratorClose = function iteratorClose(iterator, kind, value) {
   var innerResult, innerError;
   anObject(iterator);
 
@@ -1070,12 +1261,12 @@ var iteratorClose = function (iterator, kind, value) {
   return value;
 };
 
-var Result = function (stopped, result) {
+var Result = function Result(stopped, result) {
   this.stopped = stopped;
   this.result = result;
 };
 
-var iterate = function (iterable, unboundFunction, options) {
+var iterate = function iterate(iterable, unboundFunction, options) {
   var that = options && options.that;
   var AS_ENTRIES = !!(options && options.AS_ENTRIES);
   var IS_ITERATOR = !!(options && options.IS_ITERATOR);
@@ -1083,12 +1274,12 @@ var iterate = function (iterable, unboundFunction, options) {
   var fn = functionBindContext(unboundFunction, that, 1 + AS_ENTRIES + INTERRUPTED);
   var iterator, iterFn, index, length, result, next, step;
 
-  var stop = function (condition) {
+  var stop = function stop(condition) {
     if (iterator) iteratorClose(iterator, 'normal', condition);
     return new Result(true, condition);
   };
 
-  var callFn = function (value) {
+  var callFn = function callFn(value) {
     if (AS_ENTRIES) {
       anObject(value);
       return INTERRUPTED ? fn(value[0], value[1], stop) : fn(value[0], value[1]);
@@ -1130,7 +1321,7 @@ var iterate = function (iterable, unboundFunction, options) {
   return new Result(false);
 };
 
-var hostReportErrors = function (a, b) {
+var hostReportErrors = function hostReportErrors(a, b) {
   var console = global_1.console;
 
   if (console && console.error) {
@@ -1153,7 +1344,7 @@ var nativeWeakMap = typeof WeakMap$1 === 'function' && /native code/.test(inspec
 
 var keys = shared('keys');
 
-var sharedKey = function (key) {
+var sharedKey = function sharedKey(key) {
   return keys[key] || (keys[key] = uid(key));
 };
 
@@ -1163,11 +1354,11 @@ var OBJECT_ALREADY_INITIALIZED = 'Object already initialized';
 var WeakMap = global_1.WeakMap;
 var set, get, has;
 
-var enforce = function (it) {
+var enforce = function enforce(it) {
   return has(it) ? get(it) : set(it, {});
 };
 
-var getterFor = function (TYPE) {
+var getterFor = function getterFor(TYPE) {
   return function (it) {
     var state;
 
@@ -1185,36 +1376,36 @@ if (nativeWeakMap || sharedStore.state) {
   var wmhas = store.has;
   var wmset = store.set;
 
-  set = function (it, metadata) {
+  set = function set(it, metadata) {
     if (wmhas.call(store, it)) throw new TypeError(OBJECT_ALREADY_INITIALIZED);
     metadata.facade = it;
     wmset.call(store, it, metadata);
     return metadata;
   };
 
-  get = function (it) {
+  get = function get(it) {
     return wmget.call(store, it) || {};
   };
 
-  has = function (it) {
+  has = function has(it) {
     return wmhas.call(store, it);
   };
 } else {
   var STATE = sharedKey('state');
   hiddenKeys[STATE] = true;
 
-  set = function (it, metadata) {
+  set = function set(it, metadata) {
     if (has$1(it, STATE)) throw new TypeError(OBJECT_ALREADY_INITIALIZED);
     metadata.facade = it;
     createNonEnumerableProperty(it, STATE, metadata);
     return metadata;
   };
 
-  get = function (it) {
+  get = function get(it) {
     return has$1(it, STATE) ? it[STATE] : {};
   };
 
-  has = function (it) {
+  has = function has(it) {
     return has$1(it, STATE);
   };
 }
@@ -1232,7 +1423,7 @@ var OBSERVABLE = wellKnownSymbol('observable');
 var getInternalState$2 = internalState.get;
 var setInternalState$2 = internalState.set;
 
-var cleanupSubscription = function (subscriptionState) {
+var cleanupSubscription = function cleanupSubscription(subscriptionState) {
   var cleanup = subscriptionState.cleanup;
 
   if (cleanup) {
@@ -1246,11 +1437,11 @@ var cleanupSubscription = function (subscriptionState) {
   }
 };
 
-var subscriptionClosed = function (subscriptionState) {
+var subscriptionClosed = function subscriptionClosed(subscriptionState) {
   return subscriptionState.observer === undefined;
 };
 
-var close = function (subscriptionState) {
+var close = function close(subscriptionState) {
   var subscription = subscriptionState.facade;
 
   if (!descriptors) {
@@ -1262,7 +1453,7 @@ var close = function (subscriptionState) {
   subscriptionState.observer = undefined;
 };
 
-var Subscription = function (observer, subscriber) {
+var Subscription = function Subscription(observer, subscriber) {
   var subscriptionState = setInternalState$2(this, {
     cleanup: undefined,
     observer: anObject(observer),
@@ -1306,12 +1497,12 @@ Subscription.prototype = redefineAll({}, {
 });
 if (descriptors) defineProperty$2(Subscription.prototype, 'closed', {
   configurable: true,
-  get: function () {
+  get: function get() {
     return subscriptionClosed(getInternalState$2(this));
   }
 });
 
-var SubscriptionObserver = function (subscription) {
+var SubscriptionObserver = function SubscriptionObserver(subscription) {
   setInternalState$2(this, {
     subscription: subscription
   });
@@ -1370,7 +1561,7 @@ SubscriptionObserver.prototype = redefineAll({}, {
 });
 if (descriptors) defineProperty$2(SubscriptionObserver.prototype, 'closed', {
   configurable: true,
-  get: function () {
+  get: function get() {
     return subscriptionClosed(getInternalState$2(getInternalState$2(this).subscription));
   }
 });
@@ -1422,7 +1613,9 @@ redefineAll($Observable, {
     var items = new Array(length);
     var index = 0;
 
-    while (index < length) items[index] = arguments[index++];
+    while (index < length) {
+      items[index] = arguments[index++];
+    }
 
     return new C(function (observer) {
       for (var i = 0; i < length; i++) {
@@ -1451,7 +1644,7 @@ var wellKnownSymbolWrapped = {
 
 var defineProperty$1 = objectDefineProperty.f;
 
-var defineWellKnownSymbol = function (NAME) {
+var defineWellKnownSymbol = function defineWellKnownSymbol(NAME) {
   var Symbol = path.Symbol || (path.Symbol = {});
   if (!has$1(Symbol, NAME)) defineProperty$1(Symbol, NAME, {
     value: wellKnownSymbolWrapped.f(NAME)
@@ -1462,12 +1655,12 @@ var defineWellKnownSymbol = function (NAME) {
 
 defineWellKnownSymbol('observable');
 
-var toString_1 = function (argument) {
+var toString_1 = function toString_1(argument) {
   if (isSymbol(argument)) throw TypeError('Cannot convert a Symbol value to a string');
   return String(argument);
 };
 
-var createMethod$1 = function (CONVERT_TO_STRING) {
+var createMethod$1 = function createMethod(CONVERT_TO_STRING) {
   return function ($this, pos) {
     var S = toString_1(requireObjectCoercible($this));
     var position = toInteger(pos);
@@ -1493,12 +1686,12 @@ var min = Math.min; // Helper for a popular repeating case of the spec:
 // Let integer be ? ToInteger(index).
 // If integer < 0, let result be max((length + integer), 0); else let result be min(integer, length).
 
-var toAbsoluteIndex = function (index, length) {
+var toAbsoluteIndex = function toAbsoluteIndex(index, length) {
   var integer = toInteger(index);
   return integer < 0 ? max(integer + length, 0) : min(integer, length);
 };
 
-var createMethod = function (IS_INCLUDES) {
+var createMethod = function createMethod(IS_INCLUDES) {
   return function ($this, el, fromIndex) {
     var O = toIndexedObject($this);
     var length = toLength(O.length);
@@ -1528,17 +1721,21 @@ var arrayIncludes = {
 
 var indexOf = arrayIncludes.indexOf;
 
-var objectKeysInternal = function (object, names) {
+var objectKeysInternal = function objectKeysInternal(object, names) {
   var O = toIndexedObject(object);
   var i = 0;
   var result = [];
   var key;
 
-  for (key in O) !has$1(hiddenKeys, key) && has$1(O, key) && result.push(key); // Don't enum bug & hidden keys
+  for (key in O) {
+    !has$1(hiddenKeys, key) && has$1(O, key) && result.push(key);
+  } // Don't enum bug & hidden keys
 
 
-  while (names.length > i) if (has$1(O, key = names[i++])) {
-    ~indexOf(result, key) || result.push(key);
+  while (names.length > i) {
+    if (has$1(O, key = names[i++])) {
+      ~indexOf(result, key) || result.push(key);
+    }
   }
 
   return result;
@@ -1564,7 +1761,9 @@ var objectDefineProperties = descriptors ? Object.defineProperties : function de
   var index = 0;
   var key;
 
-  while (length > index) objectDefineProperty.f(O, key = keys[index++], Properties[key]);
+  while (length > index) {
+    objectDefineProperty.f(O, key = keys[index++], Properties[key]);
+  }
 
   return O;
 };
@@ -1579,16 +1778,16 @@ var PROTOTYPE = 'prototype';
 var SCRIPT = 'script';
 var IE_PROTO$1 = sharedKey('IE_PROTO');
 
-var EmptyConstructor = function () {
+var EmptyConstructor = function EmptyConstructor() {
   /* empty */
 };
 
-var scriptTag = function (content) {
+var scriptTag = function scriptTag(content) {
   return LT + SCRIPT + GT + content + LT + '/' + SCRIPT + GT;
 }; // Create object with fake `null` prototype: use ActiveX Object with cleared prototype
 
 
-var NullProtoObjectViaActiveX = function (activeXDocument) {
+var NullProtoObjectViaActiveX = function NullProtoObjectViaActiveX(activeXDocument) {
   activeXDocument.write(scriptTag(''));
   activeXDocument.close();
   var temp = activeXDocument.parentWindow.Object;
@@ -1598,7 +1797,7 @@ var NullProtoObjectViaActiveX = function (activeXDocument) {
 }; // Create object with fake `null` prototype: use iframe Object with cleared prototype
 
 
-var NullProtoObjectViaIFrame = function () {
+var NullProtoObjectViaIFrame = function NullProtoObjectViaIFrame() {
   // Thrash, waste and sodomy: IE GC bug
   var iframe = documentCreateElement('iframe');
   var JS = 'java' + SCRIPT + ':';
@@ -1621,21 +1820,23 @@ var NullProtoObjectViaIFrame = function () {
 
 var activeXDocument;
 
-var NullProtoObject = function () {
+var _NullProtoObject = function NullProtoObject() {
   try {
     activeXDocument = new ActiveXObject('htmlfile');
   } catch (error) {
     /* ignore */
   }
 
-  NullProtoObject = typeof document != 'undefined' ? document.domain && activeXDocument ? NullProtoObjectViaActiveX(activeXDocument) // old IE
+  _NullProtoObject = typeof document != 'undefined' ? document.domain && activeXDocument ? NullProtoObjectViaActiveX(activeXDocument) // old IE
   : NullProtoObjectViaIFrame() : NullProtoObjectViaActiveX(activeXDocument); // WSH
 
   var length = enumBugKeys.length;
 
-  while (length--) delete NullProtoObject[PROTOTYPE][enumBugKeys[length]];
+  while (length--) {
+    delete _NullProtoObject[PROTOTYPE][enumBugKeys[length]];
+  }
 
-  return NullProtoObject();
+  return _NullProtoObject();
 };
 
 hiddenKeys[IE_PROTO$1] = true; // `Object.create` method
@@ -1650,7 +1851,7 @@ var objectCreate = Object.create || function create(O, Properties) {
     EmptyConstructor[PROTOTYPE] = null; // add "__proto__" for Object.getPrototypeOf polyfill
 
     result[IE_PROTO$1] = O;
-  } else result = NullProtoObject();
+  } else result = _NullProtoObject();
 
   return Properties === undefined ? result : objectDefineProperties(result, Properties);
 };
@@ -1726,7 +1927,7 @@ var objectToString = toStringTagSupport ? {}.toString : function toString() {
 var defineProperty = objectDefineProperty.f;
 var TO_STRING_TAG$1 = wellKnownSymbol('toStringTag');
 
-var setToStringTag = function (it, TAG, STATIC, SET_METHOD) {
+var setToStringTag = function setToStringTag(it, TAG, STATIC, SET_METHOD) {
   if (it) {
     var target = STATIC ? it : it.prototype;
 
@@ -1745,11 +1946,11 @@ var setToStringTag = function (it, TAG, STATIC, SET_METHOD) {
 
 var IteratorPrototype = iteratorsCore.IteratorPrototype;
 
-var returnThis$1 = function () {
+var returnThis$1 = function returnThis() {
   return this;
 };
 
-var createIteratorConstructor = function (IteratorConstructor, NAME, next) {
+var createIteratorConstructor = function createIteratorConstructor(IteratorConstructor, NAME, next) {
   var TO_STRING_TAG = NAME + ' Iterator';
   IteratorConstructor.prototype = objectCreate(IteratorPrototype, {
     next: createPropertyDescriptor(1, next)
@@ -1759,7 +1960,7 @@ var createIteratorConstructor = function (IteratorConstructor, NAME, next) {
   return IteratorConstructor;
 };
 
-var aPossiblePrototype = function (it) {
+var aPossiblePrototype = function aPossiblePrototype(it) {
   if (!isObject(it) && it !== null) {
     throw TypeError("Can't set " + String(it) + ' as a prototype');
   }
@@ -1801,14 +2002,14 @@ var KEYS = 'keys';
 var VALUES = 'values';
 var ENTRIES = 'entries';
 
-var returnThis = function () {
+var returnThis = function returnThis() {
   return this;
 };
 
-var defineIterator = function (Iterable, NAME, IteratorConstructor, next, DEFAULT, IS_SET, FORCED) {
+var defineIterator = function defineIterator(Iterable, NAME, IteratorConstructor, next, DEFAULT, IS_SET, FORCED) {
   createIteratorConstructor(IteratorConstructor, NAME, next);
 
-  var getIterationMethod = function (KIND) {
+  var getIterationMethod = function getIterationMethod(KIND) {
     if (KIND === DEFAULT && defaultIterator) return defaultIterator;
     if (!BUGGY_SAFARI_ITERATORS && KIND in IterablePrototype) return IterablePrototype[KIND];
 
@@ -2026,275 +2227,370 @@ for (var COLLECTION_NAME in domIterables) {
 
 var observable = path.Observable;
 
-class Observable extends observable {
-  constructor(subscriber) {
-    super(subscriber || identity);
+var Observable = /*#__PURE__*/function (_Obs) {
+  _inheritsLoose(Observable, _Obs);
+
+  function Observable(subscriber) {
+    return _Obs.call(this, subscriber || identity) || this;
   }
 
-  pipe(...ops) {
+  var _proto = Observable.prototype;
+
+  _proto.pipe = function pipe() {
+    for (var _len = arguments.length, ops = new Array(_len), _key = 0; _key < _len; _key++) {
+      ops[_key] = arguments[_key];
+    }
+
     return pipeFromArray(ops)(this);
   } // needed to interop with rxjs
+  ;
 
+  _proto.lift = function lift(operator) {
+    var _this = this;
 
-  lift(operator) {
-    return new Observable(sink => {
-      return operator.call(sink, this);
+    return new Observable(function (sink) {
+      return operator.call(sink, _this);
     });
-  }
+  };
 
-  ['@@observable']() {
+  _proto['@@observable'] = function observable() {
     return this;
+  };
+
+  return Observable;
+}(observable);
+
+var Subject = /*#__PURE__*/function (_Observable) {
+  _inheritsLoose(Subject, _Observable);
+
+  function Subject() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Observable.call.apply(_Observable, [this].concat(args)) || this;
+    _this.closed = false;
+    _this.observers = [];
+    return _this;
   }
 
-}
+  var _proto = Subject.prototype;
 
-class Subject extends Observable {
-  constructor(...args) {
-    super(...args);
-    this.closed = false;
-    this.observers = [];
-  }
-
-  unsubscribe() {
+  _proto.unsubscribe = function unsubscribe() {
     this.isStopped = this.closed = true;
     this.observers = null;
-  }
+  };
 
-  next(value) {
+  _proto.next = function next(value) {
     this._throwIfClosed();
 
     if (!this.isStopped) {
-      const copy = this.observers.slice();
+      var copy = this.observers.slice();
 
-      for (const observer of copy) {
+      for (var _iterator = _createForOfIteratorHelperLoose(copy), _step; !(_step = _iterator()).done;) {
+        var observer = _step.value;
         observer.next(value);
       }
     }
-  }
+  };
 
-  error(err) {
+  _proto.error = function error(err) {
     this._throwIfClosed();
 
     if (!this.isStopped) {
       this.hasError = this.isStopped = true;
       this.thrownError = err;
-      const {
-        observers
-      } = this;
+      var observers = this.observers;
 
       while (observers.length) {
         observers.shift().error(err);
       }
     }
-  }
+  };
 
-  complete() {
+  _proto.complete = function complete() {
     this._throwIfClosed();
 
     if (!this.isStopped) {
       this.isStopped = true;
-      const {
-        observers
-      } = this;
+      var observers = this.observers;
 
       while (observers.length) {
         observers.shift().complete();
       }
     }
-  }
+  };
 
-  subscribe(subscriber) {
-    const len = this.observers.push(subscriber);
+  _proto.subscribe = function subscribe(subscriber) {
+    var _this2 = this;
+
+    var len = this.observers.push(subscriber);
     return {
-      unsubscribe: () => {
-        this.observers.splice(len - 1, 1);
+      unsubscribe: function unsubscribe() {
+        _this2.observers.splice(len - 1, 1);
       }
     };
-  }
+  };
 
-  _throwIfClosed() {
+  _proto._throwIfClosed = function _throwIfClosed() {
     if (this.closed) {
       throw new Error('Subscription closed!');
     }
-  }
+  };
 
-}
+  return Subject;
+}(Observable);
 
-const map = fn => source => new Observable(sink => source.subscribe({
-  next(value) {
-    try {
-      value = fn(value);
-      sink.next(value);
-    } catch (e) {
-      sink.error(e);
-    }
-  },
-
-  error(e) {
-    sink.error(e);
-  },
-
-  complete() {
-    sink.complete();
-  }
-
-})); // Emits all values from all inputs in parallel
+var map = function map(fn) {
+  return function (source) {
+    return new Observable(function (sink) {
+      return source.subscribe({
+        next: function next(value) {
+          try {
+            value = fn(value);
+            sink.next(value);
+          } catch (e) {
+            sink.error(e);
+          }
+        },
+        error: function error(e) {
+          sink.error(e);
+        },
+        complete: function complete() {
+          sink.complete();
+        }
+      });
+    });
+  };
+}; // Emits all values from all inputs in parallel
 // Copyright (c) 2018 zenparsing (Kevin Smith)
 
-function merge(...sources) {
-  return new Observable(observer => {
+function merge() {
+  for (var _len = arguments.length, sources = new Array(_len), _key = 0; _key < _len; _key++) {
+    sources[_key] = arguments[_key];
+  }
+
+  return new Observable(function (observer) {
     if (sources.length === 0) {
       return Observable.from([]);
     }
 
-    let count = sources.length;
-    const subscriptions = sources.map(source => Observable.from(source).subscribe({
-      next(v) {
-        observer.next(v);
-      },
-
-      error(e) {
-        observer.error(e);
-      },
-
-      complete() {
-        if (--count === 0) {
-          observer.complete();
+    var count = sources.length;
+    var subscriptions = sources.map(function (source) {
+      return Observable.from(source).subscribe({
+        next: function next(v) {
+          observer.next(v);
+        },
+        error: function error(e) {
+          observer.error(e);
+        },
+        complete: function complete() {
+          if (--count === 0) {
+            observer.complete();
+          }
         }
-      }
-
-    }));
-    return () => subscriptions.forEach(s => s.unsubscribe());
+      });
+    });
+    return function () {
+      return subscriptions.forEach(function (s) {
+        return s.unsubscribe();
+      });
+    };
   });
 } // Emits arrays containing the most current values from each input
 // Copyright (c) 2018 zenparsing (Kevin Smith)
 
-function combineLatest(...sources) {
-  return new Observable(observer => {
+function combineLatest() {
+  for (var _len2 = arguments.length, sources = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    sources[_key2] = arguments[_key2];
+  }
+
+  return new Observable(function (observer) {
     if (sources.length === 0) {
       return Observable.from([]);
     }
 
-    let count = sources.length;
-    let seen = new Set();
-    let seenAll = false;
-    const values = sources.map(() => undefined);
-    const subscriptions = sources.map((source, index) => Observable.from(source).subscribe({
-      next(v) {
-        values[index] = v;
+    var count = sources.length;
+    var seen = new Set();
+    var seenAll = false;
+    var values = sources.map(function () {
+      return undefined;
+    });
+    var subscriptions = sources.map(function (source, index) {
+      return Observable.from(source).subscribe({
+        next: function next(v) {
+          values[index] = v;
 
-        if (!seenAll) {
-          seen.add(index);
+          if (!seenAll) {
+            seen.add(index);
 
-          if (seen.size !== sources.length) {
-            return;
+            if (seen.size !== sources.length) {
+              return;
+            }
+
+            seen = null;
+            seenAll = true;
           }
 
-          seen = null;
-          seenAll = true;
+          observer.next(Array.from(values));
+        },
+        error: function error(e) {
+          observer.error(e);
+        },
+        complete: function complete() {
+          if (--count === 0) {
+            observer.complete();
+          }
         }
-
-        observer.next(Array.from(values));
-      },
-
-      error(e) {
-        observer.error(e);
-      },
-
-      complete() {
-        if (--count === 0) {
-          observer.complete();
-        }
-      }
-
-    }));
-    return () => subscriptions.forEach(s => s.unsubscribe());
+      });
+    });
+    return function () {
+      return subscriptions.forEach(function (s) {
+        return s.unsubscribe();
+      });
+    };
   });
 } // Emits arrays containing the matching index values from each input
 // Copyright (c) 2018 zenparsing (Kevin Smith)
 
-function zip(...sources) {
-  return new Observable(observer => {
+function zip() {
+  for (var _len3 = arguments.length, sources = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    sources[_key3] = arguments[_key3];
+  }
+
+  return new Observable(function (observer) {
     if (sources.length === 0) {
       return Observable.from([]);
     }
 
-    const queues = sources.map(() => []);
+    var queues = sources.map(function () {
+      return [];
+    });
 
     function done() {
-      return queues.some((q, i) => q.length === 0 && subscriptions[i].closed);
+      return queues.some(function (q, i) {
+        return q.length === 0 && subscriptions[i].closed;
+      });
     }
 
-    const subscriptions = sources.map((source, index) => Observable.from(source).subscribe({
-      next(v) {
-        queues[index].push(v);
+    var subscriptions = sources.map(function (source, index) {
+      return Observable.from(source).subscribe({
+        next: function next(v) {
+          queues[index].push(v);
 
-        if (queues.every(q => q.length > 0)) {
-          observer.next(queues.map(q => q.shift()));
+          if (queues.every(function (q) {
+            return q.length > 0;
+          })) {
+            observer.next(queues.map(function (q) {
+              return q.shift();
+            }));
 
+            if (done()) {
+              observer.complete();
+            }
+          }
+        },
+        error: function error(e) {
+          observer.error(e);
+        },
+        complete: function complete() {
           if (done()) {
             observer.complete();
           }
         }
-      },
-
-      error(e) {
-        observer.error(e);
-      },
-
-      complete() {
-        if (done()) {
-          observer.complete();
-        }
-      }
-
-    }));
-    return () => subscriptions.forEach(s => s.unsubscribe());
+      });
+    });
+    return function () {
+      return subscriptions.forEach(function (s) {
+        return s.unsubscribe();
+      });
+    };
   });
 }
-const spreadCombineLatest = (...operators) => source => new Observable(sink => {
-  const subject = new Subject();
-  const observables = operators.map(o => o(subject));
-  const sub = combineLatest(...observables).subscribe(sink);
-  const sub2 = source.subscribe(subject);
-  return () => {
-    sub.unsubscribe();
-    sub2.unsubscribe();
-  };
-});
-const spreadAssign = (...operators) => source => pipe(map(results => Object.assign({}, ...results)))(spreadCombineLatest(...operators)(source));
-
-class Callable extends Function {
-  constructor() {
-    super('...args', 'return this._bound.__call__(...args)');
-    this._bound = this.bind(this);
-    return this._bound;
+var spreadCombineLatest = function spreadCombineLatest() {
+  for (var _len4 = arguments.length, operators = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+    operators[_key4] = arguments[_key4];
   }
 
-  __call__() {}
+  return function (source) {
+    return new Observable(function (sink) {
+      var subject = new Subject();
+      var observables = operators.map(function (o) {
+        return o(subject);
+      });
+      var sub = combineLatest.apply(void 0, observables).subscribe(sink);
+      var sub2 = source.subscribe(subject);
+      return function () {
+        sub.unsubscribe();
+        sub2.unsubscribe();
+      };
+    });
+  };
+};
+var spreadAssign = function spreadAssign() {
+  for (var _len5 = arguments.length, operators = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+    operators[_key5] = arguments[_key5];
+  }
 
-}
+  return function (source) {
+    return pipe(map(function (results) {
+      return Object.assign.apply(Object, [{}].concat(results));
+    }))(spreadCombineLatest.apply(void 0, operators)(source));
+  };
+};
 
-const defaultPriority = 1;
+var Callable = /*#__PURE__*/function (_Function) {
+  _inheritsLoose(Callable, _Function);
+
+  function Callable() {
+    var _this;
+
+    _this = _Function.call(this, '...args', 'return this._bound.__call__(...args)') || this;
+    _this._bound = _this.bind(_assertThisInitialized(_this));
+    return _this._bound || _assertThisInitialized(_this);
+  }
+
+  var _proto = Callable.prototype;
+
+  _proto.__call__ = function __call__() {};
+
+  return Callable;
+}( /*#__PURE__*/_wrapNativeSuper(Function));
+
+var defaultPriority = 1;
 
 function getPriority(val) {
   return val._priority_;
 }
 
-class Emitter extends Observable {
-  constructor(subscriber) {
-    super(subscriber); // ensure topics hash is initialized
+var Emitter = /*#__PURE__*/function (_Observable) {
+  _inheritsLoose(Emitter, _Observable);
 
-    this._topics = this._topics || (this._topics = {});
+  function Emitter(subscriber) {
+    var _this;
+
+    _this = _Observable.call(this, subscriber) || this; // ensure topics hash is initialized
+
+    _this._topics = _this._topics || (_this._topics = {});
+    return _this;
   }
 
-  fromEvent(topic, priority) {
-    return new Observable(sink => {
-      const callback = v => sink.next(v);
+  var _proto = Emitter.prototype;
 
-      this.on(topic, callback, priority);
-      return () => {
-        this.off(topic, callback);
+  _proto.fromEvent = function fromEvent(topic, priority) {
+    var _this2 = this;
+
+    return new Observable(function (sink) {
+      var callback = function callback(v) {
+        return sink.next(v);
+      };
+
+      _this2.on(topic, callback, priority);
+
+      return function () {
+        _this2.off(topic, callback);
       };
     });
   }
@@ -2311,21 +2607,21 @@ class Emitter extends Observable {
   *
   * Subscribe callback(s) to a topic(s).
   **/
+  ;
 
-
-  on(topic, fn, scope, priority) {
+  _proto.on = function on(topic, fn, scope, priority) {
     // check if we're subscribing to multiple topics
     // with an object
     if (typeof topic === 'object') {
-      for (const t in topic) {
+      for (var t in topic) {
         this.on(t, topic[t], fn, scope);
       }
 
       return this;
     }
 
-    const listeners = this._topics[topic] || (this._topics[topic] = []);
-    const orig = fn;
+    var listeners = this._topics[topic] || (this._topics[topic] = []);
+    var orig = fn;
 
     if (typeof scope === 'object') {
       fn = fn.bind(scope);
@@ -2337,7 +2633,7 @@ class Emitter extends Observable {
     }
 
     fn._priority_ = priority === undefined ? defaultPriority : priority;
-    const idx = sortedIndex(listeners, fn, getPriority);
+    var idx = sortedIndex(listeners, fn, getPriority);
     listeners.splice(idx, 0, fn);
     return this;
   }
@@ -2352,9 +2648,9 @@ class Emitter extends Observable {
   *
   * Unsubscribe callback(s) from topic(s).
   **/
+  ;
 
-
-  off(topic, fn, scope) {
+  _proto.off = function off(topic, fn, scope) {
     if (topic === true) {
       // purge all listeners
       this._topics = {};
@@ -2364,14 +2660,14 @@ class Emitter extends Observable {
 
 
     if (typeof topic === 'object') {
-      for (const t in topic) {
+      for (var t in topic) {
         this.off(t, topic[t], fn);
       }
 
       return this;
     }
 
-    const listeners = this._topics[topic];
+    var listeners = this._topics[topic];
 
     if (!listeners) {
       return this;
@@ -2383,8 +2679,8 @@ class Emitter extends Observable {
       return this;
     }
 
-    for (let i = 0, l = listeners.length; i < l; i++) {
-      const listn = listeners[i];
+    for (var i = 0, l = listeners.length; i < l; i++) {
+      var listn = listeners[i];
 
       if ((listn._bindfn_ === fn || listn === fn) && (!scope || listn._scope_ === scope) // check the scope too if specified
       ) {
@@ -2402,22 +2698,22 @@ class Emitter extends Observable {
   *
   * Publish data to a topic.
   **/
+  ;
 
-
-  emit(topic, data) {
-    const listeners = this._topics[topic];
-    let l = listeners && listeners.length;
+  _proto.emit = function emit(topic, data) {
+    var listeners = this._topics[topic];
+    var l = listeners && listeners.length;
 
     if (!l) {
       return this;
     }
 
-    const e = {}; // event data
+    var e = {}; // event data
 
     e.topic = topic; // reverse iterate so priorities work out correctly
 
     while (l--) {
-      const handler = listeners[l];
+      var handler = listeners[l];
       handler(data, e); // if _one_ flag is set, the unsubscribe
 
       if (handler._one_) {
@@ -2440,13 +2736,13 @@ class Emitter extends Observable {
   *
   * Subscribe callback(s) to a topic(s), but only ONCE.
   **/
+  ;
 
-
-  one(topic, fn, scope) {
+  _proto.one = function one(topic, fn, scope) {
     // check if we're subscribing to multiple topics
     // with an object
     if (typeof topic === 'object') {
-      for (const t in topic) {
+      for (var t in topic) {
         this.one(t, topic[t], fn, scope);
       }
 
@@ -2457,9 +2753,10 @@ class Emitter extends Observable {
     fn._one_ = true;
     this.on(topic, fn, scope);
     return this;
-  }
+  };
 
-}
+  return Emitter;
+}(Observable);
 
 var index$3 = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -2494,15 +2791,23 @@ var index$3 = /*#__PURE__*/Object.freeze({
  * https://github.com/photonstorm/phaser/tree/master/src/math/easing
  * license: https://opensource.org/licenses/MIT
  */
-const Pi2$1 = Math.PI * 2;
+var Pi2$1 = Math.PI * 2;
 /*
  * @param {number} [amplitude=0.1] - The amplitude of the elastic ease.
  * @param {number} [period = 0.1] - Sets how tight the sine - wave is,
  * where smaller values are tighter waves, which result in more cycles.
  */
 
-const makeElasticIn = (a = 0.1, p = 0.1) => {
-  let s = p / 4;
+var makeElasticIn = function makeElasticIn(a, p) {
+  if (a === void 0) {
+    a = 0.1;
+  }
+
+  if (p === void 0) {
+    p = 0.1;
+  }
+
+  var s = p / 4;
 
   if (a < 1) {
     a = 1;
@@ -2510,8 +2815,8 @@ const makeElasticIn = (a = 0.1, p = 0.1) => {
     s = p * Math.asin(1 / a) / Pi2$1;
   }
 
-  const w = Pi2$1 / p;
-  return t => {
+  var w = Pi2$1 / p;
+  return function (t) {
     if (t === 0) return 0;
     if (t === 1) return 1;
     return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * w));
@@ -2523,8 +2828,16 @@ const makeElasticIn = (a = 0.1, p = 0.1) => {
  * where smaller values are tighter waves, which result in more cycles.
  */
 
-const makeElasticOut = (a = 0.1, p = 0.1) => {
-  let s = p / 4;
+var makeElasticOut = function makeElasticOut(a, p) {
+  if (a === void 0) {
+    a = 0.1;
+  }
+
+  if (p === void 0) {
+    p = 0.1;
+  }
+
+  var s = p / 4;
 
   if (a < 1) {
     a = 1;
@@ -2532,8 +2845,8 @@ const makeElasticOut = (a = 0.1, p = 0.1) => {
     s = p * Math.asin(1 / a) / Pi2$1;
   }
 
-  const w = Pi2$1 / p;
-  return t => {
+  var w = Pi2$1 / p;
+  return function (t) {
     if (t === 0) return 0;
     if (t === 1) return 1;
     return a * Math.pow(2, -10 * t) * Math.sin((t - s) * w) + 1;
@@ -2545,8 +2858,16 @@ const makeElasticOut = (a = 0.1, p = 0.1) => {
  * where smaller values are tighter waves, which result in more cycles.
  */
 
-const makeElasticInOut = (a = 0.1, p = 0.1) => {
-  let s = p / 4;
+var makeElasticInOut = function makeElasticInOut(a, p) {
+  if (a === void 0) {
+    a = 0.1;
+  }
+
+  if (p === void 0) {
+    p = 0.1;
+  }
+
+  var s = p / 4;
 
   if (a < 1) {
     a = 1;
@@ -2554,8 +2875,8 @@ const makeElasticInOut = (a = 0.1, p = 0.1) => {
     s = p * Math.asin(1 / a) / Pi2$1;
   }
 
-  const w = Pi2$1 / p;
-  return t => {
+  var w = Pi2$1 / p;
+  return function (t) {
     if (t === 0) return 0;
     if (t === 1) return 1;
 
@@ -2566,64 +2887,136 @@ const makeElasticInOut = (a = 0.1, p = 0.1) => {
     }
   };
 };
-const makeBackIn = (overshoot = 1.70158) => t => t * t * ((overshoot + 1) * t - overshoot);
-const makeBackOut = (overshoot = 1.70158) => t => --t * t * ((overshoot + 1) * t + overshoot) + 1;
-const makeBackInOut = (overshoot = 1.70158) => t => {
-  const s = overshoot * 1.525;
-
-  if ((t *= 2) < 1) {
-    return 0.5 * (t * t * ((s + 1) * t - s));
-  } else {
-    return 0.5 * ((t -= 2) * t * ((s + 1) * t + s) + 2);
+var makeBackIn = function makeBackIn(overshoot) {
+  if (overshoot === void 0) {
+    overshoot = 1.70158;
   }
+
+  return function (t) {
+    return t * t * ((overshoot + 1) * t - overshoot);
+  };
 };
-const makeSteps = (steps = 1) => t => ((steps * t | 0) + 1) * (1 / steps);
+var makeBackOut = function makeBackOut(overshoot) {
+  if (overshoot === void 0) {
+    overshoot = 1.70158;
+  }
+
+  return function (t) {
+    return --t * t * ((overshoot + 1) * t + overshoot) + 1;
+  };
+};
+var makeBackInOut = function makeBackInOut(overshoot) {
+  if (overshoot === void 0) {
+    overshoot = 1.70158;
+  }
+
+  return function (t) {
+    var s = overshoot * 1.525;
+
+    if ((t *= 2) < 1) {
+      return 0.5 * (t * t * ((s + 1) * t - s));
+    } else {
+      return 0.5 * ((t -= 2) * t * ((s + 1) * t + s) + 2);
+    }
+  };
+};
+var makeSteps = function makeSteps(steps) {
+  if (steps === void 0) {
+    steps = 1;
+  }
+
+  return function (t) {
+    return ((steps * t | 0) + 1) * (1 / steps);
+  };
+};
 
 /**
  * Easing adapted from phaser
  * https://github.com/photonstorm/phaser/tree/master/src/math/easing
  * license: https://opensource.org/licenses/MIT
  */
-const halfPi = Math.PI / 2;
-const linear$1 = t => t;
-const quadIn = t => t * t;
-const quadOut = t => t * (2 - t);
-const quadInOut = t => (t *= 2) < 1 ? 0.5 * t * t : -0.5 * (--t * (t - 2) - 1);
-const cubicIn = t => t * t * t;
-const cubicOut = t => --t * t * t + 1;
-const cubicInOut = t => (t *= 2) < 1 ? 0.5 * t * t * t : 0.5 * ((t -= 2) * t * t + 2);
-const quartIn = t => t * t * t * t;
-const quartOut = t => 1 - --t * t * t * t;
-const quartInOut = t => (t *= 2) < 1 ? 0.5 * t * t * t * t : -0.5 * ((t -= 2) * t * t * t - 2);
-const quintIn = t => t * t * t * t * t;
-const quintOut = t => --t * t * t * t * t + 1;
-const quintInOut = t => (t *= 2) < 1 ? 0.5 * t * t * t * t * t : 0.5 * ((t -= 2) * t * t * t * t + 2);
-const sinIn = t => 1 - Math.cos(t * halfPi);
-const sinOut = t => Math.sin(t * halfPi);
-const sinInOut = t => 0.5 * (1 - Math.cos(Math.PI * t));
-const expIn = t => t === 0 ? 0 : Math.pow(1024, t - 1);
-const expOut = t => t === 0 ? 0 : 1 - Math.pow(1024, -t);
-const expInOut = t => {
+var halfPi = Math.PI / 2;
+var linear$1 = function linear(t) {
+  return t;
+};
+var quadIn = function quadIn(t) {
+  return t * t;
+};
+var quadOut = function quadOut(t) {
+  return t * (2 - t);
+};
+var quadInOut = function quadInOut(t) {
+  return (t *= 2) < 1 ? 0.5 * t * t : -0.5 * (--t * (t - 2) - 1);
+};
+var cubicIn = function cubicIn(t) {
+  return t * t * t;
+};
+var cubicOut = function cubicOut(t) {
+  return --t * t * t + 1;
+};
+var cubicInOut = function cubicInOut(t) {
+  return (t *= 2) < 1 ? 0.5 * t * t * t : 0.5 * ((t -= 2) * t * t + 2);
+};
+var quartIn = function quartIn(t) {
+  return t * t * t * t;
+};
+var quartOut = function quartOut(t) {
+  return 1 - --t * t * t * t;
+};
+var quartInOut = function quartInOut(t) {
+  return (t *= 2) < 1 ? 0.5 * t * t * t * t : -0.5 * ((t -= 2) * t * t * t - 2);
+};
+var quintIn = function quintIn(t) {
+  return t * t * t * t * t;
+};
+var quintOut = function quintOut(t) {
+  return --t * t * t * t * t + 1;
+};
+var quintInOut = function quintInOut(t) {
+  return (t *= 2) < 1 ? 0.5 * t * t * t * t * t : 0.5 * ((t -= 2) * t * t * t * t + 2);
+};
+var sinIn = function sinIn(t) {
+  return 1 - Math.cos(t * halfPi);
+};
+var sinOut = function sinOut(t) {
+  return Math.sin(t * halfPi);
+};
+var sinInOut = function sinInOut(t) {
+  return 0.5 * (1 - Math.cos(Math.PI * t));
+};
+var expIn = function expIn(t) {
+  return t === 0 ? 0 : Math.pow(1024, t - 1);
+};
+var expOut = function expOut(t) {
+  return t === 0 ? 0 : 1 - Math.pow(1024, -t);
+};
+var expInOut = function expInOut(t) {
   if (t === 0) return 0;
   if (t === 1) return 1;
   if ((t *= 2) < 1) return 0.5 * Math.pow(1024, t - 1);
   return 0.5 * (2 - Math.pow(1024, 1 - t));
 };
-const elasticIn = makeElasticIn();
-const elasticOut = makeElasticOut();
-const elasticInOut = makeElasticInOut();
-const circularIn = t => 1 - Math.sqrt(1 - t * t);
-const circularOut = t => Math.sqrt(1 - --t * t);
-const circularInOut = t => (t *= 2) < 1 ? -0.5 * (Math.sqrt(1 - t * t) - 1) : 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
-const bounceIn = t => {
+var elasticIn = makeElasticIn();
+var elasticOut = makeElasticOut();
+var elasticInOut = makeElasticInOut();
+var circularIn = function circularIn(t) {
+  return 1 - Math.sqrt(1 - t * t);
+};
+var circularOut = function circularOut(t) {
+  return Math.sqrt(1 - --t * t);
+};
+var circularInOut = function circularInOut(t) {
+  return (t *= 2) < 1 ? -0.5 * (Math.sqrt(1 - t * t) - 1) : 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
+};
+var bounceIn = function bounceIn(t) {
   t = 1 - t;
   if (t < 1 / 2.75) return 1 - 7.5625 * t * t;else if (t < 2 / 2.75) return 1 - (7.5625 * (t -= 1.5 / 2.75) * t + 0.75);else if (t < 2.5 / 2.75) return 1 - (7.5625 * (t -= 2.25 / 2.75) * t + 0.9375);else return 1 - (7.5625 * (t -= 2.625 / 2.75) * t + 0.984375);
 };
-const bounceOut = t => {
+var bounceOut = function bounceOut(t) {
   if (t < 1 / 2.75) return 7.5625 * t * t;else if (t < 2 / 2.75) return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;else if (t < 2.5 / 2.75) return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;else return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
 };
-const bounceInOut = t => {
-  let reverse = false;
+var bounceInOut = function bounceInOut(t) {
+  var reverse = false;
 
   if (t < 0.5) {
     t = 1 - t * 2;
@@ -2648,10 +3041,10 @@ const bounceInOut = t => {
     return t * 0.5 + 0.5;
   }
 };
-const backIn = makeBackIn();
-const backOut = makeBackOut();
-const backInOut = makeBackInOut();
-const step$1 = makeSteps();
+var backIn = makeBackIn();
+var backOut = makeBackOut();
+var backInOut = makeBackInOut();
+var step$1 = makeSteps();
 
 var Easing = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -2732,26 +3125,50 @@ var index$2 = /*#__PURE__*/Object.freeze({
   step: step$1
 });
 
-const makeToggle = threshold => (from, to, t) => t >= threshold ? to : from;
-const makeCyclic = len => (from, to, t) => from + shortestModDist(from, to, len) * t;
-const makeForArray = interp => (from, to, t) => to.map((toVal, idx) => interp(from[idx], toVal, t));
+var makeToggle = function makeToggle(threshold) {
+  return function (from, to, t) {
+    return t >= threshold ? to : from;
+  };
+};
+var makeCyclic = function makeCyclic(len) {
+  return function (from, to, t) {
+    return from + shortestModDist(from, to, len) * t;
+  };
+};
+var makeForArray = function makeForArray(interp) {
+  return function (from, to, t) {
+    return to.map(function (toVal, idx) {
+      return interp(from[idx], toVal, t);
+    });
+  };
+};
 
-const Pi2 = Math.PI * 2;
-const linear = (from, to, t) => lerp(from, to, t);
-const radians = (from, to, t) => from + shortestModDist(from, to, Pi2) * t;
-const degrees = (from, to, t) => from + shortestModDist(from, to, 360) * t;
-const array = makeForArray(lerp);
-const object = (from, to, t) => mapProperties(from, (val, key) => lerp(val, to[key], t));
-const string = (from, to, t) => {
+var Pi2 = Math.PI * 2;
+var linear = function linear(from, to, t) {
+  return lerp(from, to, t);
+};
+var radians = function radians(from, to, t) {
+  return from + shortestModDist(from, to, Pi2) * t;
+};
+var degrees = function degrees(from, to, t) {
+  return from + shortestModDist(from, to, 360) * t;
+};
+var array = makeForArray(lerp);
+var object = function object(from, to, t) {
+  return mapProperties(from, function (val, key) {
+    return lerp(val, to[key], t);
+  });
+};
+var string = function string(from, to, t) {
   if (t <= 0) {
     return from;
   }
 
-  const length = lerp(0, to.length, t) | 0; // to integer
+  var length = lerp(0, to.length, t) | 0; // to integer
 
   return to.substr(0, length);
 };
-const toggle = makeToggle(1);
+var toggle = makeToggle(1);
 
 var Interpolators = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -2784,7 +3201,7 @@ function parseEasing(easing) {
   }
 
   if (typeof easing === 'string') {
-    const easings = easing.replace(' ', '').split('+');
+    var easings = easing.replace(' ', '').split('+');
 
     if (easings.length === 1) {
       easing = easings[0];
@@ -2793,13 +3210,13 @@ function parseEasing(easing) {
         return Easing[easing];
       }
     } else {
-      return combineEasing(...easings.map(parseEasing));
+      return combineEasing.apply(void 0, easings.map(parseEasing));
     }
   } else if (easing instanceof Function) {
     return easing;
   }
 
-  throw new Error(`Unrecognized easing name "${easing}"`);
+  throw new Error("Unrecognized easing name \"" + easing + "\"");
 }
 
 function parseInterpolator(interp) {
@@ -2815,10 +3232,10 @@ function parseInterpolator(interp) {
     }
   }
 
-  throw new Error(`Unrecognized interpolator name "${interp}"`);
+  throw new Error("Unrecognized interpolator name \"" + interp + "\"");
 }
 
-const NATIVE_TYPES = {
+var NATIVE_TYPES = {
   'number': {
     type: 'number',
     default: 0,
@@ -2845,37 +3262,37 @@ const NATIVE_TYPES = {
     interpolator: object
   }
 };
-const CUSTOM_TYPES = {};
+var CUSTOM_TYPES = {};
 
 function getCustomTypeByVal(val) {
-  return Object.values(CUSTOM_TYPES).find(({
-    constructor
-  }) => val instanceof constructor);
+  return Object.values(CUSTOM_TYPES).find(function (_ref) {
+    var constructor = _ref.constructor;
+    return val instanceof constructor;
+  });
 }
 
 function getCustomTypeByConstructor(val) {
-  return Object.values(CUSTOM_TYPES).find(({
-    constructor
-  }) => val === constructor);
+  return Object.values(CUSTOM_TYPES).find(function (_ref2) {
+    var constructor = _ref2.constructor;
+    return val === constructor;
+  });
 }
 
 function registerType(cfg) {
-  const {
-    type,
-    interpolator
-  } = cfg;
+  var type = cfg.type,
+      interpolator = cfg.interpolator;
 
   if (!type || !interpolator || cfg.default === undefined) {
     throw new Error('Custom types must have "type", "default", and "interpolator" specified');
   }
 
   if (CUSTOM_TYPES[type]) {
-    throw new Error(`Custom type "${type}" is already registered`);
+    throw new Error("Custom type \"" + type + "\" is already registered");
   }
 
   CUSTOM_TYPES[type] = {
-    type,
-    interpolator,
+    type: type,
+    interpolator: interpolator,
     default: cfg.default
   };
 
@@ -2888,7 +3305,7 @@ function inferType(val) {
     throw new Error('Can not determine type of null value');
   }
 
-  const type = typeof val;
+  var type = typeof val;
 
   if (type === 'string') {
     if (val in CUSTOM_TYPES) {
@@ -2911,7 +3328,7 @@ function inferType(val) {
   } // check custom types
 
 
-  const custom = getCustomTypeByVal(val);
+  var custom = getCustomTypeByVal(val);
 
   if (custom) {
     return custom.type;
@@ -2953,7 +3370,7 @@ function getType(type) {
   } // check custom types
 
 
-  const custom = getCustomTypeByConstructor(type);
+  var custom = getCustomTypeByConstructor(type);
 
   if (custom) {
     return custom.type;
@@ -2966,20 +3383,22 @@ function getType(type) {
   return type;
 }
 function getTypeCfg(type) {
-  const cfg = NATIVE_TYPES[type] || CUSTOM_TYPES[type];
+  var cfg = NATIVE_TYPES[type] || CUSTOM_TYPES[type];
 
   if (!cfg) {
-    throw new Error(`Unrecognized type ${type}`);
+    throw new Error("Unrecognized type " + type);
   }
 
   return cfg;
 }
 
-const TYPE_DEF_KEYS = ['value', ...Object.keys(getTypeCfg('object'))];
-const DEFAULT_EASING = 'linear';
+var TYPE_DEF_KEYS = ['value'].concat(Object.keys(getTypeCfg('object')));
+var DEFAULT_EASING = 'linear';
 
 function checkExplicitTypeDefinition(def) {
-  const extraKeys = Object.keys(def).filter(k => TYPE_DEF_KEYS.indexOf(k) < 0);
+  var extraKeys = Object.keys(def).filter(function (k) {
+    return TYPE_DEF_KEYS.indexOf(k) < 0;
+  });
 
   if (extraKeys.length) {
     throw new Error('Type definition contains extra keys. Does your definition use "type" as a property name?');
@@ -2988,7 +3407,7 @@ function checkExplicitTypeDefinition(def) {
 
 function getInterpolator(type, cfg, defaultVal) {
   if (type === 'array' && defaultVal && defaultVal.length) {
-    const subSchema = parseSchemaProp(defaultVal[0]);
+    var subSchema = parseSchemaProp(defaultVal[0]);
     return makeForArray(subSchema.interpolator);
   }
 
@@ -2996,11 +3415,11 @@ function getInterpolator(type, cfg, defaultVal) {
 }
 
 function parseSchemaProp(def) {
-  let easing;
-  let interpolator;
-  let type;
-  let cfg;
-  let defaultVal;
+  var easing;
+  var interpolator;
+  var type;
+  var cfg;
+  var defaultVal;
 
   if (isPlainObject(def) && (def.value !== undefined || def.type !== undefined)) {
     checkExplicitTypeDefinition(def);
@@ -3018,31 +3437,32 @@ function parseSchemaProp(def) {
   }
 
   return {
-    type,
-    easing,
+    type: type,
+    easing: easing,
     default: defaultVal,
-    interpolator,
-    def
+    interpolator: interpolator,
+    def: def
   };
 }
 function createSchema(schemaDef) {
   return mapProperties(schemaDef, parseSchemaProp);
 }
 function createState(schema) {
-  const state = {};
-  const props = Object.keys(schema);
+  var state = {};
+  var props = Object.keys(schema);
 
-  for (const prop of props) {
+  for (var _i = 0, _props = props; _i < _props.length; _i++) {
+    var prop = _props[_i];
     state[prop] = schema[prop].default;
   }
 
   return state;
 }
 
-const timeDecReg = /([0-9.]+)(s|m|h)?/;
-const timeStdReg = /((\d\d):)?((\d\d):(\d\d))/;
-const MINUTES = 60;
-const HOURS = 60 * 60;
+var timeDecReg = /([0-9.]+)(s|m|h)?/;
+var timeStdReg = /((\d\d):)?((\d\d):(\d\d))/;
+var MINUTES = 60;
+var HOURS = 60 * 60;
 
 function getTime(h, m, s) {
   h = parseFloat(h || 0);
@@ -3057,7 +3477,7 @@ function parseTime(strOrNumber) {
     return strOrNumber;
   }
 
-  let parsed = strOrNumber.match(timeStdReg);
+  var parsed = strOrNumber.match(timeStdReg);
 
   if (parsed) {
     return getTime(parsed[2], parsed[4], parsed[5]);
@@ -3066,7 +3486,7 @@ function parseTime(strOrNumber) {
   parsed = strOrNumber.match(timeDecReg);
 
   if (parsed) {
-    const unit = ('' + parsed[2]).toLowerCase();
+    var unit = ('' + parsed[2]).toLowerCase();
 
     if (!parsed[1] || unit === 's') {
       return getTime(0, 0, parsed[1]);
@@ -3084,19 +3504,17 @@ function parseTime(strOrNumber) {
   return 0;
 }
 
-const pctReg = /^((\d{1,3})(\.\d*)?)%$/;
-const META_PARSERS = {
-  endTime(v) {
+var pctReg = /^((\d{1,3})(\.\d*)?)%$/;
+var META_PARSERS = {
+  endTime: function endTime(v) {
     if (v === undefined) {
       return undefined;
     }
 
     return parseTime(v);
   },
-
   startTime: parseTime,
-
-  duration(v) {
+  duration: function duration(v) {
     if (v === undefined) {
       return undefined;
     }
@@ -3107,16 +3525,14 @@ const META_PARSERS = {
 
     return parseTime(v);
   },
-
   easing: parseEasing
 }; // parse meta to standardized format
 
 function parseMeta(meta, defaults) {
-  const ret = { ...defaults,
-    ...sanitizedObject(meta)
-  }; // clone
+  var ret = _extends({}, defaults, sanitizedObject(meta)); // clone
 
-  for (const key in META_PARSERS) {
+
+  for (var key in META_PARSERS) {
     ret[key] = META_PARSERS[key](ret[key]);
   }
 
@@ -3135,7 +3551,7 @@ function createFrame(state, meta, defaultMetaOptions) {
   state = cloneDeep(state);
   meta = parseMeta(meta || state.$meta, defaultMetaOptions);
   delete state.$meta;
-  const percentDuration = pctReg.exec(meta.duration);
+  var percentDuration = pctReg.exec(meta.duration);
 
   if (percentDuration) {
     meta.implicit = true;
@@ -3151,22 +3567,22 @@ function createFrame(state, meta, defaultMetaOptions) {
   }
 
   return {
-    state,
-    meta
+    state: state,
+    meta: meta
   };
 }
 
 function createTransitionFromFrame(startTime, endTime, frame, previousState) {
-  const endState = frame.state;
-  const startState = pick(previousState, Object.keys(endState));
-  const easing = frame.meta.easing;
+  var endState = frame.state;
+  var startState = pick(previousState, Object.keys(endState));
+  var easing = frame.meta.easing;
   return {
-    startTime,
-    endTime,
-    startState,
-    endState,
-    easing,
-    frame
+    startTime: startTime,
+    endTime: endTime,
+    startState: startState,
+    endState: endState,
+    easing: easing,
+    frame: frame
   };
 }
 function interpolateProperty(fn, from, to, progress) {
@@ -3181,18 +3597,18 @@ function getInterpolatedState(schema, startState, endState, timeFraction, easing
     return cloneDeep(endState);
   }
 
-  const nextState = cloneDeep(startState);
+  var nextState = cloneDeep(startState);
 
-  for (const prop in endState) {
-    const def = schema[prop];
-    let val;
+  for (var prop in endState) {
+    var def = schema[prop];
+    var val = void 0;
 
     if (!def) {
       // not specified in schema. just set
       val = endState[prop];
     } else {
       easing = easing || def.easing;
-      const progress = easing(timeFraction);
+      var progress = easing(timeFraction);
       val = interpolateProperty(def.interpolator, startState[prop], endState[prop], progress);
     }
 
@@ -3205,11 +3621,11 @@ function getInterpolatedState(schema, startState, endState, timeFraction, easing
 // ---------------------------------------
 
 function getConflictingFrames(timeline) {
-  const markers = [];
-  let idx;
+  var markers = [];
+  var idx;
 
-  for (let l = timeline.length, i = 0; i < l; i++) {
-    const m = timeline[i];
+  for (var l = timeline.length, i = 0; i < l; i++) {
+    var m = timeline[i];
 
     if (m.type === 'start') {
       markers.push(m);
@@ -3219,16 +3635,16 @@ function getConflictingFrames(timeline) {
       markers.splice(idx, 1);
     }
 
-    for (let l = markers.length, i = 0; i < l; i++) {
-      const m = markers[i];
+    for (var _l = markers.length, _i = 0; _i < _l; _i++) {
+      var _m = markers[_i];
 
-      for (let j = i + 1; j < l; j++) {
-        const paths = getIntersectingPaths(m.transition.endState, markers[j].transition.endState);
+      for (var j = _i + 1; j < _l; j++) {
+        var paths = getIntersectingPaths(_m.transition.endState, markers[j].transition.endState);
 
         if (paths.length) {
           return {
-            paths,
-            frames: [m.frame, markers[j].frame]
+            paths: paths,
+            frames: [_m.frame, markers[j].frame]
           };
         }
       }
@@ -3239,8 +3655,8 @@ function getConflictingFrames(timeline) {
 }
 
 function getPrevEndTime(timeline, idx, currTime) {
-  for (let i = idx - 1; i >= 0; i--) {
-    const ep = timeline[i]; // loop until previous end marker is found.
+  for (var i = idx - 1; i >= 0; i--) {
+    var ep = timeline[i]; // loop until previous end marker is found.
     // if they have the same end time, ignore
 
     if (ep.type === 'end' && currTime !== ep.time) {
@@ -3253,7 +3669,11 @@ function getPrevEndTime(timeline, idx, currTime) {
 // ---------------------------------------
 
 
-function createTimeline(schema, frames = []) {
+function createTimeline(schema, frames) {
+  if (frames === void 0) {
+    frames = [];
+  }
+
   // timeline is an array of
   // marker = {
   //   type: 'start' | 'end'
@@ -3265,23 +3685,31 @@ function createTimeline(schema, frames = []) {
     return [];
   }
 
-  const getTime = v => v.time;
+  var getTime = function getTime(v) {
+    return v.time;
+  };
 
-  const defaultState = createState(schema);
-  const timeline = []; // omit frames that are implicitly defined first
+  var defaultState = createState(schema);
+  var timeline = []; // omit frames that are implicitly defined first
 
-  const implicitFrames = frames.filter(f => f.meta.implicit).sort((a, b) => a.meta.endTime - b.meta.endTime);
-  frames = frames.filter(f => !f.meta.implicit);
-  frames.forEach(frame => {
-    let idx;
-    const start = {
+  var implicitFrames = frames.filter(function (f) {
+    return f.meta.implicit;
+  }).sort(function (a, b) {
+    return a.meta.endTime - b.meta.endTime;
+  });
+  frames = frames.filter(function (f) {
+    return !f.meta.implicit;
+  });
+  frames.forEach(function (frame) {
+    var idx;
+    var start = {
       type: 'start',
-      frame,
+      frame: frame,
       time: frame.meta.endTime - frame.meta.duration
     };
-    const end = {
+    var end = {
       type: 'end',
-      frame,
+      frame: frame,
       time: frame.meta.endTime
     };
     start.end = end;
@@ -3293,18 +3721,18 @@ function createTimeline(schema, frames = []) {
     timeline.splice(idx, 0, start);
   }); // insert frames with implicit timing
 
-  implicitFrames.forEach(frame => {
-    const end = {
+  implicitFrames.forEach(function (frame) {
+    var end = {
       type: 'end',
-      frame,
+      frame: frame,
       time: frame.meta.endTime
     };
-    let idx = sortedIndex(timeline, end, getTime);
-    const prevEndTime = getPrevEndTime(timeline, idx, end.time);
-    const startTime = lerp(end.time, prevEndTime, frame.meta.fractionalDuration);
-    const start = {
+    var idx = sortedIndex(timeline, end, getTime);
+    var prevEndTime = getPrevEndTime(timeline, idx, end.time);
+    var startTime = lerp(end.time, prevEndTime, frame.meta.fractionalDuration);
+    var start = {
       type: 'start',
-      frame,
+      frame: frame,
       time: startTime
     };
     start.end = end;
@@ -3316,35 +3744,33 @@ function createTimeline(schema, frames = []) {
     timeline.splice(idx, 0, start);
   }); // assign inherited states
 
-  let prevState = defaultState;
-  timeline.forEach((m, idx) => {
+  var prevState = defaultState;
+  timeline.forEach(function (m, idx) {
     // only go through ends
     if (m.type !== 'end') {
       return;
     }
 
-    const transition = createTransitionFromFrame(m.start.time, m.time, m.frame, prevState);
+    var transition = createTransitionFromFrame(m.start.time, m.time, m.frame, prevState);
     m.transition = transition;
     m.start.transition = transition;
-    prevState = { ...prevState,
-      ...transition.endState
-    };
+    prevState = _extends({}, prevState, transition.endState);
   });
   prevState = defaultState; // assign a reduced end state to each marker
 
-  timeline.forEach(m => {
+  timeline.forEach(function (m) {
     if (m.type !== 'end') {
       return;
     }
 
-    const transitions = getTransitionsAtTime(timeline, m.time);
+    var transitions = getTransitionsAtTime(timeline, m.time);
     prevState = reduceTransitions(schema, transitions, m.time, prevState);
     m.state = prevState;
   });
-  const conflicts = getConflictingFrames(timeline);
+  var conflicts = getConflictingFrames(timeline);
 
   if (conflicts) {
-    throw new Error('The following overlapping frames modify the same state paths:\n' + `paths: ${conflicts.paths}\n` + `frames: ${JSON.stringify(conflicts.frames, null, 2)}`);
+    throw new Error('The following overlapping frames modify the same state paths:\n' + ("paths: " + conflicts.paths + "\n") + ("frames: " + JSON.stringify(conflicts.frames, null, 2)));
   }
 
   return timeline;
@@ -3353,11 +3779,11 @@ function createTimeline(schema, frames = []) {
 // ---------------------------------------
 
 function getTransitionsAtTime(timeline, time) {
-  const markers = [];
-  let idx;
+  var markers = [];
+  var idx;
 
-  for (let l = timeline.length, i = 0; i < l; i++) {
-    const m = timeline[i];
+  for (var l = timeline.length, i = 0; i < l; i++) {
+    var m = timeline[i];
 
     if (m.time > time) {
       break;
@@ -3373,16 +3799,18 @@ function getTransitionsAtTime(timeline, time) {
     }
   }
 
-  return markers.map(a => a.transition);
+  return markers.map(function (a) {
+    return a.transition;
+  });
 } // Get the cached complete state at the
 // last end marker
 // ---------------------------------------
 
 function getStartState(timeline, time, defaultState) {
-  let state = defaultState;
+  var state = defaultState;
 
-  for (let l = timeline.length, i = 0; i < l; i++) {
-    const m = timeline[i];
+  for (var l = timeline.length, i = 0; i < l; i++) {
+    var m = timeline[i];
 
     if (m.time > time) {
       return state;
@@ -3397,59 +3825,92 @@ function getStartState(timeline, time, defaultState) {
 } // Get final state from transitions
 // ---------------------------------------
 
-function reduceTransitions(schema, transitions = [], time = 0, initialState = {}) {
-  return transitions.reduce((state, tr) => {
-    const progress = invLerpClamped(tr.startTime, tr.endTime, time);
+function reduceTransitions(schema, transitions, time, initialState) {
+  if (transitions === void 0) {
+    transitions = [];
+  }
+
+  if (time === void 0) {
+    time = 0;
+  }
+
+  if (initialState === void 0) {
+    initialState = {};
+  }
+
+  return transitions.reduce(function (state, tr) {
+    var progress = invLerpClamped(tr.startTime, tr.endTime, time);
     return Object.assign(state, getInterpolatedState(schema, tr.startState, tr.endState, progress, tr.easing));
   }, cloneDeep(initialState));
 }
 
-class TweenOperator extends Callable {
-  at(t) {
+var TweenOperator = /*#__PURE__*/function (_Callable) {
+  _inheritsLoose(TweenOperator, _Callable);
+
+  function TweenOperator() {
+    return _Callable.apply(this, arguments) || this;
+  }
+
+  var _proto = TweenOperator.prototype;
+
+  _proto.at = function at(t) {
     return t;
-  }
+  };
 
-  __call__(source) {
-    return map(t => this.at(t))(source);
-  }
+  _proto.__call__ = function __call__(source) {
+    var _this = this;
 
-}
+    return map(function (t) {
+      return _this.at(t);
+    })(source);
+  };
 
-const DEFAULT_OPTIONS$1 = {
+  return TweenOperator;
+}(Callable);
+
+var DEFAULT_OPTIONS$1 = {
   tweenDuration: '100%',
   easing: 'linear'
 };
-class Tween extends TweenOperator {
-  static create(schema, options) {
+var Tween = /*#__PURE__*/function (_TweenOperator) {
+  _inheritsLoose(Tween, _TweenOperator);
+
+  Tween.create = function create(schema, options) {
     return new Tween(schema, options);
+  };
+
+  function Tween(schema, options) {
+    var _this;
+
+    _this = _TweenOperator.call(this) || this;
+    _this.framesById = {};
+    _this.frames = [];
+    _this.timeline = [];
+    _this._schema = createSchema(schema);
+    _this._startingState = createState(_this._schema);
+    _this._timeLabel = false;
+    _this._loop = false;
+    _this.options = Object.assign({}, DEFAULT_OPTIONS$1, options);
+
+    _this._refreshTimeline();
+
+    return _this;
   }
 
-  constructor(schema, options) {
-    super();
-    this.framesById = {};
-    this.frames = [];
-    this.timeline = [];
-    this._schema = createSchema(schema);
-    this._startingState = createState(this._schema);
-    this._timeLabel = false;
-    this._loop = false;
-    this.options = Object.assign({}, DEFAULT_OPTIONS$1, options);
+  var _proto = Tween.prototype;
 
-    this._refreshTimeline();
-  }
+  _proto.withTime = function withTime(label) {
+    if (label === void 0) {
+      label = 'time';
+    }
 
-  get duration() {
-    return this.timeline[this.timeline.length - 1]?.time || 0;
-  }
-
-  withTime(label = 'time') {
     this._timeLabel = label || false;
     return this;
-  }
+  };
 
-  by(endTime, duration, state, easing) {
-    const meta = {
-      endTime
+  _proto.by = function by(endTime, duration, state, easing) {
+    var meta = {
+      endTime: endTime
     };
 
     if (typeof duration === 'object') {
@@ -3464,10 +3925,10 @@ class Tween extends TweenOperator {
     }
 
     return this.to(state, meta);
-  }
+  };
 
-  in(dt, duration, state, easing) {
-    const meta = {
+  _proto.in = function _in(dt, duration, state, easing) {
+    var meta = {
       endTime: this.duration + parseTime(dt)
     };
 
@@ -3484,10 +3945,10 @@ class Tween extends TweenOperator {
 
     return this.to(state, meta);
   } // add a frame
+  ;
 
-
-  to(state, opts) {
-    const meta = {};
+  _proto.to = function to(state, opts) {
+    var meta = {};
 
     if (typeof opts === 'string') {
       meta.easing = opts;
@@ -3499,13 +3960,13 @@ class Tween extends TweenOperator {
       meta.startTime = this.duration;
     }
 
-    const frame = createFrame(state, meta, {
+    var frame = createFrame(state, meta, {
       duration: this.options.tweenDuration,
       easing: this.options.easing
     });
 
     if (frame.meta.id && this.framesById[frame.meta.id]) {
-      throw new Error(`Frame with id "${frame.meta.id}" already defined`);
+      throw new Error("Frame with id \"" + frame.meta.id + "\" already defined");
     } // add to id list
 
 
@@ -3518,121 +3979,137 @@ class Tween extends TweenOperator {
     this._refreshTimeline();
 
     return this;
-  }
+  };
 
-  loop(toggle = true) {
+  _proto.loop = function loop(toggle) {
+    if (toggle === void 0) {
+      toggle = true;
+    }
+
     this._loop = toggle;
     return this;
-  }
+  };
 
-  _refreshTimeline() {
+  _proto._refreshTimeline = function _refreshTimeline() {
     this.timeline = createTimeline(this._schema, this.frames);
     return this;
-  }
+  };
 
-  getFrame(id) {
-    const frame = this.framesById[id];
+  _proto.getFrame = function getFrame(id) {
+    var frame = this.framesById[id];
     return frame;
-  }
+  };
 
-  at(time) {
+  _proto.at = function at(time) {
     if (this._loop) {
       time = time % this.duration;
     }
 
-    let state;
+    var state;
 
     if (time >= this.duration) {
-      const m = this.timeline[this.timeline.length - 1];
+      var m = this.timeline[this.timeline.length - 1];
       state = cloneDeep(m.state);
     } else {
-      const transitions = getTransitionsAtTime(this.timeline, time);
-      const startState = getStartState(this.timeline, time, this._startingState);
+      var transitions = getTransitionsAtTime(this.timeline, time);
+      var startState = getStartState(this.timeline, time, this._startingState);
       state = reduceTransitions(this._schema, transitions, time, startState);
     }
 
     if (this._timeLabel) {
       if (state[this._timeLabel] !== undefined) {
-        throw new Error(`State already has a property that would be overriden by time variable "${this._timeLabel}"`);
+        throw new Error("State already has a property that would be overriden by time variable \"" + this._timeLabel + "\"");
       }
 
       state[this._timeLabel] = time;
     }
 
     return state;
-  }
+  };
 
-  getTransitions(time) {
+  _proto.getTransitions = function getTransitions(time) {
     time = time || this.time;
     return getTransitionsAtTime(this.timeline, time);
-  }
+  };
 
-}
+  _createClass(Tween, [{
+    key: "duration",
+    get: function get() {
+      var _this$timeline;
 
-const DEFAULT_OPTIONS = {
+      return ((_this$timeline = this.timeline[this.timeline.length - 1]) == null ? void 0 : _this$timeline.time) || 0;
+    }
+  }]);
+
+  return Tween;
+}(TweenOperator);
+
+var DEFAULT_OPTIONS = {
   relaxDuration: 500,
   relaxDelay: 1000,
   easing: 'linear'
 };
-class Meddle extends TweenOperator {
-  static create(tween, options) {
+var Meddle = /*#__PURE__*/function (_TweenOperator) {
+  _inheritsLoose(Meddle, _TweenOperator);
+
+  Meddle.create = function create(tween, options) {
     return new Meddle(tween, options);
+  };
+
+  function Meddle(tween, options) {
+    var _this;
+
+    _this = _TweenOperator.call(this) || this;
+    _this._subject = new Subject();
+    _this._tween = tween;
+    _this.options = options;
+    _this.lastTime = 0; // reset
+
+    _this.defaults();
+
+    _this.clear();
+
+    return _this;
   }
 
-  constructor(tween, options) {
-    super();
-    this._subject = new Subject();
-    this._tween = tween;
-    this.options = options;
-    this.lastTime = 0; // reset
+  var _proto = Meddle.prototype;
 
-    this.defaults();
-    this.clear();
-  }
+  // toggle freezing of meddle states
+  _proto.freeze = function freeze(toggle) {
+    if (toggle === void 0) {
+      toggle = true;
+    }
 
-  get options() {
-    return this._options;
-  }
-
-  set options(o) {
-    this._options = Object.assign({}, DEFAULT_OPTIONS, o);
-    this.defaults();
-  } // toggle freezing of meddle states
-
-
-  freeze(toggle = true) {
     this.frozen = toggle;
     return this;
-  }
+  };
 
-  relaxDelay(time) {
+  _proto.relaxDelay = function relaxDelay(time) {
     this._relaxDelay = parseTime(time === undefined ? this.options.relaxDelay : time);
     return this;
-  }
+  };
 
-  relaxDuration(time) {
+  _proto.relaxDuration = function relaxDuration(time) {
     this._relaxDuration = parseTime(time === undefined ? this.options.relaxDuration : time);
     return this;
-  }
+  };
 
-  easing(e) {
+  _proto.easing = function easing(e) {
     this._easing = parseEasing(e === undefined ? this.options.easing : e);
     return this;
   } // Use the default timing/easing set at construction
+  ;
 
-
-  defaults() {
+  _proto.defaults = function defaults() {
     this.relaxDelay();
     this.relaxDuration();
     this.easing();
     return this;
   } // toggle user meddling
+  ;
 
-
-  set(meddleState) {
-    this.state = { ...this.state,
-      ...meddleState
-    };
+  _proto.set = function set(meddleState) {
+    this.state = _extends({}, this.state, meddleState);
     this.started = false;
     this.startTime = false;
     this.relaxState = null;
@@ -3642,9 +4119,9 @@ class Meddle extends TweenOperator {
 
     return this;
   } // force meddling to reset
+  ;
 
-
-  clear() {
+  _proto.clear = function clear() {
     this.state = {};
     this.started = false;
     this.active = false;
@@ -3652,9 +4129,9 @@ class Meddle extends TweenOperator {
     this.startTime = false;
     this.lastTime = 0;
     return this;
-  }
+  };
 
-  at(time) {
+  _proto.at = function at(time) {
     this.lastTime = time; // check meddling
 
     if (!this.active || this.frozen) {
@@ -3682,16 +4159,32 @@ class Meddle extends TweenOperator {
       this.clear();
     }
 
-    const timeFraction = invLerpClamped(this.startTime + this._relaxDelay, this.endTime, time);
-    const meddleTransitionState = getInterpolatedState(this._tween._schema, this.state, this.relaxState, timeFraction, this._easing);
+    var timeFraction = invLerpClamped(this.startTime + this._relaxDelay, this.endTime, time);
+    var meddleTransitionState = getInterpolatedState(this._tween._schema, this.state, this.relaxState, timeFraction, this._easing);
     return meddleTransitionState;
-  }
+  };
 
-  __call__(source) {
-    return map(t => this.at(t))(merge(this._subject, source));
-  }
+  _proto.__call__ = function __call__(source) {
+    var _this2 = this;
 
-}
+    return map(function (t) {
+      return _this2.at(t);
+    })(merge(this._subject, source));
+  };
+
+  _createClass(Meddle, [{
+    key: "options",
+    get: function get() {
+      return this._options;
+    },
+    set: function set(o) {
+      this._options = Object.assign({}, DEFAULT_OPTIONS, o);
+      this.defaults();
+    }
+  }]);
+
+  return Meddle;
+}(TweenOperator);
 
 var win;
 
@@ -3707,28 +4200,28 @@ if (typeof window !== "undefined") {
 
 var window_1 = win;
 
-const requestAnimationFrame = (window => {
-  return window.requestAnimationFrame || (fn => {
-    const t = setTimeout(fn, 16);
+var requestAnimationFrame = function (window) {
+  return window.requestAnimationFrame || function (fn) {
+    var t = setTimeout(fn, 16);
     t.unref && t.unref();
     return t;
-  });
-})(window_1);
+  };
+}(window_1);
 
-const tickStack = [];
+var tickStack = [];
 
 function step() {
-  const l = tickStack.length;
+  var l = tickStack.length;
 
   if (l === 0) {
     return;
   }
 
   requestAnimationFrame(step);
-  const t = now();
+  var t = now();
 
-  for (let i = 0; i < l; i++) {
-    const fn = tickStack[i];
+  for (var i = 0; i < l; i++) {
+    var fn = tickStack[i];
     fn && fn(t);
   }
 }
@@ -3742,196 +4235,198 @@ function add(fn) {
 }
 
 function remove(fn) {
-  const i = tickStack.indexOf(fn);
+  var i = tickStack.indexOf(fn);
   tickStack.splice(i, 1);
 }
 
 function animationFrames() {
-  return new Observable(observer => {
-    const to = now();
+  return new Observable(function (observer) {
+    var to = now();
 
-    const cb = t => observer.next(t - to);
+    var cb = function cb(t) {
+      return observer.next(t - to);
+    };
 
     add(cb);
-    return () => {
+    return function () {
       remove(cb);
     };
   });
 }
 
-// import { linear } from '@/easing'
-const defaultConfig = {
+var defaultConfig = {
   duration: 1000,
   easing: 'cubicOut'
 }; // Helper to smooth state changes
 // ---------------------------------------
 
-function smoothen(config, getState, schemaDef = null) {
+function smoothen(config, getState, schemaDef) {
+  if (schemaDef === void 0) {
+    schemaDef = null;
+  }
+
   if (config instanceof Function) {
     getState = config;
     config = defaultConfig;
   }
 
   config = Object.assign({}, defaultConfig, config);
-  return source => new Observable(sink => {
-    const _targets = [];
-    let schema;
-    let time = 0;
-    let currentState;
-    const easing = parseEasing(config.easing);
+  return function (source) {
+    return new Observable(function (sink) {
+      var _targets = [];
+      var schema;
+      var time = 0;
+      var currentState;
+      var easing = parseEasing(config.easing);
 
-    if (!getState) {
-      getState = () => currentState;
-    }
-
-    const update = t => {
-      time = t;
-
-      if (!_targets.length) {
-        return null;
+      if (!getState) {
+        getState = function getState() {
+          return currentState;
+        };
       }
 
-      let prev = 1;
+      var update = function update(t) {
+        time = t;
 
-      const timeFracs = _targets.map(({
-        startTime,
-        endTime
-      }) => {
-        if (prev === 0) {
-          return 0;
+        if (!_targets.length) {
+          return null;
         }
 
-        const tf = invLerpClamped(startTime, endTime, time) / prev;
-        prev = easing(tf);
-        return tf;
-      });
+        var prev = 1;
 
-      currentState = timeFracs.reduceRight((targetState, tf, i) => {
-        const {
-          startState
-        } = _targets[i];
-        return getInterpolatedState(schema, startState, targetState, tf, easing);
-      }, _targets[_targets.length - 1].targetState); // clean
+        var timeFracs = _targets.map(function (_ref) {
+          var startTime = _ref.startTime,
+              endTime = _ref.endTime;
 
-      while (_targets[0]?.endTime <= time) {
-        _targets.shift();
-      }
+          if (prev === 0) {
+            return 0;
+          }
 
-      return currentState;
-    };
+          var tf = invLerpClamped(startTime, endTime, time) / prev;
+          prev = easing(tf);
+          return tf;
+        });
 
-    const set = targetState => {
-      if (!schema) {
-        schema = createSchema(schemaDef || getState() || targetState);
-        currentState = createState(schema);
+        currentState = timeFracs.reduceRight(function (targetState, tf, i) {
+          var startState = _targets[i].startState;
+          return getInterpolatedState(schema, startState, targetState, tf, easing);
+        }, _targets[_targets.length - 1].targetState); // clean
 
-        if (!schemaDef) {
-          return;
+        while (((_targets$ = _targets[0]) == null ? void 0 : _targets$.endTime) <= time) {
+          var _targets$;
+
+          _targets.shift();
         }
-      }
 
-      const l = _targets.length;
-      const startState = l ? _targets[l - 1].targetState : { ...getState()
+        return currentState;
       };
 
-      _targets.push({
-        startTime: time,
-        endTime: time + parseTime(config.duration),
-        startState,
-        targetState
+      var set = function set(targetState) {
+        if (!schema) {
+          schema = createSchema(schemaDef || getState() || targetState);
+          currentState = createState(schema);
+
+          if (!schemaDef) {
+            return;
+          }
+        }
+
+        var l = _targets.length;
+        var startState = l ? _targets[l - 1].targetState : _extends({}, getState());
+
+        _targets.push({
+          startTime: time,
+          endTime: time + parseTime(config.duration),
+          startState: startState,
+          targetState: targetState
+        });
+      };
+
+      var nextTarget = null;
+      var sub = animationFrames().subscribe(function (t) {
+        if (nextTarget) {
+          set(nextTarget);
+          nextTarget = null;
+        }
+
+        var state = update(t);
+
+        if (!state) {
+          return;
+        }
+
+        sink.next(state);
       });
-    };
+      var sinkSub = source.subscribe({
+        next: function next(state) {
+          nextTarget = state;
+        },
+        error: function error(e) {
+          return sink.error(e);
+        },
+        complete: function complete() {
+          return sink.complete();
+        }
+      });
 
-    let nextTarget = null;
-    const sub = animationFrames().subscribe(t => {
-      if (nextTarget) {
-        set(nextTarget);
-        nextTarget = null;
-      }
+      var unsubscribe = function unsubscribe() {
+        sub.unsubscribe();
+        sinkSub.unsubscribe();
+      };
 
-      const state = update(t);
-
-      if (!state) {
-        return;
-      }
-
-      sink.next(state);
+      return {
+        unsubscribe: unsubscribe
+      };
     });
-    const sinkSub = source.subscribe({
-      next: state => {
-        nextTarget = state;
-      },
-      error: e => sink.error(e),
-      complete: () => sink.complete()
-    });
-
-    const unsubscribe = () => {
-      sub.unsubscribe();
-      sinkSub.unsubscribe();
-    };
-
-    return {
-      unsubscribe
-    };
-  });
+  };
 }
 
-// Helper for managing play state
-class Player extends Emitter {
-  static create(totalTime) {
+var Player = /*#__PURE__*/function (_Emitter) {
+  _inheritsLoose(Player, _Emitter);
+
+  Player.create = function create(totalTime) {
     return new Player(totalTime);
-  }
+  };
 
-  constructor(totalTime) {
-    super(sink => {
-      const cb = time => sink.next(time);
+  function Player(totalTime) {
+    var _this;
 
-      this.on('update', cb);
-      this.emit('update', this._time);
-      return () => this.off('update', cb);
+    _this = _Emitter.call(this, function (sink) {
+      var cb = function cb(time) {
+        return sink.next(time);
+      };
+
+      _this.on('update', cb);
+
+      _this.emit('update', _this._time);
+
+      return function () {
+        return _this.off('update', cb);
+      };
+    }) || this;
+    _this.totalTime = parseTime(totalTime);
+    _this._clockTime = 0;
+    _this._time = 0;
+    _this.playbackRate = 1;
+    _this._paused = true;
+    _this._loop = false;
+    _this._sub = animationFrames().subscribe(function (t) {
+      return _this.step(t);
     });
-    this.totalTime = parseTime(totalTime);
-    this._clockTime = 0;
-    this._time = 0;
-    this.playbackRate = 1;
-    this._paused = true;
-    this._loop = false;
-    this._sub = animationFrames().subscribe(t => this.step(t));
+    return _this;
   }
 
-  get progress() {
-    return this.totalTime > 0 ? this._time / this.totalTime * 100 : 0;
-  }
+  var _proto = Player.prototype;
 
-  set progress(p) {
-    this.seek(Math.max(0, p) * this.totalTime / 100);
-  }
-
-  get time() {
-    return this._time;
-  }
-
-  set time(t) {
-    this.seek(t);
-  }
-
-  get paused() {
-    return this._paused;
-  }
-
-  set paused(p) {
-    this.togglePause(p);
-  }
-
-  destroy() {
+  _proto.destroy = function destroy() {
     this.off(true);
 
     this._sub.unsubscribe();
 
     this.emit('destroy');
-  }
+  };
 
-  togglePause(paused) {
+  _proto.togglePause = function togglePause(paused) {
     if (paused === undefined) {
       paused = !this._paused;
     }
@@ -3946,23 +4441,27 @@ class Player extends Emitter {
 
     this.emit('togglePause', this._paused);
     return this;
-  }
+  };
 
-  pause() {
+  _proto.pause = function pause() {
     return this.togglePause(true);
-  }
+  };
 
-  play() {
+  _proto.play = function play() {
     return this.togglePause(false);
-  }
+  };
 
-  loop(toggle = true) {
+  _proto.loop = function loop(toggle) {
+    if (toggle === void 0) {
+      toggle = true;
+    }
+
     this._loop = toggle;
     return this;
   } // Stops after it reaches time t
+  ;
 
-
-  playTo(time) {
+  _proto.playTo = function playTo(time) {
     time = parseTime(time);
 
     if (this._time === time) {
@@ -3973,21 +4472,21 @@ class Player extends Emitter {
     this._oldPlaybackRate = this.playbackRate;
     this.playbackRate = time >= this._time ? 1 : -1;
     return this.play();
-  }
+  };
 
-  seek(time) {
+  _proto.seek = function seek(time) {
     this._time = time;
     this.emit('update', time);
     this.emit('seek', time);
     return this;
-  }
+  };
 
-  step(now) {
-    const clockTime = this._clockTime;
-    const playbackRate = this.playbackRate;
-    const dt = now - clockTime;
-    let time = this._time;
-    const totalTime = this.totalTime;
+  _proto.step = function step(now) {
+    var clockTime = this._clockTime;
+    var playbackRate = this.playbackRate;
+    var dt = now - clockTime;
+    var time = this._time;
+    var totalTime = this.totalTime;
     this._clockTime = now; // if it's paused, don't step
 
     if (this._paused) {
@@ -4032,125 +4531,170 @@ class Player extends Emitter {
     }
 
     return this;
+  };
+
+  _createClass(Player, [{
+    key: "progress",
+    get: function get() {
+      return this.totalTime > 0 ? this._time / this.totalTime * 100 : 0;
+    },
+    set: function set(p) {
+      this.seek(Math.max(0, p) * this.totalTime / 100);
+    }
+  }, {
+    key: "time",
+    get: function get() {
+      return this._time;
+    },
+    set: function set(t) {
+      this.seek(t);
+    }
+  }, {
+    key: "paused",
+    get: function get() {
+      return this._paused;
+    },
+    set: function set(p) {
+      this.togglePause(p);
+    }
+  }]);
+
+  return Player;
+}(Emitter);
+
+var regulatedBy = function regulatedBy(regulator, onlyNew) {
+  if (onlyNew === void 0) {
+    onlyNew = false;
   }
 
-}
+  return function (source) {
+    return new Observable(function (sink) {
+      var isFresh = false;
+      var value = null;
+      var isComplete = false;
+      var regSub = regulator.subscribe({
+        next: function next() {
+          if (onlyNew && !isFresh) {
+            return;
+          }
 
-const regulatedBy = (regulator, onlyNew = false) => source => new Observable(sink => {
-  let isFresh = false;
-  let value = null;
-  let isComplete = false;
-  const regSub = regulator.subscribe({
-    next: () => {
-      if (onlyNew && !isFresh) {
-        return;
-      }
+          sink.next(value);
+          isFresh = false;
 
-      sink.next(value);
-      isFresh = false;
-
-      if (isComplete) {
-        sink.complete();
+          if (isComplete) {
+            sink.complete();
+            regSub.unsubscribe();
+          }
+        },
+        complete: function complete() {
+          sink.complete();
+        },
+        error: function error(e) {
+          sink.error(e);
+        }
+      });
+      var sub = source.subscribe({
+        next: function next(v) {
+          value = v;
+          isFresh = true;
+        },
+        complete: function complete() {
+          isComplete = true;
+        },
+        error: function error(e) {
+          sink.error(e);
+          isFresh = false;
+          value = null;
+          regSub.unsubscribe();
+        }
+      });
+      return function () {
+        sub.unsubscribe();
         regSub.unsubscribe();
-      }
-    },
-    complete: () => {
-      sink.complete();
-    },
-    error: e => {
-      sink.error(e);
-    }
-  });
-  const sub = source.subscribe({
-    next: v => {
-      value = v;
-      isFresh = true;
-    },
-    complete: () => {
-      isComplete = true;
-    },
-    error: e => {
-      sink.error(e);
-      isFresh = false;
-      value = null;
-      regSub.unsubscribe();
-    }
-  });
-  return () => {
-    sub.unsubscribe();
-    regSub.unsubscribe();
+      };
+    });
   };
-});
-
-const animationThrottle = () => source => {
-  return regulatedBy(animationFrames(), true)(source);
 };
 
-const defaultThreshold = 5000 / 60; // 5 frames
-
-const animationSync = (config = {}) => timeSource => new Observable(sink => {
-  let syncTime = 0;
-  let isFresh = false;
-  let isComplete = false;
-  let lastFrameTime = 0;
-  let lastTime = 0;
-  let paused = true;
-  const timeSub = animationFrames().subscribe(frameTime => {
-    const playbackRate = Number.isFinite(config.playbackRate) ? config.playbackRate : 1;
-    const isPlaying = !paused && playbackRate !== 0;
-    const threshold = config.threshold || defaultThreshold;
-    let time = frameTime;
-
-    if (!isPlaying) {
-      time = isFresh ? syncTime : lastTime;
-    } else {
-      // extrapolate
-      const dt = (frameTime - lastFrameTime) * playbackRate;
-      time = lastTime + dt;
-
-      if (Math.abs(time - syncTime) > threshold) {
-        if (isFresh) {
-          // resync
-          time = syncTime;
-        } else {
-          paused = true;
-        }
-      }
-
-      isFresh = false;
-    }
-
-    lastFrameTime = frameTime;
-
-    if (time !== lastTime) {
-      lastTime = time;
-      sink.next(time);
-    }
-
-    if (isComplete) {
-      sink.complete();
-      timeSub.unsubscribe();
-    }
-  });
-  const sub = timeSource.subscribe({
-    next: time => {
-      paused = time === syncTime;
-      syncTime = time;
-      isFresh = true;
-    },
-    complete: () => {
-      isComplete = true;
-    },
-    error: e => {
-      sink.error(e);
-      timeSub.unsubscribe();
-    }
-  });
-  return () => {
-    sub.unsubscribe();
-    timeSub.unsubscribe();
+var animationThrottle = function animationThrottle() {
+  return function (source) {
+    return regulatedBy(animationFrames(), true)(source);
   };
-});
+};
+
+var defaultThreshold = 5000 / 60; // 5 frames
+
+var animationSync = function animationSync(config) {
+  if (config === void 0) {
+    config = {};
+  }
+
+  return function (timeSource) {
+    return new Observable(function (sink) {
+      var syncTime = 0;
+      var isFresh = false;
+      var isComplete = false;
+      var lastFrameTime = 0;
+      var lastTime = 0;
+      var paused = true;
+      var timeSub = animationFrames().subscribe(function (frameTime) {
+        var playbackRate = Number.isFinite(config.playbackRate) ? config.playbackRate : 1;
+        var isPlaying = !paused && playbackRate !== 0;
+        var threshold = config.threshold || defaultThreshold;
+        var time = frameTime;
+
+        if (!isPlaying) {
+          time = isFresh ? syncTime : lastTime;
+        } else {
+          // extrapolate
+          var dt = (frameTime - lastFrameTime) * playbackRate;
+          time = lastTime + dt;
+
+          if (Math.abs(time - syncTime) > threshold) {
+            if (isFresh) {
+              // resync
+              time = syncTime;
+            } else {
+              paused = true;
+            }
+          }
+
+          isFresh = false;
+        }
+
+        lastFrameTime = frameTime;
+
+        if (time !== lastTime) {
+          lastTime = time;
+          sink.next(time);
+        }
+
+        if (isComplete) {
+          sink.complete();
+          timeSub.unsubscribe();
+        }
+      });
+      var sub = timeSource.subscribe({
+        next: function next(time) {
+          paused = time === syncTime;
+          syncTime = time;
+          isFresh = true;
+        },
+        complete: function complete() {
+          isComplete = true;
+        },
+        error: function error(e) {
+          sink.error(e);
+          timeSub.unsubscribe();
+        }
+      });
+      return function () {
+        sub.unsubscribe();
+        timeSub.unsubscribe();
+      };
+    });
+  };
+};
 
 var index = /*#__PURE__*/Object.freeze({
   __proto__: null,

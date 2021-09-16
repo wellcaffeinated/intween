@@ -4,7 +4,10 @@
       "@babel/preset-env",
       {
         "modules": "auto",
-        "targets": ">1%",
+        "targets": [
+          "last 1 version",
+          "> 1%"
+        ],
         "loose": true,
         "bugfixes": true
       }

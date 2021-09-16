@@ -40,10 +40,6 @@
   "bugs": {
     "url": "https://github.com/wellcaffeinated/intween/issues"
   },
-  "browserslist": [
-    "last 1 version",
-    "> 1%"
-  ],
   "homepage": "https://intween.wellcaffeinated.net",
   "devDependencies": {
     "@babel/cli": "^7.1.5",
