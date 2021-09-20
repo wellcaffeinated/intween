@@ -16,6 +16,7 @@ const DEFAULT_OPTIONS = {
 }
 
 export class Tween extends TweenOperator {
+
   static create(schema, options) {
     return new Tween(schema, options)
   }
@@ -30,7 +31,7 @@ export class Tween extends TweenOperator {
     this._schema = createSchema(schema)
     this._startingState = createState(this._schema)
 
-    this._timeLabel = false
+    this._timeLabel = null
     this._loop = false
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this._refreshTimeline()
@@ -41,7 +42,7 @@ export class Tween extends TweenOperator {
   }
 
   withTime(label = 'time'){
-    this._timeLabel = label || false
+    this._timeLabel = label || null
     return this
   }
 
@@ -162,8 +163,7 @@ export class Tween extends TweenOperator {
     return state
   }
 
-  getTransitions(time) {
-    time = time || this.time
-    return getTransitionsAtTime(this.timeline, time)
-  }
+  // getTransitions(time) {
+  //   return getTransitionsAtTime(this.timeline, time)
+  // }
 }

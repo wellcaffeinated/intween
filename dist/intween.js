@@ -1,5 +1,5 @@
 /**
- * InTween 1.0.0-beta.6
+ * InTween 1.0.0-beta.7
  * @license MIT
  * Copyright 2021-present Jasper Palfree
  */
@@ -3906,7 +3906,7 @@
       _this.timeline = [];
       _this._schema = createSchema(schema);
       _this._startingState = createState(_this._schema);
-      _this._timeLabel = false;
+      _this._timeLabel = null;
       _this._loop = false;
       _this.options = Object.assign({}, DEFAULT_OPTIONS$1, options);
 
@@ -3922,7 +3922,7 @@
         label = 'time';
       }
 
-      this._timeLabel = label || false;
+      this._timeLabel = label || null;
       return this;
     };
 
@@ -4043,12 +4043,10 @@
       }
 
       return state;
-    };
-
-    _proto.getTransitions = function getTransitions(time) {
-      time = time || this.time;
-      return getTransitionsAtTime(this.timeline, time);
-    };
+    } // getTransitions(time) {
+    //   return getTransitionsAtTime(this.timeline, time)
+    // }
+    ;
 
     _createClass(Tween, [{
       key: "duration",
