@@ -11,7 +11,10 @@ import {
   makeBackIn,
   makeBackOut,
   makeBackInOut,
-  makeSteps
+  makeSteps,
+  makeFlashIn,
+  makeFlashOut,
+  makeFlashInOut
 } from './factories.js'
 
 const halfPi = Math.PI / 2
@@ -101,3 +104,7 @@ export const backOut = makeBackOut()
 export const backInOut = makeBackInOut()
 
 export const step = makeSteps()
+
+export const flashIn = makeFlashIn(3, quadInOut)
+export const flashOut = makeFlashOut(3, quadInOut)
+export const flashInOut = makeFlashInOut(3, quadInOut)

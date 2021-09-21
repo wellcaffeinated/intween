@@ -96,3 +96,13 @@ export const makeBackInOut = (overshoot = 1.70158) => t => {
 }
 
 export const makeSteps = (steps = 1) => t => (((steps * t) | 0) + 1) * (1 / steps)
+
+export const makeFlashIn = (count, easing) => t => easing((t * count) % 1)
+export const makeFlashOut = (count, easing) => t => easing(1 - (t * count) % 1)
+export const makeFlashInOut = (count, easing) => t => {
+  t = (t * count) % 1
+  if (t > 0.5) {
+    t = 1 - t
+  }
+  return easing(t)
+}

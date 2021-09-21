@@ -2929,6 +2929,27 @@ var makeSteps = function makeSteps(steps) {
     return ((steps * t | 0) + 1) * (1 / steps);
   };
 };
+var makeFlashIn = function makeFlashIn(count, easing) {
+  return function (t) {
+    return easing(t * count % 1);
+  };
+};
+var makeFlashOut = function makeFlashOut(count, easing) {
+  return function (t) {
+    return easing(1 - t * count % 1);
+  };
+};
+var makeFlashInOut = function makeFlashInOut(count, easing) {
+  return function (t) {
+    t = t * count % 1;
+
+    if (t > 0.5) {
+      t = 1 - t;
+    }
+
+    return easing(t);
+  };
+};
 
 /**
  * Easing adapted from phaser
@@ -3045,6 +3066,9 @@ var backIn = makeBackIn();
 var backOut = makeBackOut();
 var backInOut = makeBackInOut();
 var step$1 = makeSteps();
+var flashIn = makeFlashIn(3, quadInOut);
+var flashOut = makeFlashOut(3, quadInOut);
+var flashInOut = makeFlashInOut(3, quadInOut);
 
 var Easing = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -3079,7 +3103,10 @@ var Easing = /*#__PURE__*/Object.freeze({
   backIn: backIn,
   backOut: backOut,
   backInOut: backInOut,
-  step: step$1
+  step: step$1,
+  flashIn: flashIn,
+  flashOut: flashOut,
+  flashInOut: flashInOut
 });
 
 var index$2 = /*#__PURE__*/Object.freeze({
@@ -3091,6 +3118,9 @@ var index$2 = /*#__PURE__*/Object.freeze({
   makeBackOut: makeBackOut,
   makeBackInOut: makeBackInOut,
   makeSteps: makeSteps,
+  makeFlashIn: makeFlashIn,
+  makeFlashOut: makeFlashOut,
+  makeFlashInOut: makeFlashInOut,
   linear: linear$1,
   quadIn: quadIn,
   quadOut: quadOut,
@@ -3122,7 +3152,10 @@ var index$2 = /*#__PURE__*/Object.freeze({
   backIn: backIn,
   backOut: backOut,
   backInOut: backInOut,
-  step: step$1
+  step: step$1,
+  flashIn: flashIn,
+  flashOut: flashOut,
+  flashInOut: flashInOut
 });
 
 var makeToggle = function makeToggle(threshold) {
@@ -4702,3 +4735,4 @@ var index = /*#__PURE__*/Object.freeze({
 });
 
 export { index$2 as Easing, index$1 as Interpolators, Meddle, Observable, index as Parsers, Player, Subject, Tween, index$3 as Util, animationFrames, animationSync, animationThrottle, combineLatest, map, merge, pipe, pipeFromArray, registerType, regulatedBy, smoothen, spreadAssign, spreadCombineLatest, zip };
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5tb2R1bGUuanMiLCJzb3VyY2VzIjpbXSwic291cmNlc0NvbnRlbnQiOltdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiIn0=

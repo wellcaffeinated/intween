@@ -417,10 +417,6 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  function getCjsExportFromNamespace (n) {
-  	return n && n['default'] || n;
-  }
-
   var check$1 = function check(it) {
     return it && it.Math == Math && it;
   }; // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -1665,12 +1661,6 @@
 
   defineWellKnownSymbol('observable');
 
-  // empty
-
-  var es_object_toString = /*#__PURE__*/Object.freeze({
-    __proto__: null
-  });
-
   var toString_1 = function toString_1(argument) {
     if (isSymbol(argument)) throw TypeError('Cannot convert a Symbol value to a string');
     return String(argument);
@@ -2240,8 +2230,6 @@
 
     iterators[COLLECTION_NAME] = iterators.Array;
   }
-
-  getCjsExportFromNamespace(es_object_toString);
 
   var observable = path.Observable;
 
@@ -2947,6 +2935,27 @@
       return ((steps * t | 0) + 1) * (1 / steps);
     };
   };
+  var makeFlashIn = function makeFlashIn(count, easing) {
+    return function (t) {
+      return easing(t * count % 1);
+    };
+  };
+  var makeFlashOut = function makeFlashOut(count, easing) {
+    return function (t) {
+      return easing(1 - t * count % 1);
+    };
+  };
+  var makeFlashInOut = function makeFlashInOut(count, easing) {
+    return function (t) {
+      t = t * count % 1;
+
+      if (t > 0.5) {
+        t = 1 - t;
+      }
+
+      return easing(t);
+    };
+  };
 
   /**
    * Easing adapted from phaser
@@ -3063,6 +3072,9 @@
   var backOut = makeBackOut();
   var backInOut = makeBackInOut();
   var step$1 = makeSteps();
+  var flashIn = makeFlashIn(3, quadInOut);
+  var flashOut = makeFlashOut(3, quadInOut);
+  var flashInOut = makeFlashInOut(3, quadInOut);
 
   var Easing = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -3097,7 +3109,10 @@
     backIn: backIn,
     backOut: backOut,
     backInOut: backInOut,
-    step: step$1
+    step: step$1,
+    flashIn: flashIn,
+    flashOut: flashOut,
+    flashInOut: flashInOut
   });
 
   var index$2 = /*#__PURE__*/Object.freeze({
@@ -3109,6 +3124,9 @@
     makeBackOut: makeBackOut,
     makeBackInOut: makeBackInOut,
     makeSteps: makeSteps,
+    makeFlashIn: makeFlashIn,
+    makeFlashOut: makeFlashOut,
+    makeFlashInOut: makeFlashInOut,
     linear: linear$1,
     quadIn: quadIn,
     quadOut: quadOut,
@@ -3140,7 +3158,10 @@
     backIn: backIn,
     backOut: backOut,
     backInOut: backInOut,
-    step: step$1
+    step: step$1,
+    flashIn: flashIn,
+    flashOut: flashOut,
+    flashInOut: flashInOut
   });
 
   var makeToggle = function makeToggle(threshold) {
@@ -4746,3 +4767,4 @@
   Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW50d2Vlbi5qcyIsInNvdXJjZXMiOltdLCJzb3VyY2VzQ29udGVudCI6W10sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiIifQ==
