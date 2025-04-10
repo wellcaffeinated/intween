@@ -27,7 +27,6 @@
     "build:browser": "esbuild src/index.js --bundle --format=iife --target=es6 --global-name=InTween --minify --outfile=dist/intween.browser.js",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
-    "docs:deploy": "sh deploy.sh",
     "dev": "esbuild src/index.js --bundle --format=esm --target=es6 --outfile=dist/intween.mjs --watch",
     "test": "bun test",
     "test:watch": "bun test --watch",
