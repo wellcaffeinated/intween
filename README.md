@@ -1,7 +1,7 @@
 # InTween
 
 [![NPM Package][npm]][npm-url]
-[![MIT License][mit]][mit-url]
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Your companion for building rich interactive media with **Interactive Tweens**.
 
@@ -68,7 +68,5 @@ player.pipe(
 player.play() // go!
 ```
 
-[mit]: https://img.shields.io/apm/l/atomic-design-ui.svg?
-[mit-url]: https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs
 [npm]: https://img.shields.io/npm/v/intween
 [npm-url]: https://www.npmjs.com/package/intween
