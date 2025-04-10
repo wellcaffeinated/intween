@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[82],{363:function(n,e,p){"use strict";p.r(e),e.default='<pre><code id="results"></code></pre>\n\nAngle: <span id="angle">&#8594;</span>\n\n<div id="player-wrap"></div>\n'}}]);
