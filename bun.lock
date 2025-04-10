@@ -4,7 +4,7 @@
     "": {
       "name": "intween",
       "devDependencies": {
-        "core-js-pure": "^3.16.0",
+        "core-js-pure": "3.41.0",
         "esbuild": "0.25.2",
         "eslint": "^7.31.0",
         "eslint-config-standard": "^16.0.3",
